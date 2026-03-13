@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Trade Details - Trade Journal</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+</head>
+<body>
+    <div class="nav-bar">
+        <a href="index.html">Daily Journal</a>
+        <a href="calendar.html">Calendar</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="export.html">Backup</a>
+    </div>
+
+    <div class="container">
+        <!-- Back button -->
+        <div class="back-navigation">
+            <button onclick="goBack()" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Journal
+            </button>
+        </div>
+
+        <!-- Trade Detail Card -->
+        <div class="trade-detail-card" id="tradeDetailCard">
+            <div class="loading-spinner" id="loadingSpinner">
+                <i class="fas fa-spinner fa-spin"></i> Loading trade details...
+            </div>
+            
+            <!-- Trade details will be populated here by JavaScript -->
+        </div>
+
+        <!-- Screenshots Gallery -->
+        <div class="screenshots-gallery" id="screenshotsGallery" style="display: none;">
+            <h2><i class="fas fa-images"></i> Screenshots</h2>
+            <div class="gallery-grid" id="galleryGrid"></div>
+        </div>
+
+        <!-- Edit Trade Button -->
+        <div class="action-buttons" id="actionButtons" style="display: none;">
+            <button onclick="editTrade()" class="edit-btn">
+                <i class="fas fa-edit"></i> Edit Trade
+            </button>
+            <button onclick="deleteTradeFromDetail()" class="delete-btn-large">
+                <i class="fas fa-trash"></i> Delete Trade
+            </button>
+        </div>
+    </div>
+
+    <!-- Fullscreen Image Modal -->
+    <div id="imageModal" class="modal" onclick="closeImageModal()">
+        <span class="close-modal">&times;</span>
+        <img class="modal-content" id="fullscreenImage">
+        <div class="modal-caption" id="imageCaption"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

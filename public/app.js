@@ -1983,3 +1983,501 @@ document.addEventListener('DOMContentLoaded', () => {
         loadDashboardData();
     }
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ============== TRADE DETAIL PAGE FUNCTIONS ==============
+
+// Initialize trade detail page when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're on the trade detail page
+    if (window.location.pathname.includes('trade-detail.html')) {
+        console.log("Loading trade detail page...");
+        loadTradeDetail();
+    }
+});
+
+// Navigate to trade detail page
+function viewTradeDetail(date, tradeIndex) {
+    window.location.href = `trade-detail.html?date=${date}&index=${tradeIndex}`;
+}
+
+// Load trade detail page
+async function loadTradeDetail() {
+    console.log("loadTradeDetail function called");
+    
+    // Get parameters from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const date = urlParams.get('date');
+    const tradeIndex = parseInt(urlParams.get('index'));
+    
+    console.log("Date:", date, "Index:", tradeIndex);
+    
+    if (!date || isNaN(tradeIndex)) {
+        showError('Invalid trade reference');
+        return;
+    }
+    
+    try {
+        // Load trade data
+        const dayData = await TradeJournal.loadDayTrades(date);
+        console.log("Day data loaded:", dayData);
+        
+        if (!dayData.trades || !dayData.trades[tradeIndex]) {
+            showError('Trade not found');
+            return;
+        }
+        
+        const trade = dayData.trades[tradeIndex];
+        console.log("Trade found:", trade);
+        
+        // Hide loading spinner
+        const spinner = document.getElementById('loadingSpinner');
+        if (spinner) spinner.style.display = 'none';
+        
+        // Display trade details
+        displayTradeDetails(date, tradeIndex, trade, dayData);
+        
+        // Display screenshots if any
+        if (trade.screenshots && trade.screenshots.length > 0) {
+            displayScreenshots(trade.screenshots);
+        }
+        
+        // Show action buttons
+        const actionButtons = document.getElementById('actionButtons');
+        if (actionButtons) actionButtons.style.display = 'flex';
+        
+        // Store trade info for edit/delete
+        window.currentTrade = {
+            date: date,
+            index: tradeIndex,
+            trade: trade,
+            dayData: dayData
+        };
+        
+    } catch (error) {
+        console.error("Error loading trade detail:", error);
+        showError('Error loading trade details');
+    }
+}
+
+// Display trade details
+function displayTradeDetails(date, tradeIndex, trade, dayData) {
+    const container = document.getElementById('tradeDetailCard');
+    if (!container) {
+        console.error("Trade detail container not found");
+        return;
+    }
+    
+    // Calculate trade metrics
+    const pnl = trade.pnl || 0;
+    const pnlClass = pnl >= 0 ? 'profit' : 'loss';
+    const direction = trade.direction || 'LONG';
+    const dirClass = direction.toLowerCase();
+    const dirIcon = direction === 'LONG' ? '📈' : '📉';
+    
+    // Calculate R multiple (simplified - assumes 1R = 1% risk)
+    const riskAmount = Math.abs(trade.entryPrice * 0.01); // 1% risk example
+    const rMultiple = riskAmount > 0 ? (pnl / riskAmount).toFixed(2) : '0.00';
+    
+    // Format date
+    const formattedDate = new Date(date + 'T12:00:00').toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    
+    // Calculate day's total after this trade
+    const dayTotal = dayData.totalPnL || 0;
+    
+    const html = `
+        <div class="trade-header">
+            <div class="trade-title">
+                <h1>${trade.symbol || 'N/A'} ${dirIcon} ${direction}</h1>
+                <span class="trade-date">${formattedDate}</span>
+            </div>
+            <div class="trade-pnl-large ${pnlClass}">
+                ${pnl >= 0 ? '+' : ''}$${Math.abs(pnl).toFixed(2)}
+            </div>
+        </div>
+
+        <div class="trade-metrics-grid">
+            <div class="metric-card">
+                <div class="metric-icon"><i class="fas fa-sign-in-alt"></i></div>
+                <div class="metric-details">
+                    <span class="metric-label">Entry Price</span>
+                    <span class="metric-value">$${trade.entryPrice?.toFixed(2) || '0.00'}</span>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon"><i class="fas fa-sign-out-alt"></i></div>
+                <div class="metric-details">
+                    <span class="metric-label">Exit Price</span>
+                    <span class="metric-value">$${trade.exitPrice?.toFixed(2) || '0.00'}</span>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon"><i class="fas fa-weight-hanging"></i></div>
+                <div class="metric-details">
+                    <span class="metric-label">Quantity</span>
+                    <span class="metric-value">${trade.quantity || 0}</span>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon"><i class="fas fa-chart-line"></i></div>
+                <div class="metric-details">
+                    <span class="metric-label">R Multiple</span>
+                    <span class="metric-value ${pnl >= 0 ? 'profit' : 'loss'}">${rMultiple}R</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="trade-details-grid">
+            <div class="detail-section">
+                <h3><i class="fas fa-info-circle"></i> Trade Information</h3>
+                <table class="details-table">
+                    <tr>
+                        <td>Direction:</td>
+                        <td class="${dirClass}">${dirIcon} ${direction}</td>
+                    </tr>
+                    <tr>
+                        <td>Entry Time:</td>
+                        <td>${trade.timestamp ? new Date(trade.timestamp).toLocaleString() : 'Not recorded'}</td>
+                    </tr>
+                    <tr>
+                        <td>Exit Time:</td>
+                        <td>${trade.exitTime ? new Date(trade.exitTime).toLocaleString() : 'Not recorded'}</td>
+                    </tr>
+                    <tr>
+                        <td>Trade Duration:</td>
+                        <td>${calculateDuration(trade)}</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="detail-section">
+                <h3><i class="fas fa-chart-pie"></i> Performance Impact</h3>
+                <table class="details-table">
+                    <tr>
+                        <td>Contribution to Day:</td>
+                        <td class="${pnlClass}">${((pnl / dayTotal) * 100 || 0).toFixed(1)}%</td>
+                    </tr>
+                    <tr>
+                        <td>Position Size:</td>
+                        <td>$${Math.abs(trade.entryPrice * trade.quantity).toFixed(2)}</td>
+                    </tr>
+                    <tr>
+                        <td>Return %:</td>
+                        <td class="${pnlClass}">${((pnl / (trade.entryPrice * trade.quantity)) * 100 || 0).toFixed(2)}%</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        ${trade.notes ? `
+        <div class="notes-section">
+            <h3><i class="fas fa-sticky-note"></i> Trade Notes</h3>
+            <div class="notes-content">
+                ${trade.notes.replace(/\n/g, '<br>')}
+            </div>
+        </div>
+        ` : ''}
+
+        ${trade.tags && trade.tags.length > 0 ? `
+        <div class="tags-section">
+            <h3><i class="fas fa-tags"></i> Tags</h3>
+            <div class="tags-container">
+                ${trade.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+            </div>
+        </div>
+        ` : ''}
+    `;
+    
+    container.innerHTML = html;
+}
+
+// Display screenshots gallery
+function displayScreenshots(screenshots) {
+    const gallery = document.getElementById('screenshotsGallery');
+    const grid = document.getElementById('galleryGrid');
+    
+    if (!gallery || !grid) return;
+    
+    gallery.style.display = 'block';
+    
+    let html = '';
+    screenshots.forEach((url, index) => {
+        html += `
+            <div class="gallery-item" onclick="openFullscreenImage('${url}', ${index + 1})">
+                <img src="${url}" alt="Screenshot ${index + 1}">
+                <div class="gallery-overlay">
+                    <i class="fas fa-search-plus"></i>
+                </div>
+            </div>
+        `;
+    });
+    
+    grid.innerHTML = html;
+}
+
+// Calculate trade duration
+function calculateDuration(trade) {
+    if (!trade.timestamp) return 'Not recorded';
+    
+    const entryTime = new Date(trade.timestamp);
+    const exitTime = trade.exitTime ? new Date(trade.exitTime) : new Date();
+    
+    const diffMs = exitTime - entryTime;
+    const diffMins = Math.floor(diffMs / 60000);
+    
+    if (diffMins < 60) {
+        return `${diffMins} minutes`;
+    } else if (diffMins < 1440) {
+        const hours = Math.floor(diffMins / 60);
+        const mins = diffMins % 60;
+        return `${hours}h ${mins}m`;
+    } else {
+        const days = Math.floor(diffMins / 1440);
+        const hours = Math.floor((diffMins % 1440) / 60);
+        return `${days}d ${hours}h`;
+    }
+}
+
+// Open fullscreen image
+function openFullscreenImage(url, index) {
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('fullscreenImage');
+    const caption = document.getElementById('imageCaption');
+    
+    if (!modal || !modalImg) return;
+    
+    modal.style.display = 'block';
+    modalImg.src = url;
+    caption.innerHTML = `Screenshot ${index}`;
+}
+
+// Close image modal
+function closeImageModal() {
+    const modal = document.getElementById('imageModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// Edit trade
+function editTrade() {
+    if (window.currentTrade) {
+        window.location.href = `journal.html?date=${window.currentTrade.date}&edit=${window.currentTrade.index}`;
+    }
+}
+
+// Delete trade from detail page
+async function deleteTradeFromDetail() {
+    if (!window.currentTrade) return;
+    
+    if (confirm('Are you sure you want to delete this trade? This action cannot be undone.')) {
+        const success = await TradeJournal.deleteTrade(
+            window.currentTrade.date, 
+            window.currentTrade.index
+        );
+        
+        if (success) {
+            showNotification('Trade deleted successfully', 'success');
+            setTimeout(() => {
+                window.location.href = `index.html?date=${window.currentTrade.date}`;
+            }, 1500);
+        } else {
+            showNotification('Error deleting trade', 'error');
+        }
+    }
+}
+
+// Go back to previous page
+function goBack() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const date = urlParams.get('date');
+    
+    if (date) {
+        window.location.href = `index.html?date=${date}`;
+    } else {
+        window.location.href = 'index.html';
+    }
+}
+
+// Show error message
+function showError(message) {
+    const container = document.getElementById('tradeDetailCard');
+    const spinner = document.getElementById('loadingSpinner');
+    
+    if (spinner) spinner.style.display = 'none';
+    
+    if (container) {
+        container.innerHTML = `
+            <div class="error-container">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h2>Oops!</h2>
+                <p>${message}</p>
+                <button onclick="goBack()" class="back-btn">
+                    <i class="fas fa-arrow-left"></i> Go Back
+                </button>
+            </div>
+        `;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ============== NAVIGATION FUNCTIONS (Define these first) ==============
+
+// Navigate to trade detail page
+function viewTradeDetail(date, tradeIndex) {
+    console.log("Navigating to trade detail:", date, tradeIndex);
+    window.location.href = `trade-detail.html?date=${date}&index=${tradeIndex}`;
+}
+
+// Navigate to add trade page for current date
+function goToAddTrade() {
+    const datePicker = document.getElementById('datePicker');
+    const date = datePicker ? datePicker.value : TradeJournal.getTodayDate();
+    window.location.href = `journal.html?date=${date}`;
+}
+
+// ============== UI FUNCTIONS ==============
+
+// Display trades for a specific date
+function displayDayTrades(date) {
+    TradeJournal.loadDayTrades(date).then(dayData => {
+        const container = document.getElementById('journalContent');
+        if (!container) return;
+        
+        // Update summary card
+        updateDailySummary(date, dayData);
+        
+        let html = `<h2><i class="fas fa-chart-line"></i> Trades for ${formatDisplayDate(date)}</h2>`;
+        
+        if (dayData.trades && dayData.trades.length > 0) {
+            html += '<div class="trades-container">';
+            html += '<table class="trades-table">';
+            html += '<thead><tr>';
+            html += '<th>Symbol</th>';
+            html += '<th>Direction</th>';
+            html += '<th>Entry</th>';
+            html += '<th>Exit</th>';
+            html += '<th>Qty</th>';
+            html += '<th>P&L</th>';
+            html += '<th>Images</th>';
+            html += '<th>Actions</th>';
+            html += '</tr></thead><tbody>';
+            
+            dayData.trades.forEach((trade, index) => {
+                const pnlClass = trade.pnl >= 0 ? 'profit' : 'loss';
+                const dirClass = trade.direction ? trade.direction.toLowerCase() : 'long';
+                const screenshotCount = trade.screenshots ? trade.screenshots.length : 0;
+                
+                // Make the entire row clickable
+                html += `<tr onclick="viewTradeDetail('${date}', ${index})" style="cursor: pointer;" class="clickable-row">`;
+                html += `<td><strong>${trade.symbol || 'N/A'}</strong></td>`;
+                html += `<td class="${dirClass}">${trade.direction === 'LONG' ? '📈 LONG' : '📉 SHORT'}</td>`;
+                html += `<td>$${formatNumber(trade.entryPrice)}</td>`;
+                html += `<td>$${formatNumber(trade.exitPrice)}</td>`;
+                html += `<td>${trade.quantity || 0}</td>`;
+                html += `<td class="${pnlClass}">$${formatNumber(trade.pnl)}</td>`;
+                html += `<td>
+                    ${screenshotCount > 0 ? 
+                        `<span class="image-count" onclick="event.stopPropagation(); showScreenshots('${date}', ${index})">
+                            <i class="fas fa-image"></i> ${screenshotCount}
+                        </span>` : 
+                        '<span class="no-image" onclick="event.stopPropagation()"><i class="far fa-image"></i> 0</span>'
+                    }
+                </td>`;
+                html += `<td onclick="event.stopPropagation()">
+                    <button onclick="deleteTrade('${date}', ${index})" class="delete-btn small" title="Delete Trade">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>`;
+                html += `</tr>`;
+            });
+            
+            // Add total row (not clickable)
+            html += `<tr class="total-row" style="cursor: default;">
+                <td colspan="5"><strong>Daily Total:</strong></td>
+                <td class="${dayData.totalPnL >= 0 ? 'profit' : 'loss'}">
+                    <strong>$${formatNumber(dayData.totalPnL)}</strong>
+                </td>
+                <td colspan="2"></td>
+            </tr>`;
+            
+            html += '</tbody></table>';
+            html += '</div>';
+        } else {
+            html += '<div class="empty-state">';
+            html += '<i class="fas fa-chart-line"></i>';
+            html += '<p>No trades for this day</p>';
+            html += `<button onclick="goToAddTrade()" class="add-first-trade-btn">
+                        <i class="fas fa-plus"></i> Add Your First Trade
+                    </button>`;
+            html += '</div>';
+        }
+        
+        if (dayData.notes) {
+            html += `<div class="daily-notes">
+                        <h3><i class="fas fa-sticky-note"></i> Daily Notes</h3>
+                        <p>${dayData.notes}</p>
+                    </div>`;
+        }
+        
+        container.innerHTML = html;
+    });
+}
