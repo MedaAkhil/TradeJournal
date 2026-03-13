@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Trade - Trade Journal</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+</head>
+<body>
+    <div class="nav-bar">
+        <a href="index.html">Daily Journal</a>
+        <a href="calendar.html">Calendar</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="export.html">Backup</a>
+    </div>
+
+    <div class="container">
+        <h2>Add Trade for <span id="currentDate"></span></h2>
+        
+        <form id="tradeForm">
+            <div class="form-row">
+                <label>Symbol:</label>
+                <input type="text" id="symbol" required placeholder="e.g., AAPL, BTCUSD">
+            </div>
+
+            <div class="form-row">
+                <label>Direction:</label>
+                <select id="direction">
+                    <option value="LONG">Long 📈</option>
+                    <option value="SHORT">Short 📉</option>
+                </select>
+            </div>
+
+            <div class="form-row">
+                <label>Entry Price:</label>
+                <input type="number" id="entryPrice" step="0.01" required placeholder="0.00">
+            </div>
+
+            <div class="form-row">
+                <label>Exit Price:</label>
+                <input type="number" id="exitPrice" step="0.01" required placeholder="0.00">
+            </div>
+
+            <div class="form-row">
+                <label>Quantity:</label>
+                <input type="number" id="quantity" required placeholder="100">
+            </div>
+
+            <div class="form-row">
+                <label>P&L:</label>
+                <input type="number" id="pnl" step="0.01" readonly>
+            </div>
+
+            <div class="form-row">
+                <label>Screenshots:</label>
+                
+                <!-- Three upload options -->
+                <div class="upload-options">
+                    <!-- Option 1: Traditional Upload -->
+                    <div class="upload-option" id="uploadOption">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <span>Browse Files</span>
+                        <input type="file" id="fileInput" multiple accept="image/*" style="display: none;">
+                    </div>
+
+                    <!-- Option 2: Paste from Clipboard -->
+                    <div class="upload-option" id="pasteOption">
+                        <i class="fas fa-clipboard"></i>
+                        <span>Paste (Ctrl+V)</span>
+                    </div>
+
+                    <!-- Option 3: Clipboard History -->
+                    <!-- <div class="upload-option" id="historyOption">
+                        <i class="fas fa-history"></i>
+                        <span>Clipboard History</span>
+                    </div> -->
+                </div>
+
+                <!-- Hidden input to handle paste events -->
+                <div style="position: relative;">
+                    <textarea id="pasteArea" placeholder="Or paste images here (Ctrl+V)" rows="2" style="width: 100%; margin-top: 10px;"></textarea>
+                </div>
+
+                <!-- Preview area -->
+                <div id="preview"></div>
+                
+                <!-- Clipboard History Modal (hidden by default) -->
+                <div id="clipboardModal" class="modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>Clipboard History</h3>
+                            <span class="close">&times;</span>
+                        </div>
+                        <div class="modal-body" id="clipboardHistory">
+                            <div class="history-loading">Loading clipboard history...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <label>Trade Notes:</label>
+                <textarea id="notes" rows="3" placeholder="Add notes about this trade..."></textarea>
+            </div>
+
+            <button type="submit"><i class="fas fa-save"></i> Save Trade</button>
+        </form>
+
+        <div id="todaysTrades">
+            <h3>Today's Trades</h3>
+            <table id="tradesTable">
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Direction</th>
+                        <th>Entry</th>
+                        <th>Exit</th>
+                        <th>Qty</th>
+                        <th>P&L</th>
+                        <th>Images</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tradesList"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

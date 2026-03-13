@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Trade Journal</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+</head>
+<body>
+    <div class="nav-bar">
+        <a href="index.html" class="active">Daily Journal</a>
+        <a href="calendar.html">Calendar</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="export.html">Backup</a>
+    </div>
+
+    <div class="container">
+        <div class="date-navigation">
+            <button onclick="previousDay()"><i class="fas fa-chevron-left"></i> Previous</button>
+            <div class="date-display">
+                <i class="fas fa-calendar-day"></i>
+                <input type="date" id="datePicker" onchange="loadDate(this.value)">
+            </div>
+            <button onclick="nextDay()">Next <i class="fas fa-chevron-right"></i></button>
+        </div>
+
+        <!-- Daily Summary Card -->
+        <div class="daily-summary-card" id="dailySummary">
+            <div class="summary-item">
+                <span class="summary-label">Total Trades</span>
+                <span class="summary-value" id="totalTradesBadge">0</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Day P&L</span>
+                <span class="summary-value" id="dayPnL">$0.00</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Screenshots</span>
+                <span class="summary-value" id="totalScreenshotsBadge">0</span>
+            </div>
+        </div>
+
+        <div id="journalContent">
+            <!-- Journal entries will load here -->
+        </div>
+    </div>
+
+    <!-- Floating Plus Button -->
+    <div class="floating-plus" onclick="goToAddTrade()" title="Add New Trade">
+        <i class="fas fa-plus"></i>
+    </div>
+
+    <!-- Quick Stats Modal (optional) -->
+    <div id="statsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Day Statistics</h3>
+                <span class="close" onclick="closeStatsModal()">&times;</span>
+            </div>
+            <div class="modal-body" id="statsModalBody">
+                <!-- Stats will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

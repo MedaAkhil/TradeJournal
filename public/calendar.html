@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Calendar - Trade Journal</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+</head>
+<body>
+    <div class="nav-bar">
+        <a href="index.html">Daily Journal</a>
+        <a href="calendar.html" class="active">Calendar</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="export.html">Backup</a>
+    </div>
+
+    <div class="container">
+        <h1><i class="fas fa-calendar-alt"></i> Trading Calendar</h1>
+        
+        <!-- Month Navigation -->
+        <div class="calendar-nav">
+            <button onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i> Previous</button>
+            <h2 id="currentMonthYear">March 2026</h2>
+            <button onclick="changeMonth(1)">Next <i class="fas fa-chevron-right"></i></button>
+        </div>
+
+        <!-- Calendar Grid -->
+        <div class="calendar-grid" id="calendarGrid">
+            <!-- Day headers -->
+            <div class="calendar-header">Sun</div>
+            <div class="calendar-header">Mon</div>
+            <div class="calendar-header">Tue</div>
+            <div class="calendar-header">Wed</div>
+            <div class="calendar-header">Thu</div>
+            <div class="calendar-header">Fri</div>
+            <div class="calendar-header">Sat</div>
+            
+            <!-- Calendar days will be inserted here by JavaScript -->
+        </div>
+
+        <!-- Legend -->
+        <div class="calendar-legend">
+            <div class="legend-item">
+                <span class="color-box profitable-day"></span>
+                <span>Profitable Day</span>
+            </div>
+            <div class="legend-item">
+                <span class="color-box losing-day"></span>
+                <span>Losing Day</span>
+            </div>
+            <div class="legend-item">
+                <span class="color-box breakeven-day"></span>
+                <span>Breakeven</span>
+            </div>
+            <div class="legend-item">
+                <span class="color-box no-trade-day"></span>
+                <span>No Trades</span>
+            </div>
+        </div>
+
+        <!-- Selected Day Summary -->
+        <div class="selected-day-summary" id="selectedDaySummary" style="display: none;">
+            <h3 id="selectedDate">March 13, 2026</h3>
+            <div class="summary-stats">
+                <div class="stat-card">
+                    <span class="stat-label">Trades</span>
+                    <span class="stat-value" id="summaryTrades">0</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">P&L</span>
+                    <span class="stat-value" id="summaryPnL">$0.00</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Win Rate</span>
+                    <span class="stat-value" id="summaryWinRate">0%</span>
+                </div>
+            </div>
+            <button onclick="goToDate()" class="view-day-btn">
+                <i class="fas fa-eye"></i> View Day Details
+            </button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

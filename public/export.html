@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Backup - Trade Journal</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+</head>
+<body>
+    <div class="nav-bar">
+        <a href="index.html">Daily Journal</a>
+        <a href="calendar.html">Calendar</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="export.html" class="active">Backup</a>
+    </div>
+
+    <div class="container">
+        <h1><i class="fas fa-database"></i> Backup & Restore</h1>
+        
+        <div class="backup-grid">
+            <!-- Export Section -->
+            <div class="backup-card">
+                <div class="backup-icon">
+                    <i class="fas fa-download"></i>
+                </div>
+                <h2>Export Journal</h2>
+                <p>Download all your trade data including screenshots metadata as a JSON file.</p>
+                
+                <div class="backup-stats" id="exportStats">
+                    <div class="stat-row">
+                        <span>Total Trades:</span>
+                        <span id="totalTradesCount">Loading...</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>Trading Days:</span>
+                        <span id="totalDaysCount">Loading...</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>Screenshots:</span>
+                        <span id="totalScreenshots">Loading...</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>Last Backup:</span>
+                        <span id="lastBackup">Never</span>
+                    </div>
+                </div>
+                
+                <button onclick="exportJournal()" class="backup-btn export-btn">
+                    <i class="fas fa-download"></i> Export Now
+                </button>
+            </div>
+
+            <!-- Import Section -->
+            <div class="backup-card">
+                <div class="backup-icon">
+                    <i class="fas fa-upload"></i>
+                </div>
+                <h2>Import Journal</h2>
+                <p>Restore your journal from a previously exported JSON backup file.</p>
+                
+                <div class="warning-box">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Warning: Importing will replace all existing data!</span>
+                </div>
+                
+                <input type="file" id="importFile" accept=".json" style="display: none;">
+                <button onclick="document.getElementById('importFile').click()" class="backup-btn import-btn">
+                    <i class="fas fa-upload"></i> Select File to Import
+                </button>
+                
+                <div id="importPreview" style="display: none; margin-top: 1rem;">
+                    <h3>Preview</h3>
+                    <div id="importStats"></div>
+                    <button onclick="confirmImport()" class="confirm-import-btn">
+                        <i class="fas fa-check"></i> Confirm Import
+                    </button>
+                </div>
+            </div>
+
+            <!-- Cloud Backup Section (Optional Future) -->
+            <div class="backup-card">
+                <div class="backup-icon">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <h2>Cloud Backup</h2>
+                <p>Coming soon: Automatic cloud backups to Google Drive.</p>
+                
+                <div class="coming-soon">
+                    <i class="fas fa-clock"></i> Available in next update
+                </div>
+            </div>
+        </div>
+
+        <!-- Backup History -->
+        <div class="backup-history">
+            <h2>Recent Backups</h2>
+            <table class="backup-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>File Name</th>
+                        <th>Trades</th>
+                        <th>Size</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="backupHistoryList">
+                    <tr>
+                        <td colspan="5" style="text-align: center;">No backups found. Export your first backup!</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Import Confirmation Modal -->
+    <div id="importModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Confirm Import</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to import this backup?</p>
+                <p class="warning-text">This will overwrite ALL your current data and cannot be undone!</p>
+                <div id="modalImportStats"></div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeModal()" class="cancel-btn">Cancel</button>
+                <button onclick="executeImport()" class="confirm-btn">Yes, Import Data</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

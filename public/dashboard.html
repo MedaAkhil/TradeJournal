@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard - Trade Journal</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Chart.js for beautiful charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+</head>
+<body>
+    <div class="nav-bar">
+        <a href="index.html">Daily Journal</a>
+        <a href="calendar.html">Calendar</a>
+        <a href="dashboard.html" class="active">Dashboard</a>
+        <a href="export.html">Backup</a>
+    </div>
+
+    <div class="container">
+        <h1><i class="fas fa-chart-line"></i> Trading Dashboard</h1>
+        
+        <!-- Date Range Selector -->
+        <div class="date-range-selector">
+            <select id="timeRange" onchange="loadDashboardData()">
+                <option value="week">Last 7 Days</option>
+                <option value="month" selected>This Month</option>
+                <option value="quarter">Last 3 Months</option>
+                <option value="year">Last 12 Months</option>
+                <option value="all">All Time</option>
+            </select>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="stats-grid">
+            <div class="stat-card-large">
+                <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
+                <div class="stat-details">
+                    <span class="stat-label">Total P&L</span>
+                    <span class="stat-value" id="totalPnL">$0.00</span>
+                </div>
+            </div>
+            
+            <div class="stat-card-large">
+                <div class="stat-icon"><i class="fas fa-chart-pie"></i></div>
+                <div class="stat-details">
+                    <span class="stat-label">Total Trades</span>
+                    <span class="stat-value" id="totalTrades">0</span>
+                </div>
+            </div>
+            
+            <div class="stat-card-large">
+                <div class="stat-icon"><i class="fas fa-trophy"></i></div>
+                <div class="stat-details">
+                    <span class="stat-label">Win Rate</span>
+                    <span class="stat-value" id="winRate">0%</span>
+                </div>
+            </div>
+            
+            <div class="stat-card-large">
+                <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
+                <div class="stat-details">
+                    <span class="stat-label">Trading Days</span>
+                    <span class="stat-value" id="tradingDays">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Second Row Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-label">Average Win</span>
+                <span class="stat-value profit" id="avgWin">$0.00</span>
+            </div>
+            
+            <div class="stat-card">
+                <span class="stat-label">Average Loss</span>
+                <span class="stat-value loss" id="avgLoss">$0.00</span>
+            </div>
+            
+            <div class="stat-card">
+                <span class="stat-label">Largest Win</span>
+                <span class="stat-value profit" id="largestWin">$0.00</span>
+            </div>
+            
+            <div class="stat-card">
+                <span class="stat-label">Largest Loss</span>
+                <span class="stat-value loss" id="largestLoss">$0.00</span>
+            </div>
+            
+            <div class="stat-card">
+                <span class="stat-label">Profit Factor</span>
+                <span class="stat-value" id="profitFactor">0.00</span>
+            </div>
+            
+            <div class="stat-card">
+                <span class="stat-label">Avg R Multiple</span>
+                <span class="stat-value" id="avgR">0.00</span>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-grid">
+            <!-- Equity Curve Chart -->
+            <div class="chart-container">
+                <h3>Equity Curve</h3>
+                <canvas id="equityChart"></canvas>
+            </div>
+            
+            <!-- Daily P&L Chart -->
+            <div class="chart-container">
+                <h3>Daily P&L</h3>
+                <canvas id="dailyPnLChart"></canvas>
+            </div>
+            
+            <!-- Win/Loss Distribution -->
+            <div class="chart-container">
+                <h3>Win/Loss Distribution</h3>
+                <canvas id="winLossChart"></canvas>
+            </div>
+            
+            <!-- Performance by Symbol -->
+            <div class="chart-container">
+                <h3>Performance by Symbol</h3>
+                <canvas id="symbolChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Recent Trades Table -->
+        <div class="recent-trades">
+            <h3>Recent Trades</h3>
+            <table class="trades-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Symbol</th>
+                        <th>Direction</th>
+                        <th>Entry</th>
+                        <th>Exit</th>
+                        <th>Qty</th>
+                        <th>P&L</th>
+                    </tr>
+                </thead>
+                <tbody id="recentTradesList">
+                    <tr>
+                        <td colspan="7" style="text-align: center;">Loading trades...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
