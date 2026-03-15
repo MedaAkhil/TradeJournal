@@ -220,6 +220,7 @@ function displayDayTrades(date) {
 }
 
 // Setup Journal Form Page (NEW - This fixes your error!)
+// Setup Journal Form Page
 function setupJournalForm() {
     console.log("Setting up journal form...");
     
@@ -249,7 +250,7 @@ function setupJournalForm() {
                 
                 let pnl = (exit - entry) * qty;
                 if (dir === 'SHORT') {
-                    pnl = -pnl; // Reverse for short trades
+                    pnl = -pnl;
                 }
                 
                 pnlField.value = pnl.toFixed(2);
@@ -268,7 +269,6 @@ function setupJournalForm() {
         tradeForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // Get form values
             const tradeData = {
                 symbol: document.getElementById('symbol')?.value.toUpperCase() || '',
                 direction: document.getElementById('direction')?.value || 'LONG',
@@ -276,26 +276,26 @@ function setupJournalForm() {
                 exitPrice: parseFloat(document.getElementById('exitPrice')?.value || '0'),
                 quantity: parseInt(document.getElementById('quantity')?.value || '0'),
                 pnl: parseFloat(document.getElementById('pnl')?.value || '0'),
-                notes: document.getElementById('notes')?.value || ''
+                notes: document.getElementById('notes')?.value || '',
+                // Tax fields (optional)
+                brokerage: parseFloat(document.getElementById('brokerage')?.value) || 0,
+                stt: parseFloat(document.getElementById('stt')?.value) || 0,
+                transactionCharges: parseFloat(document.getElementById('transactionCharges')?.value) || 0,
+                gst: parseFloat(document.getElementById('gst')?.value) || 0,
+                stampDuty: parseFloat(document.getElementById('stampDuty')?.value) || 0
             };
             
-            // Get screenshot files from the file input
             const fileInput = document.getElementById('fileInput');
             const screenshotFiles = fileInput ? fileInput.files : [];
             
-            // Save trade
             const success = await TradeJournal.saveTrade(date, tradeData, screenshotFiles);
             
             if (success) {
                 showNotification('Trade saved successfully!', 'success');
-                // Reset form
                 tradeForm.reset();
-                // Clear preview
                 const preview = document.getElementById('preview');
                 if (preview) preview.innerHTML = '';
-                // Clear file input
                 if (fileInput) fileInput.value = '';
-                // Refresh trades list
                 loadTodaysTrades(date);
             } else {
                 showNotification('Error saving trade. Check console for details.', 'error');
@@ -303,11 +303,11 @@ function setupJournalForm() {
         });
     }
     
-    // Load today's trades
     loadTodaysTrades(date);
     
-    // Setup enhanced upload options (with null checks)
+    // Setup enhanced upload options (includes camera)
     setupEnhancedUpload();
+    
 }
 
 // Load today's trades in the table
@@ -1102,40 +1102,82 @@ function updateSummaryCards(trades) {
         return;
     }
     
-    // Calculate metrics
-    const totalPnL = trades.reduce((sum, trade) => sum + (trade.pnl || 0), 0);
-    const winningTrades = trades.filter(t => t.pnl > 0);
-    const losingTrades = trades.filter(t => t.pnl < 0);
-    const winRate = (winningTrades.length / trades.length * 100) || 0;
+    let totalGrossPnL = 0;
+    let totalNetPnL = 0;
+    let totalTax = 0;
+    let totalBrokerage = 0;
+    let totalSTT = 0;
+    let totalTransactionCharges = 0;
+    let totalGST = 0;
     
+    const winningTrades = [];
+    const losingTrades = [];
+    
+    trades.forEach(trade => {
+        // Calculate taxes on the fly
+        const taxData = calculateTradeTaxes(trade);
+        
+        totalGrossPnL += taxData.grossPnL;
+        totalNetPnL += taxData.netPnL;
+        totalTax += taxData.totalFees;
+        totalBrokerage += taxData.breakdown.brokerage;
+        totalSTT += taxData.breakdown.stt;
+        totalTransactionCharges += taxData.breakdown.transactionCharges;
+        totalGST += taxData.breakdown.gst;
+        
+        if (taxData.grossPnL > 0) winningTrades.push(trade);
+        else if (taxData.grossPnL < 0) losingTrades.push(trade);
+    });
+    
+    const winRate = (winningTrades.length / trades.length * 100) || 0;
     const uniqueDays = [...new Set(trades.map(t => t.date))].length;
     
     const avgWin = winningTrades.length ? 
-        winningTrades.reduce((sum, t) => sum + t.pnl, 0) / winningTrades.length : 0;
+        winningTrades.reduce((sum, t) => {
+            const tax = calculateTradeTaxes(t);
+            return sum + tax.grossPnL;
+        }, 0) / winningTrades.length : 0;
+        
     const avgLoss = losingTrades.length ? 
-        Math.abs(losingTrades.reduce((sum, t) => sum + t.pnl, 0) / losingTrades.length) : 0;
+        Math.abs(losingTrades.reduce((sum, t) => {
+            const tax = calculateTradeTaxes(t);
+            return sum + tax.grossPnL;
+        }, 0) / losingTrades.length) : 0;
     
-    const largestWin = Math.max(...trades.map(t => t.pnl));
-    const largestLoss = Math.min(...trades.map(t => t.pnl));
+    const allGrossPnLs = trades.map(t => calculateTradeTaxes(t).grossPnL);
+    const largestWin = Math.max(...allGrossPnLs);
+    const largestLoss = Math.min(...allGrossPnLs);
     
-    const totalWins = winningTrades.reduce((sum, t) => sum + t.pnl, 0);
-    const totalLosses = Math.abs(losingTrades.reduce((sum, t) => sum + t.pnl, 0));
+    const totalWins = winningTrades.reduce((sum, t) => {
+        const tax = calculateTradeTaxes(t);
+        return sum + tax.grossPnL;
+    }, 0);
+    
+    const totalLosses = Math.abs(losingTrades.reduce((sum, t) => {
+        const tax = calculateTradeTaxes(t);
+        return sum + tax.grossPnL;
+    }, 0));
+    
     const profitFactor = totalLosses > 0 ? totalWins / totalLosses : totalWins > 0 ? Infinity : 0;
     
-    // Update DOM
-    setElementText('totalPnL', formatCurrency(totalPnL), totalPnL >= 0 ? 'profit' : 'loss');
+    const taxPercentage = totalGrossPnL !== 0 ? 
+        (totalTax / Math.abs(totalGrossPnL) * 100).toFixed(2) : 0;
+    
+    // Update DOM with dynamic values
+    setElementText('totalPnL', '₹' + formatNumber(totalNetPnL), totalNetPnL >= 0 ? 'profit' : 'loss');
     setElementText('totalTrades', trades.length);
     setElementText('winRate', winRate.toFixed(1) + '%');
     setElementText('tradingDays', uniqueDays);
-    setElementText('avgWin', formatCurrency(avgWin), 'profit');
-    setElementText('avgLoss', formatCurrency(avgLoss), 'loss');
-    setElementText('largestWin', formatCurrency(largestWin), 'profit');
-    setElementText('largestLoss', formatCurrency(largestLoss), 'loss');
+    setElementText('avgWin', '₹' + formatNumber(avgWin), 'profit');
+    setElementText('avgLoss', '₹' + formatNumber(avgLoss), 'loss');
+    setElementText('largestWin', '₹' + formatNumber(largestWin), 'profit');
+    setElementText('largestLoss', '₹' + formatNumber(largestLoss), 'loss');
     setElementText('profitFactor', profitFactor === Infinity ? '∞' : profitFactor.toFixed(2));
     
-    // Calculate average R (simplified - assumes 1R = 1% of account)
-    const avgR = avgWin > 0 && avgLoss > 0 ? avgWin / avgLoss : 0;
-    setElementText('avgR', avgR.toFixed(2));
+    // Tax-specific updates
+    setElementText('totalTax', '₹' + formatNumber(totalTax));
+    setElementText('netPnL', '₹' + formatNumber(totalNetPnL), totalNetPnL >= 0 ? 'profit' : 'loss');
+    setElementText('taxPercentage', taxPercentage + '%');
 }
 
 // Set default values when no trades
@@ -1150,6 +1192,9 @@ function setDefaultValues() {
     setElementText('largestLoss', '$0.00');
     setElementText('profitFactor', '0.00');
     setElementText('avgR', '0.00');
+    setElementText('totalTax', '₹0.00');
+    setElementText('netPnL', '₹0.00');
+    setElementText('taxPercentage', '0%');
 }
 
 // Update charts
@@ -1729,7 +1774,10 @@ function displayDayTrades(date) {
             html += '<th>Entry</th>';
             html += '<th>Exit</th>';
             html += '<th>Qty</th>';
-            html += '<th>P&L</th>';
+            // html += '<th>P&L</th>';
+            html += '<th>Gross P&L</th>';
+            html += '<th>Net P&L</th>';
+            html += '<th>Tax</th>'; 
             html += '<th>Images</th>';
             html += '<th>Actions</th>';
             html += '</tr></thead><tbody>';
@@ -1745,7 +1793,9 @@ function displayDayTrades(date) {
                     <td>$${formatNumber(trade.entryPrice)}</td>
                     <td>$${formatNumber(trade.exitPrice)}</td>
                     <td>${trade.quantity || 0}</td>
-                    <td class="${pnlClass}">$${formatNumber(trade.pnl)}</td>
+                    <td class="${pnlClass}">$${formatNumber(trade.pnl)}</td>;
+                    <td class="${pnlAfterTaxClass}">$${formatNumber(trade.pnlAfterTax)}</td>;
+                    <td>$${formatNumber(trade.totalFees)}</td>;
                     <td>
                         ${screenshotCount > 0 ? 
                             `<span class="image-count" onclick="showScreenshots('${date}', ${index})">
@@ -1795,7 +1845,7 @@ function displayDayTrades(date) {
 }
 
 // Update daily summary card
-function updateDailySummary(date, dayData) {
+function updateDailySummary(date, dayData, totalGrossPnL, totalNetPnL, totalTax) {
     const totalTradesEl = document.getElementById('totalTradesBadge');
     const dayPnLEl = document.getElementById('dayPnL');
     const screenshotsEl = document.getElementById('totalScreenshotsBadge');
@@ -1806,9 +1856,9 @@ function updateDailySummary(date, dayData) {
     }
     
     if (dayPnLEl) {
-        const pnl = dayData.totalPnL || 0;
-        dayPnLEl.textContent = formatCurrency(pnl);
-        dayPnLEl.className = pnl >= 0 ? 'summary-value profit' : 'summary-value loss';
+        // Show net P&L in summary card
+        dayPnLEl.textContent = '₹' + formatNumber(totalNetPnL);
+        dayPnLEl.className = totalNetPnL >= 0 ? 'summary-value profit' : 'summary-value loss';
     }
     
     if (screenshotsEl) {
@@ -2401,9 +2451,24 @@ function displayDayTrades(date) {
     TradeJournal.loadDayTrades(date).then(dayData => {
         const container = document.getElementById('journalContent');
         if (!container) return;
-        
+        let totalGrossPnL = 0;
+        let totalNetPnL = 0;
+        let totalTax = 0;
+        if (dayData.trades) {
+            dayData.trades.forEach(trade => {
+                const taxData = calculateTradeTaxes(trade);
+                trade.grossPnL = taxData.grossPnL;
+                trade.netPnL = taxData.netPnL;
+                trade.totalFees = taxData.totalFees;
+                trade.taxBreakdown = taxData.breakdown;
+                
+                totalGrossPnL += taxData.grossPnL;
+                totalNetPnL += taxData.netPnL;
+                totalTax += taxData.totalFees;
+            });
+        }
         // Update summary card
-        updateDailySummary(date, dayData);
+        updateDailySummary(date, dayData, totalGrossPnL, totalNetPnL, totalTax);
         
         let html = `<h2><i class="fas fa-chart-line"></i> Trades for ${formatDisplayDate(date)}</h2>`;
         
@@ -2416,46 +2481,55 @@ function displayDayTrades(date) {
             html += '<th>Entry</th>';
             html += '<th>Exit</th>';
             html += '<th>Qty</th>';
-            html += '<th>P&L</th>';
+            html += '<th>Gross P&L</th>';
+            html += '<th>Net P&L</th>';
+            html += '<th>Tax</th>'; 
             html += '<th>Images</th>';
             html += '<th>Actions</th>';
             html += '</tr></thead><tbody>';
             
             dayData.trades.forEach((trade, index) => {
-                const pnlClass = trade.pnl >= 0 ? 'profit' : 'loss';
+                const grossClass = trade.grossPnL >= 0 ? 'profit' : 'loss';
+                const netClass = trade.netPnL >= 0 ? 'profit' : 'loss';
                 const dirClass = trade.direction ? trade.direction.toLowerCase() : 'long';
                 const screenshotCount = trade.screenshots ? trade.screenshots.length : 0;
                 
                 // Make the entire row clickable
-                html += `<tr onclick="viewTradeDetail('${date}', ${index})" style="cursor: pointer;" class="clickable-row">`;
-                html += `<td><strong>${trade.symbol || 'N/A'}</strong></td>`;
-                html += `<td class="${dirClass}">${trade.direction === 'LONG' ? '📈 LONG' : '📉 SHORT'}</td>`;
-                html += `<td>$${formatNumber(trade.entryPrice)}</td>`;
-                html += `<td>$${formatNumber(trade.exitPrice)}</td>`;
-                html += `<td>${trade.quantity || 0}</td>`;
-                html += `<td class="${pnlClass}">$${formatNumber(trade.pnl)}</td>`;
-                html += `<td>
-                    ${screenshotCount > 0 ? 
-                        `<span class="image-count" onclick="event.stopPropagation(); showScreenshots('${date}', ${index})">
-                            <i class="fas fa-image"></i> ${screenshotCount}
-                        </span>` : 
-                        '<span class="no-image" onclick="event.stopPropagation()"><i class="far fa-image"></i> 0</span>'
-                    }
-                </td>`;
-                html += `<td onclick="event.stopPropagation()">
-                    <button onclick="deleteTrade('${date}', ${index})" class="delete-btn small" title="Delete Trade">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </td>`;
-                html += `</tr>`;
+                html += `<tr onclick="viewTradeDetail('${date}', ${index})" style="cursor: pointer;" class="clickable-row">
+                    <td><strong>${trade.symbol || 'N/A'}</strong></td>
+                    <td class="${dirClass}">${trade.direction === 'LONG' ? '📈 LONG' : '📉 SHORT'}</td>
+                    <td>₹${formatNumber(trade.entryPrice)}</td>
+                    <td>₹${formatNumber(trade.exitPrice)}</td>
+                    <td>${trade.quantity || 0}</td>
+                    <td class="${grossClass}">₹${formatNumber(trade.grossPnL)}</td>
+                    <td class="${netClass}">₹${formatNumber(trade.netPnL)}</td>
+                    <td>₹${formatNumber(trade.totalFees)}</td>
+                    <td onclick="event.stopPropagation()">
+                        ${screenshotCount > 0 ? 
+                            `<span class="image-count" onclick="showScreenshots('${date}', ${index})">
+                                <i class="fas fa-image"></i> ${screenshotCount}
+                            </span>` : 
+                            '<span class="no-image"><i class="far fa-image"></i> 0</span>'
+                        }
+                    </td>
+                    <td onclick="event.stopPropagation()">
+                        <button onclick="deleteTrade('${date}', ${index})" class="delete-btn small" title="Delete Trade">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>`;
             });
             
             // Add total row (not clickable)
-            html += `<tr class="total-row" style="cursor: default;">
+            html += `<tr class="total-row">
                 <td colspan="5"><strong>Daily Total:</strong></td>
-                <td class="${dayData.totalPnL >= 0 ? 'profit' : 'loss'}">
-                    <strong>$${formatNumber(dayData.totalPnL)}</strong>
+                <td class="${totalGrossPnL >= 0 ? 'profit' : 'loss'}">
+                    <strong>₹${formatNumber(totalGrossPnL)}</strong>
                 </td>
+                <td class="${totalNetPnL >= 0 ? 'profit' : 'loss'}">
+                    <strong>₹${formatNumber(totalNetPnL)}</strong>
+                </td>
+                <td><strong>₹${formatNumber(totalTax)}</strong></td>
                 <td colspan="2"></td>
             </tr>`;
             
@@ -2479,5 +2553,382 @@ function displayDayTrades(date) {
         }
         
         container.innerHTML = html;
+    });
+}
+
+
+
+
+
+
+
+
+
+
+
+// Calculate total fees for a trade
+function calculateTradeFees(trade) {
+    const quantity = Math.abs(trade.quantity);
+    
+    const brokerage = (trade.brokeragePerUnit || 0) * quantity;
+    const stt = (trade.stt || 0) / quantity; // Distribute evenly
+    const transactionCharges = (trade.transactionCharges || 0) * quantity;
+    const stampDuty = (trade.stampDuty || 0) / quantity;
+    const sebiFees = (trade.sebiFees || 0) / quantity;
+    
+    // GST is 18% on brokerage + transaction charges
+    const gst = (brokerage + transactionCharges) * 0.18;
+    
+    return {
+        brokerage,
+        stt,
+        transactionCharges,
+        stampDuty,
+        sebiFees,
+        gst,
+        total: brokerage + stt + transactionCharges + stampDuty + sebiFees + gst
+    };
+}
+
+// Calculate P&L after tax
+function calculatePnLAfterTax(trade) {
+    const fees = calculateTradeFees(trade);
+    return (trade.pnl || 0) - fees.total;
+}
+
+// Update dashboard with tax totals
+async function updateTaxTotals(timeRange) {
+    const trades = await loadTradesInRange(timeRange);
+    
+    let totalTax = 0;
+    let totalGrossPnL = 0;
+    let totalNetPnL = 0;
+    
+    trades.forEach(trade => {
+        const fees = calculateTradeFees(trade);
+        totalTax += fees.total;
+        totalGrossPnL += trade.pnl || 0;
+        totalNetPnL += (trade.pnl || 0) - fees.total;
+    });
+    
+    document.getElementById('totalTax').textContent = formatCurrency(totalTax);
+    document.getElementById('netPnL').textContent = formatCurrency(totalNetPnL);
+    
+    const taxPercentage = totalGrossPnL !== 0 ? 
+        (totalTax / Math.abs(totalGrossPnL) * 100).toFixed(2) : 0;
+    document.getElementById('taxPercentage').textContent = taxPercentage + '%';
+}
+
+
+
+
+
+// ============== TAX CALCULATION FUNCTIONS ==============
+
+// Calculate all taxes for a Nifty options trade (based on Dhan/NSE rules)
+function calculateTradeTaxes(trade) {
+    const quantity = Math.abs(trade.quantity || 0);
+    const entryPrice = trade.entryPrice || 0;
+    const exitPrice = trade.exitPrice || 0;
+    const isBuy = trade.direction === 'BUY' || trade.direction === 'LONG';
+    const isOption = true; // Assuming all are options for now
+    
+    // Calculate turnover (total transaction value)
+    const buyValue = entryPrice * quantity;
+    const sellValue = exitPrice * quantity;
+    const turnover = buyValue + sellValue;
+    
+    // 1. Brokerage (Dhan charges ₹20 per executed order or 0.03% whichever is lower)
+    // For options, it's usually ₹20 per order
+    const brokeragePerTrade = 20; // ₹20 per order
+    const brokerage = isBuy ? brokeragePerTrade : brokeragePerTrade; // Both legs
+    
+    // 2. STT (Securities Transaction Tax)
+    // For options: 0.05% on premium (selling side only)
+    const sttRate = 0.0005; // 0.05%
+    const stt = isBuy ? 0 : (sellValue * sttRate); // STT only on sell
+    
+    // 3. Transaction Charges (NSE)
+    // Options: ₹50 per crore of turnover (0.005%)
+    const transactionChargeRate = 0.00005; // 0.005%
+    const transactionCharges = turnover * transactionChargeRate;
+    
+    // 4. GST (18% on brokerage + transaction charges)
+    const gstRate = 0.18; // 18%
+    const taxableAmount = brokerage + transactionCharges;
+    const gst = taxableAmount * gstRate;
+    
+    // 5. SEBI Charges (₹10 per crore)
+    const sebiRate = 0.000001; // 0.0001%
+    const sebiCharges = turnover * sebiRate;
+    
+    // 6. Stamp Duty
+    // Options: 0.003% on buy side only
+    const stampDutyRate = 0.00003; // 0.003%
+    const stampDuty = isBuy ? (buyValue * stampDutyRate) : 0;
+    
+    // Calculate gross P&L
+    const grossPnL = isBuy ? 
+        ((exitPrice - entryPrice) * quantity) : 
+        ((entryPrice - exitPrice) * quantity);
+    
+    // Calculate total taxes and fees
+    const totalFees = brokerage + stt + transactionCharges + gst + sebiCharges + stampDuty;
+    const netPnL = grossPnL - totalFees;
+    
+    return {
+        grossPnL: grossPnL,
+        netPnL: netPnL,
+        totalFees: totalFees,
+        breakdown: {
+            brokerage: brokerage,
+            stt: stt,
+            transactionCharges: transactionCharges,
+            gst: gst,
+            sebiCharges: sebiCharges,
+            stampDuty: stampDuty
+        }
+    };
+}
+
+// Format number with 2 decimals
+function formatNumber(num) {
+    if (num === undefined || num === null) return '0.00';
+    return num.toFixed(2);
+}
+
+// Format currency in Rupees
+function formatCurrency(value) {
+    return '₹' + value.toFixed(2);
+}
+
+// Format date for display
+function formatDisplayDate(dateStr) {
+    const date = new Date(dateStr + 'T12:00:00');
+    return date.toLocaleDateString('en-US', { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+    });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ============== CAMERA FUNCTIONS ==============
+
+let currentStream = null;
+let currentFacingMode = 'environment'; // 'environment' for back camera, 'user' for front
+
+// Setup camera option
+function setupCameraOption() {
+    const cameraOption = document.getElementById('cameraOption');
+    const cameraInput = document.getElementById('cameraInput');
+    
+    if (cameraOption) {
+        cameraOption.addEventListener('click', () => {
+            // Check if browser supports advanced camera API
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                openCameraModal();
+            } else {
+                // Fallback to simple file input with camera
+                if (cameraInput) {
+                    cameraInput.click();
+                }
+            }
+        });
+    }
+    
+    // Handle camera input change (fallback method)
+    if (cameraInput) {
+        cameraInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFiles(e.target.files);
+            }
+        });
+    }
+}
+
+// Open camera modal
+async function openCameraModal() {
+    const modal = document.getElementById('cameraModal');
+    const video = document.getElementById('cameraPreview');
+    
+    if (!modal || !video) return;
+    
+    modal.style.display = 'block';
+    
+    try {
+        // Stop any existing stream
+        if (currentStream) {
+            currentStream.getTracks().forEach(track => track.stop());
+        }
+        
+        // Get new stream
+        currentStream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: currentFacingMode },
+            audio: false
+        });
+        
+        video.srcObject = currentStream;
+        await video.play();
+        
+    } catch (error) {
+        console.error("Error accessing camera:", error);
+        showNotification('Could not access camera. Please check permissions.', 'error');
+        closeCameraModal();
+    }
+}
+
+// Close camera modal
+function closeCameraModal() {
+    const modal = document.getElementById('cameraModal');
+    const video = document.getElementById('cameraPreview');
+    
+    if (modal) {
+        modal.style.display = 'none';
+    }
+    
+    // Stop camera stream
+    if (currentStream) {
+        currentStream.getTracks().forEach(track => track.stop());
+        currentStream = null;
+    }
+    
+    if (video) {
+        video.srcObject = null;
+    }
+}
+
+// Capture photo from camera
+function capturePhoto() {
+    const video = document.getElementById('cameraPreview');
+    const canvas = document.getElementById('cameraCanvas');
+    
+    if (!video || !canvas) return;
+    
+    // Set canvas dimensions to match video
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    
+    // Draw video frame to canvas
+    const context = canvas.getContext('2d');
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+    // Convert canvas to blob
+    canvas.toBlob(async (blob) => {
+        // Create a file from the blob
+        const fileName = `camera_${Date.now()}.jpg`;
+        const file = new File([blob], fileName, { type: 'image/jpeg' });
+        
+        // Add to preview
+        await addFileToPreview(file);
+        
+        // Add to file input
+        addFileToInput(file);
+        
+        // Close camera modal
+        closeCameraModal();
+        
+        showNotification('📸 Photo captured successfully!', 'success');
+    }, 'image/jpeg', 0.9); // 0.9 quality for smaller file size
+}
+
+// Switch between front and back camera
+async function switchCamera() {
+    // Toggle facing mode
+    currentFacingMode = currentFacingMode === 'environment' ? 'user' : 'environment';
+    
+    // Close current stream
+    if (currentStream) {
+        currentStream.getTracks().forEach(track => track.stop());
+    }
+    
+    // Reopen camera with new facing mode
+    await openCameraModal();
+}
+
+// Add this to your setupEnhancedUpload function
+function setupEnhancedUpload() {
+    console.log("Setting up enhanced upload...");
+    
+    // Option 1: Browse files
+    const uploadOption = document.getElementById('uploadOption');
+    const fileInput = document.getElementById('fileInput');
+    
+    if (uploadOption && fileInput) {
+        console.log("Setting up browse option");
+        uploadOption.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFiles(e.target.files);
+            }
+        });
+    }
+    
+    // Option 2: Paste from clipboard
+    const pasteOption = document.getElementById('pasteOption');
+    const pasteArea = document.getElementById('pasteArea');
+    
+    if (pasteOption && pasteArea) {
+        console.log("Setting up paste option");
+        
+        pasteOption.addEventListener('click', () => {
+            pasteArea.focus();
+            pasteArea.select();
+            showNotification('📋 Press Ctrl+V to paste image', 'info');
+        });
+        
+        pasteArea.addEventListener('paste', async (e) => {
+            e.preventDefault();
+            
+            const items = e.clipboardData.items;
+            
+            for (let item of items) {
+                if (item.type.indexOf('image') !== -1) {
+                    const blob = item.getAsFile();
+                    const file = new File([blob], `pasted_image_${Date.now()}.png`, { type: blob.type });
+                    
+                    await addFileToPreview(file);
+                    addFileToInput(file);
+                    
+                    pasteArea.value = '';
+                    showNotification('✅ Image pasted successfully!', 'success');
+                }
+            }
+        });
+    }
+    
+    // NEW: Setup camera option
+    setupCameraOption();
+    
+    // Setup modal close for camera
+    const modal = document.getElementById('cameraModal');
+    const closeBtn = modal?.querySelector('.close');
+    
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeCameraModal);
+    }
+    
+    window.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeCameraModal();
+        }
     });
 }

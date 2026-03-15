@@ -1896,3 +1896,118 @@ button[type="submit"]:hover {
         max-width: 100%;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ============== CAMERA STYLES ============== */
+
+/* Camera Modal */
+.camera-modal-content {
+    max-width: 600px;
+    width: 90%;
+}
+
+#cameraPreview {
+    width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 8px;
+    background: #000;
+    margin-bottom: 1rem;
+}
+
+.camera-controls {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.capture-btn {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.capture-btn:hover {
+    background: #c0392b;
+    transform: scale(1.05);
+}
+
+.capture-btn i {
+    font-size: 1.5rem;
+}
+
+.switch-btn {
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.switch-btn:hover {
+    background: #2980b9;
+}
+
+/* Upload option for camera */
+.upload-option i.fa-camera {
+    color: #e74c3c;
+}
+
+.upload-option:hover i.fa-camera {
+    color: #c0392b;
+}
+
+/* Responsive camera */
+@media (max-width: 768px) {
+    .camera-controls {
+        flex-direction: column;
+    }
+    
+    .capture-btn, .switch-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}

@@ -9,6 +9,310 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <style>
+        /* ============== FLOATING ACTION BUTTONS ============== */
+.fab-container {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    z-index: 1000;
+}
+
+.fab {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+}
+
+.fab:hover {
+    transform: scale(1.1);
+}
+
+.fab-add {
+    background: #27ae60;
+}
+
+.fab-add:hover {
+    background: #229954;
+}
+
+.fab-contract {
+    background: #3498db;
+}
+
+.fab-contract:hover {
+    background: #2980b9;
+}
+
+/* ============== CONTRACT NOTE MODAL ============== */
+.contract-modal-content {
+    max-width: 800px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.contract-upload-area {
+    border: 3px dashed #3498db;
+    border-radius: 12px;
+    padding: 3rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-bottom: 1.5rem;
+}
+
+.contract-upload-area:hover {
+    background: #f0f9ff;
+    border-color: #2980b9;
+}
+
+.contract-upload-area i {
+    font-size: 4rem;
+    color: #3498db;
+    margin-bottom: 1rem;
+}
+
+.contract-upload-area p {
+    color: #2c3e50;
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.contract-upload-area small {
+    color: #7f8c8d;
+}
+
+.contract-password-section {
+    margin: 1.5rem 0;
+}
+
+.contract-password-section label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.contract-password-section input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.parse-btn {
+    width: 100%;
+    padding: 1rem;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.parse-btn:hover {
+    background: #2980b9;
+}
+
+.parse-btn:disabled {
+    background: #bdc3c7;
+    cursor: not-allowed;
+}
+
+.contract-date-warning {
+    background: #fff3cd;
+    border: 1px solid #ffeeba;
+    color: #856404;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.contract-date-warning i {
+    font-size: 1.2rem;
+}
+
+.contract-select-all {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+.checkbox-container input {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.contract-trades-list {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+
+.contract-trade-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid #dee2e6;
+    transition: background 0.2s;
+}
+
+.contract-trade-item:hover {
+    background: #f8f9fa;
+}
+
+.contract-trade-item:last-child {
+    border-bottom: none;
+}
+
+.contract-trade-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin-right: 1rem;
+    cursor: pointer;
+}
+
+.trade-details {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+}
+
+.trade-detail {
+    display: flex;
+    flex-direction: column;
+}
+
+.detail-label {
+    font-size: 0.8rem;
+    color: #7f8c8d;
+    margin-bottom: 0.25rem;
+}
+
+.detail-value {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.detail-value.buy {
+    color: #27ae60;
+}
+
+.detail-value.sell {
+    color: #e74c3c;
+}
+
+.contract-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.contract-actions button {
+    flex: 1;
+    padding: 1rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.contract-actions .import-btn {
+    background: #27ae60;
+    color: white;
+}
+
+.contract-actions .import-btn:hover {
+    background: #229954;
+}
+
+.contract-actions .cancel-btn {
+    background: #95a5a6;
+    color: white;
+}
+
+.contract-actions .cancel-btn:hover {
+    background: #7f8c8d;
+}
+
+/* Loading Spinner */
+.contract-loading {
+    text-align: center;
+    padding: 2rem;
+}
+
+.contract-loading i {
+    font-size: 2rem;
+    color: #3498db;
+    margin-bottom: 1rem;
+}
+
+.contract-loading p {
+    color: #7f8c8d;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .fab-container {
+        bottom: 20px;
+        right: 20px;
+    }
+    
+    .fab {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+    }
+    
+    .trade-details {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+    </style>
 </head>
 <body>
     <div class="nav-bar">
@@ -73,6 +377,12 @@
                         <span>Paste (Ctrl+V)</span>
                     </div>
 
+                    <!-- NEW: Camera Capture Option -->
+                    <div class="upload-option" id="cameraOption">
+                        <i class="fas fa-camera"></i>
+                        <span>Take Photo</span>
+                    </div>
+
                     <!-- Option 3: Clipboard History -->
                     <!-- <div class="upload-option" id="historyOption">
                         <i class="fas fa-history"></i>
@@ -87,7 +397,27 @@
 
                 <!-- Preview area -->
                 <div id="preview"></div>
-                
+                <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display: none;">
+                <div id="cameraModal" class="modal">
+                    <div class="modal-content camera-modal-content">
+                        <div class="modal-header">
+                            <h3><i class="fas fa-camera"></i> Take Photo</h3>
+                            <span class="close" onclick="closeCameraModal()">&times;</span>
+                        </div>
+                        <div class="modal-body">
+                            <video id="cameraPreview" autoplay playsinline></video>
+                            <canvas id="cameraCanvas" style="display: none;"></canvas>
+                            <div class="camera-controls">
+                                <button onclick="capturePhoto()" class="capture-btn">
+                                    <i class="fas fa-circle"></i> Capture
+                                </button>
+                                <button onclick="switchCamera()" class="switch-btn">
+                                    <i class="fas fa-sync-alt"></i> Switch Camera
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <!-- Clipboard History Modal (hidden by default) -->
                 <div id="clipboardModal" class="modal">
                     <div class="modal-content">
@@ -101,7 +431,17 @@
                     </div>
                 </div>
             </div>
-
+            <!-- Add to journal.html form -->
+            <!-- <div class="form-row">
+                <label>Tax Details (from contract note):</label>
+                <div class="tax-fields-grid">
+                    <input type="number" id="brokerage" step="0.01" placeholder="Brokerage">
+                    <input type="number" id="stt" step="0.01" placeholder="STT">
+                    <input type="number" id="transactionCharges" step="0.01" placeholder="Transaction Charges">
+                    <input type="number" id="gst" step="0.01" placeholder="GST">
+                    <input type="number" id="stampDuty" step="0.01" placeholder="Stamp Duty">
+                </div>
+            </div> -->
             <div class="form-row">
                 <label>Trade Notes:</label>
                 <textarea id="notes" rows="3" placeholder="Add notes about this trade..."></textarea>
@@ -130,6 +470,363 @@
         </div>
     </div>
 
+    <!-- Floating Action Buttons -->
+    <div class="fab-container">
+        <div class="fab fab-contract" onclick="openContractNoteModal()" title="Import from Contract Note">
+            <i class="fas fa-file-invoice"></i>
+        </div>
+        <div class="fab fab-add" onclick="scrollToTop()" title="Add New Trade">
+            <i class="fas fa-plus"></i>
+        </div>
+    </div>
+
+    <!-- Contract Note Import Modal -->
+    <div id="contractNoteModal" class="modal">
+        <div class="modal-content contract-modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-file-invoice"></i> Import from Contract Note</h3>
+                <span class="close" onclick="closeContractNoteModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <!-- Step 1: Upload -->
+                <div id="contractStep1">
+                    <div class="contract-upload-area" onclick="document.getElementById('contractFile').click()">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Click to upload contract note PDF</p>
+                        <small>Password: uefbugebfvu</small>
+                    </div>
+                    <input type="file" id="contractFile" accept=".pdf" style="display: none;">
+                    
+                    <div class="contract-password-section">
+                        <label>PDF Password:</label>
+                        <input type="password" id="contractPassword" value="uefbugebfvu" placeholder="Enter PDF password">
+                    </div>
+                    
+                    <button onclick="parseContractNote()" class="parse-btn">
+                        <i class="fas fa-file-import"></i> Parse Contract Note
+                    </button>
+                </div>
+
+                <!-- Step 2: Trade Selection -->
+                <div id="contractStep2" style="display: none;">
+                    <div class="contract-date-warning" id="dateWarning" style="display: none;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span id="dateWarningMessage"></span>
+                    </div>
+
+                    <div class="contract-select-all">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="selectAllTrades" onchange="toggleAllTrades()">
+                            <span class="checkmark"></span>
+                            Select All Trades
+                        </label>
+                        <span id="selectedCount">0 trades selected</span>
+                    </div>
+
+                    <div class="contract-trades-list" id="contractTradesList">
+                        <!-- Trades will be listed here -->
+                    </div>
+
+                    <div class="contract-actions">
+                        <button onclick="importSelectedTrades()" class="import-btn">
+                            <i class="fas fa-check"></i> Import Selected
+                        </button>
+                        <button onclick="resetContractImport()" class="cancel-btn">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="app.js"></script>
+    <script>
+        // ============== CONTRACT NOTE IMPORT FUNCTIONS ==============
+
+let parsedTrades = [];
+let contractDate = null;
+
+// Open contract note modal
+function openContractNoteModal() {
+    const modal = document.getElementById('contractNoteModal');
+    if (modal) {
+        modal.style.display = 'block';
+        resetContractImport();
+    }
+}
+
+// Close contract note modal
+function closeContractNoteModal() {
+    const modal = document.getElementById('contractNoteModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// Reset contract import
+function resetContractImport() {
+    document.getElementById('contractStep1').style.display = 'block';
+    document.getElementById('contractStep2').style.display = 'none';
+    document.getElementById('contractFile').value = '';
+    document.getElementById('dateWarning').style.display = 'none';
+    parsedTrades = [];
+    contractDate = null;
+}
+
+// Parse contract note PDF
+async function parseContractNote() {
+    const fileInput = document.getElementById('contractFile');
+    const password = document.getElementById('contractPassword').value;
+    
+    if (!fileInput.files || fileInput.files.length === 0) {
+        showNotification('Please select a contract note PDF', 'error');
+        return;
+    }
+    
+    const file = fileInput.files[0];
+    
+    showNotification('Parsing contract note...', 'info');
+    
+    try {
+        // Read file as ArrayBuffer
+        const arrayBuffer = await file.arrayBuffer();
+        
+        // Load PDF with password
+        const loadingTask = pdfjsLib.getDocument({
+            data: arrayBuffer,
+            password: password
+        });
+        
+        const pdf = await loadingTask.promise;
+        
+        // Extract text from all pages
+        let fullText = '';
+        for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const textContent = await page.getTextContent();
+            const pageText = textContent.items.map(item => item.str).join(' ');
+            fullText += pageText + '\n';
+        }
+        
+        // Parse the extracted text
+        parseContractText(fullText);
+        
+    } catch (error) {
+        console.error('Error parsing PDF:', error);
+        
+        if (error.message.includes('Incorrect password')) {
+            showNotification('Incorrect PDF password. Please check and try again.', 'error');
+        } else {
+            showNotification('Error parsing PDF. Please check the file format.', 'error');
+        }
+    }
+}
+
+// Parse contract note text
+function parseContractText(text) {
+    console.log("Parsing contract text...");
+    
+    // Extract contract date (look for date patterns)
+    const dateMatch = text.match(/Contract Date[:\s]+(\d{2}[-\/]\d{2}[-\/]\d{4})/i) ||
+                     text.match(/(\d{2}[-\/]\d{2}[-\/]\d{4})/);
+    
+    if (dateMatch) {
+        contractDate = dateMatch[1].replace(/\//g, '-');
+        console.log("Contract date found:", contractDate);
+    }
+    
+    // Parse Nifty options trades
+    const trades = [];
+    const lines = text.split('\n');
+    
+    // Regular expression for OPTIDX NIFTY trades
+    const tradeRegex = /OPTIDX\s+NIFTY\s+(\d{2}[A-Za-z]+\d{4})\s+(\d+)\s+(CE|PE)\s+-\s+NSE\s+(B|S)\s+(\d+)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)\s+([-\d,]+)/g;
+    
+    let match;
+    while ((match = tradeRegex.exec(text)) !== null) {
+        const expiry = match[1];
+        const strike = parseInt(match[2]);
+        const optionType = match[3];
+        const direction = match[4] === 'B' ? 'LONG' : 'SHORT';
+        const quantity = parseInt(match[5]);
+        const price = parseFloat(match[6]);
+        const brokerage = parseFloat(match[7]);
+        const priceAfterBrokerage = parseFloat(match[8]);
+        const netTotal = parseFloat(match[9].replace(/,/g, ''));
+        
+        trades.push({
+            symbol: 'NIFTY',
+            expiry: expiry,
+            strike: strike,
+            optionType: optionType,
+            direction: direction,
+            quantity: quantity,
+            entryPrice: price,
+            brokerage: brokerage,
+            priceAfterBrokerage: priceAfterBrokerage,
+            netTotal: netTotal,
+            displayName: `${strike} ${optionType} ${expiry}`
+        });
+    }
+    
+    if (trades.length === 0) {
+        showNotification('No Nifty options trades found in contract note', 'error');
+        return;
+    }
+    
+    parsedTrades = trades;
+    displayTradesForSelection();
+}
+
+// Display trades for selection
+function displayTradesForSelection() {
+    const step1 = document.getElementById('contractStep1');
+    const step2 = document.getElementById('contractStep2');
+    const tradesList = document.getElementById('contractTradesList');
+    const dateWarning = document.getElementById('dateWarning');
+    const dateWarningMessage = document.getElementById('dateWarningMessage');
+    
+    // Check if contract date matches selected journal date
+    const journalDate = document.getElementById('currentDate').textContent;
+    
+    if (contractDate && contractDate !== journalDate) {
+        dateWarning.style.display = 'flex';
+        dateWarningMessage.innerHTML = `Contract note date (${contractDate}) doesn't match selected journal date (${journalDate}). Trades will be saved to ${journalDate}.`;
+    } else {
+        dateWarning.style.display = 'none';
+    }
+    
+    // Build trades list
+    let html = '';
+    parsedTrades.forEach((trade, index) => {
+        const dirClass = trade.direction === 'LONG' ? 'buy' : 'sell';
+        const dirIcon = trade.direction === 'LONG' ? '📈' : '📉';
+        
+        html += `
+            <div class="contract-trade-item">
+                <input type="checkbox" class="trade-checkbox" data-index="${index}" checked onchange="updateSelectedCount()">
+                <div class="trade-details">
+                    <div class="trade-detail">
+                        <span class="detail-label">Symbol</span>
+                        <span class="detail-value">${trade.symbol} ${trade.strike} ${trade.optionType}</span>
+                    </div>
+                    <div class="trade-detail">
+                        <span class="detail-label">Expiry</span>
+                        <span class="detail-value">${trade.expiry}</span>
+                    </div>
+                    <div class="trade-detail">
+                        <span class="detail-label">Direction</span>
+                        <span class="detail-value ${dirClass}">${dirIcon} ${trade.direction}</span>
+                    </div>
+                    <div class="trade-detail">
+                        <span class="detail-label">Qty</span>
+                        <span class="detail-value">${trade.quantity}</span>
+                    </div>
+                    <div class="trade-detail">
+                        <span class="detail-label">Price</span>
+                        <span class="detail-value">₹${trade.entryPrice.toFixed(2)}</span>
+                    </div>
+                    <div class="trade-detail">
+                        <span class="detail-label">Net Total</span>
+                        <span class="detail-value">₹${trade.netTotal.toFixed(2)}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    tradesList.innerHTML = html;
+    
+    // Update step visibility
+    step1.style.display = 'none';
+    step2.style.display = 'block';
+    
+    updateSelectedCount();
+}
+
+// Toggle all trades
+function toggleAllTrades() {
+    const selectAll = document.getElementById('selectAllTrades');
+    const checkboxes = document.querySelectorAll('.trade-checkbox');
+    
+    checkboxes.forEach(cb => {
+        cb.checked = selectAll.checked;
+    });
+    
+    updateSelectedCount();
+}
+
+// Update selected trades count
+function updateSelectedCount() {
+    const checkboxes = document.querySelectorAll('.trade-checkbox');
+    const selectedCount = document.getElementById('selectedCount');
+    const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+    
+    selectedCount.textContent = `${checkedCount} trades selected`;
+    
+    // Update select all checkbox
+    const selectAll = document.getElementById('selectAllTrades');
+    if (selectAll) {
+        selectAll.checked = checkedCount === checkboxes.length;
+        selectAll.indeterminate = checkedCount > 0 && checkedCount < checkboxes.length;
+    }
+}
+
+// Import selected trades
+async function importSelectedTrades() {
+    const checkboxes = document.querySelectorAll('.trade-checkbox:checked');
+    const journalDate = document.getElementById('currentDate').textContent;
+    
+    if (checkboxes.length === 0) {
+        showNotification('No trades selected', 'error');
+        return;
+    }
+    
+    showNotification(`Importing ${checkboxes.length} trades...`, 'info');
+    
+    let successCount = 0;
+    
+    for (let checkbox of checkboxes) {
+        const index = checkbox.dataset.index;
+        const trade = parsedTrades[index];
+        
+        // Create trade data object
+        const tradeData = {
+            symbol: trade.symbol,
+            direction: trade.direction,
+            entryPrice: trade.entryPrice,
+            exitPrice: trade.entryPrice, // For single leg, exit same as entry? Need both legs
+            quantity: trade.quantity,
+            pnl: trade.netTotal, // Using net total as P&L
+            notes: `Imported from contract note - ${trade.strike} ${trade.optionType} ${trade.expiry}`,
+            contractNote: true,
+            strike: trade.strike,
+            optionType: trade.optionType,
+            expiry: trade.expiry,
+            brokerage: trade.brokerage
+        };
+        
+        // For paired trades (both buy and sell), you'd need to match them
+        // This is simplified - in reality you'd need to match buy and sell legs
+        
+        const success = await TradeJournal.saveTrade(journalDate, tradeData, []);
+        if (success) successCount++;
+    }
+    
+    if (successCount > 0) {
+        showNotification(`${successCount} trades imported successfully!`, 'success');
+        closeContractNoteModal();
+        loadTodaysTrades(journalDate); // Refresh the trades list
+    } else {
+        showNotification('Failed to import trades', 'error');
+    }
+}
+
+// Scroll to top function for add button
+function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+    </script>
 </body>
 </html>

@@ -40,7 +40,44 @@
             <h2><i class="fas fa-images"></i> Screenshots</h2>
             <div class="gallery-grid" id="galleryGrid"></div>
         </div>
-
+        <!-- Add this to trade-detail.html -->
+        <div class="tax-breakdown-section">
+            <h3><i class="fas fa-file-invoice"></i> Tax & Fee Breakdown</h3>
+            <table class="tax-table">
+                <tr>
+                    <td>Gross P&L:</td>
+                    <td class="pnl-value">$1,234.56</td>
+                </tr>
+                <tr>
+                    <td>Brokerage:</td>
+                    <td>-$40.00</td>
+                </tr>
+                <tr>
+                    <td>STT:</td>
+                    <td>-$64.00</td>
+                </tr>
+                <tr>
+                    <td>Transaction Charges:</td>
+                    <td>-$6.10</td>
+                </tr>
+                <tr>
+                    <td>GST (18%):</td>
+                    <td>-$8.30</td>
+                </tr>
+                <tr>
+                    <td>Stamp Duty:</td>
+                    <td>-$2.00</td>
+                </tr>
+                <tr>
+                    <td>SEBI Fees:</td>
+                    <td>-$0.13</td>
+                </tr>
+                <tr class="total-row">
+                    <td><strong>Net P&L After Tax:</strong></td>
+                    <td class="pnl-value"><strong>$1,114.03</strong></td>
+                </tr>
+            </table>
+        </div>
         <!-- Edit Trade Button -->
         <div class="action-buttons" id="actionButtons" style="display: none;">
             <button onclick="editTrade()" class="edit-btn">
