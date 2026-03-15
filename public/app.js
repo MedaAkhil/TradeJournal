@@ -2732,6 +2732,7 @@ function formatDisplayDate(dateStr) {
 
 let currentStream = null;
 let currentFacingMode = 'environment'; // 'environment' for back camera, 'user' for front
+let isCameraInitialized = false;
 
 // Setup camera option
 function setupCameraOption() {
@@ -2771,24 +2772,58 @@ async function openCameraModal() {
     
     modal.style.display = 'block';
     
+    // Don't reinitialize if already initialized
+    if (isCameraInitialized) {
+        return;
+    }
+    
     try {
         // Stop any existing stream
         if (currentStream) {
             currentStream.getTracks().forEach(track => track.stop());
+            currentStream = null;
         }
         
-        // Get new stream
-        currentStream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: currentFacingMode },
+        // Get new stream with better error handling
+        const constraints = {
+            video: { 
+                facingMode: currentFacingMode,
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
+            },
             audio: false
+        };
+        
+        currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+        
+        // Important: Set srcObject BEFORE calling play()
+        video.srcObject = currentStream;
+        
+        // Wait for video to be ready
+        await new Promise((resolve) => {
+            video.onloadedmetadata = () => {
+                resolve();
+            };
         });
         
-        video.srcObject = currentStream;
         await video.play();
+        isCameraInitialized = true;
         
     } catch (error) {
         console.error("Error accessing camera:", error);
-        showNotification('Could not access camera. Please check permissions.', 'error');
+        
+        let errorMessage = 'Could not access camera. ';
+        if (error.name === 'NotAllowedError') {
+            errorMessage += 'Please grant camera permission.';
+        } else if (error.name === 'NotFoundError') {
+            errorMessage += 'No camera found on this device.';
+        } else if (error.name === 'NotReadableError') {
+            errorMessage += 'Camera is already in use by another application.';
+        } else {
+            errorMessage += 'Please check camera permissions.';
+        }
+        
+        showNotification(errorMessage, 'error');
         closeCameraModal();
     }
 }
@@ -2804,13 +2839,18 @@ function closeCameraModal() {
     
     // Stop camera stream
     if (currentStream) {
-        currentStream.getTracks().forEach(track => track.stop());
+        currentStream.getTracks().forEach(track => {
+            track.stop();
+        });
         currentStream = null;
     }
     
     if (video) {
         video.srcObject = null;
+        video.load(); // Reset video element
     }
+    
+    isCameraInitialized = false;
 }
 
 // Capture photo from camera
@@ -2818,7 +2858,10 @@ function capturePhoto() {
     const video = document.getElementById('cameraPreview');
     const canvas = document.getElementById('cameraCanvas');
     
-    if (!video || !canvas) return;
+    if (!video || !canvas || !video.videoWidth) {
+        showNotification('Camera not ready', 'error');
+        return;
+    }
     
     // Set canvas dimensions to match video
     canvas.width = video.videoWidth;
@@ -2844,7 +2887,7 @@ function capturePhoto() {
         closeCameraModal();
         
         showNotification('📸 Photo captured successfully!', 'success');
-    }, 'image/jpeg', 0.9); // 0.9 quality for smaller file size
+    }, 'image/jpeg', 0.9);
 }
 
 // Switch between front and back camera
@@ -2852,9 +2895,19 @@ async function switchCamera() {
     // Toggle facing mode
     currentFacingMode = currentFacingMode === 'environment' ? 'user' : 'environment';
     
+    // Reset initialization flag
+    isCameraInitialized = false;
+    
     // Close current stream
     if (currentStream) {
         currentStream.getTracks().forEach(track => track.stop());
+        currentStream = null;
+    }
+    
+    // Clear video source
+    const video = document.getElementById('cameraPreview');
+    if (video) {
+        video.srcObject = null;
     }
     
     // Reopen camera with new facing mode
