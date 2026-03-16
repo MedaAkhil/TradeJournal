@@ -239,7 +239,19 @@ function setupJournalForm() {
     const quantity = document.getElementById('quantity');
     const direction = document.getElementById('direction');
     const pnlField = document.getElementById('pnl');
+    const strategySelect = document.getElementById('strategy');
+    const customStrategyRow = document.getElementById('customStrategyRow');
     
+    if (strategySelect && customStrategyRow) {
+        strategySelect.addEventListener('change', function() {
+            if (this.value === 'Other') {
+                customStrategyRow.style.display = 'flex';
+            } else {
+                customStrategyRow.style.display = 'none';
+            }
+        });
+    }
+
     if (entryPrice && exitPrice && quantity && direction && pnlField) {
         function calculatePnL() {
             if (entryPrice.value && exitPrice.value && quantity.value) {
@@ -268,6 +280,38 @@ function setupJournalForm() {
     if (tradeForm) {
         tradeForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+
+            let strategy = document.getElementById('strategy')?.value || '';
+            if (strategy === 'Other') {
+                strategy = document.getElementById('customStrategy')?.value || 'Other';
+            }
+            
+            // Get current date and combine with time
+            const today = new Date().toISOString().split('T')[0];
+            
+            const entryTime = document.getElementById('entryTime')?.value;
+            const exitTime = document.getElementById('exitTime')?.value;
+            
+            const entryDateTime = entryTime ? `${today}T${entryTime}:00` : new Date().toISOString();
+            const exitDateTime = exitTime ? `${today}T${exitTime}:00` : null;
+            
+            const entryPrice = parseFloat(document.getElementById('entryPrice')?.value || '0');
+            const exitPrice = parseFloat(document.getElementById('exitPrice')?.value || '0');
+            const direction = document.getElementById('direction')?.value || 'LONG';
+            const takeProfit = parseFloat(document.getElementById('takeProfit')?.value);
+            const stopLoss = parseFloat(document.getElementById('stopLoss')?.value);
+            
+            // Determine if TP or SL was hit
+            let hitTarget = 'none';
+            if (takeProfit && stopLoss) {
+                if (direction === 'LONG') {
+                    if (exitPrice >= takeProfit) hitTarget = 'TP';
+                    else if (exitPrice <= stopLoss) hitTarget = 'SL';
+                } else { // SHORT
+                    if (exitPrice <= takeProfit) hitTarget = 'TP';
+                    else if (exitPrice >= stopLoss) hitTarget = 'SL';
+                }
+            }
             
             const tradeData = {
                 symbol: document.getElementById('symbol')?.value.toUpperCase() || '',
@@ -282,7 +326,16 @@ function setupJournalForm() {
                 stt: parseFloat(document.getElementById('stt')?.value) || 0,
                 transactionCharges: parseFloat(document.getElementById('transactionCharges')?.value) || 0,
                 gst: parseFloat(document.getElementById('gst')?.value) || 0,
-                stampDuty: parseFloat(document.getElementById('stampDuty')?.value) || 0
+                stampDuty: parseFloat(document.getElementById('stampDuty')?.value) || 0,
+
+
+                takeProfit: takeProfit,
+                stopLoss: stopLoss,
+                entryTime: entryDateTime,
+                exitTime: exitDateTime,
+                strategy: strategy,
+                hitTarget: hitTarget, // 'TP', 'SL', or 'none'
+                tags: currentTags || []
             };
             
             const fileInput = document.getElementById('fileInput');
@@ -296,6 +349,7 @@ function setupJournalForm() {
                 const preview = document.getElementById('preview');
                 if (preview) preview.innerHTML = '';
                 if (fileInput) fileInput.value = '';
+                clearTags();
                 loadTodaysTrades(date);
             } else {
                 showNotification('Error saving trade. Check console for details.', 'error');
@@ -761,13 +815,40 @@ async function loadTodaysTrades(date) {
         let html = '';
         dayData.trades.forEach((trade, index) => {
             const pnlClass = trade.pnl >= 0 ? 'profit' : 'loss';
-            const dirClass = trade.direction.toLowerCase();
+            const dirClass = trade.direction?.toLowerCase() || 'long';
+            
+            // Format times
+            const entryTime = trade.entryTime ? new Date(trade.entryTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--:--';
+            const exitTime = trade.exitTime ? new Date(trade.exitTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--:--';
+            
+            // TP/SL display
+            const tpSl = trade.takeProfit && trade.stopLoss ? 
+                `<span class="tp-sl-badge">
+                    <span class="tp-badge">TP: ${trade.takeProfit}</span>
+                    <span class="sl-badge">SL: ${trade.stopLoss}</span>
+                </span>` : '-';
+            
+            // Hit target badge
+            const hitBadge = trade.hitTarget === 'TP' ? 
+                '<span class="hit-tp"><i class="fas fa-check-circle"></i> TP Hit</span>' : 
+                trade.hitTarget === 'SL' ? 
+                '<span class="hit-sl"><i class="fas fa-times-circle"></i> SL Hit</span>' : 
+                '<span class="strategy-tag"><i class="fas fa-random"></i> Manual Exit</span>';
+            
+            // Strategy badge
+            const strategyBadge = trade.strategy ? 
+                `<span class="strategy-tag"><i class="fas fa-tag"></i> ${trade.strategy}</span>` : '';
+            
             html += `<tr>
                 <td>${trade.symbol || 'N/A'}</td>
-                <td class="${dirClass}">${trade.direction || 'LONG'}</td>
+                <td class="${dirClass}">${trade.direction === 'LONG' ? '📈 LONG' : '📉 SHORT'}</td>
                 <td>$${trade.entryPrice?.toFixed(2) || '0.00'}</td>
                 <td>$${trade.exitPrice?.toFixed(2) || '0.00'}</td>
-                <td>${trade.quantity || 0}</td>
+                <td>${tpSl}</td>
+                <td>${entryTime}</td>
+                <td>${exitTime}</td>
+                <td>${strategyBadge}</td>
+                <td>${hitBadge}</td>
                 <td class="${pnlClass}">$${trade.pnl?.toFixed(2) || '0.00'}</td>
                 <td>${trade.screenshots ? trade.screenshots.length : 0} 📸</td>
                 <td>
@@ -777,7 +858,7 @@ async function loadTodaysTrades(date) {
         });
         tbody.innerHTML = html;
     } else {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No trades yet today</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="12" style="text-align: center;">No trades yet today</td></tr>';
     }
 }
 
@@ -2480,6 +2561,10 @@ function displayDayTrades(date) {
             html += '<th>Direction</th>';
             html += '<th>Entry</th>';
             html += '<th>Exit</th>';
+            html += '<th>TP/SL</th>';
+            html += '<th>Entry Time</th>';
+            html += '<th>Exit Time</th>';
+            html += '<th>Strategy</th>';
             html += '<th>Qty</th>';
             html += '<th>Gross P&L</th>';
             html += '<th>Net P&L</th>';

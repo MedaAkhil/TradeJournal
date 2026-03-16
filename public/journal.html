@@ -12,306 +12,378 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <style>
         /* ============== FLOATING ACTION BUTTONS ============== */
-.fab-container {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    z-index: 1000;
-}
+        .fab-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 1000;
+        }
 
-.fab {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 24px;
-    cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    transition: all 0.3s ease;
-}
+        .fab {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
 
-.fab:hover {
-    transform: scale(1.1);
-}
+        .fab:hover {
+            transform: scale(1.1);
+        }
 
-.fab-add {
-    background: #27ae60;
-}
+        .fab-add {
+            background: #27ae60;
+        }
 
-.fab-add:hover {
-    background: #229954;
-}
+        .fab-add:hover {
+            background: #229954;
+        }
 
-.fab-contract {
-    background: #3498db;
-}
+        .fab-contract {
+            background: #3498db;
+        }
 
-.fab-contract:hover {
-    background: #2980b9;
-}
+        .fab-contract:hover {
+            background: #2980b9;
+        }
 
-/* ============== CONTRACT NOTE MODAL ============== */
-.contract-modal-content {
-    max-width: 800px;
-    width: 90%;
-    max-height: 80vh;
-    overflow-y: auto;
-}
+        /* ============== CONTRACT NOTE MODAL ============== */
+        .contract-modal-content {
+            max-width: 800px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
 
-.contract-upload-area {
-    border: 3px dashed #3498db;
-    border-radius: 12px;
-    padding: 3rem;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s;
-    margin-bottom: 1.5rem;
-}
+        .contract-upload-area {
+            border: 3px dashed #3498db;
+            border-radius: 12px;
+            padding: 3rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 1.5rem;
+        }
 
-.contract-upload-area:hover {
-    background: #f0f9ff;
-    border-color: #2980b9;
-}
+        .contract-upload-area:hover {
+            background: #f0f9ff;
+            border-color: #2980b9;
+        }
 
-.contract-upload-area i {
-    font-size: 4rem;
-    color: #3498db;
-    margin-bottom: 1rem;
-}
+        .contract-upload-area i {
+            font-size: 4rem;
+            color: #3498db;
+            margin-bottom: 1rem;
+        }
 
-.contract-upload-area p {
-    color: #2c3e50;
-    font-size: 1.2rem;
-    margin-bottom: 0.5rem;
-}
+        .contract-upload-area p {
+            color: #2c3e50;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
 
-.contract-upload-area small {
-    color: #7f8c8d;
-}
+        .contract-upload-area small {
+            color: #7f8c8d;
+        }
 
-.contract-password-section {
-    margin: 1.5rem 0;
-}
+        .contract-password-section {
+            margin: 1.5rem 0;
+        }
 
-.contract-password-section label {
-    display: block;
-    margin-bottom: 0.5rem;
-    color: #2c3e50;
-    font-weight: 600;
-}
+        .contract-password-section label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+            font-weight: 600;
+        }
 
-.contract-password-section input {
-    width: 100%;
-    padding: 0.75rem;
-    border: 2px solid #ddd;
-    border-radius: 4px;
-    font-size: 1rem;
-}
+        .contract-password-section input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
 
-.parse-btn {
-    width: 100%;
-    padding: 1rem;
-    background: #3498db;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 1.1rem;
-    cursor: pointer;
-    transition: background 0.3s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-}
+        .parse-btn {
+            width: 100%;
+            padding: 1rem;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
 
-.parse-btn:hover {
-    background: #2980b9;
-}
+        .parse-btn:hover {
+            background: #2980b9;
+        }
 
-.parse-btn:disabled {
-    background: #bdc3c7;
-    cursor: not-allowed;
-}
+        .parse-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
 
-.contract-date-warning {
-    background: #fff3cd;
-    border: 1px solid #ffeeba;
-    color: #856404;
-    padding: 1rem;
-    border-radius: 8px;
-    margin-bottom: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
+        .contract-date-warning {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
 
-.contract-date-warning i {
-    font-size: 1.2rem;
-}
+        .contract-date-warning i {
+            font-size: 1.2rem;
+        }
 
-.contract-select-all {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem;
-    background: #f8f9fa;
-    border-radius: 8px;
-    margin-bottom: 1rem;
-}
+        .contract-select-all {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
 
-.checkbox-container {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-    user-select: none;
-}
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            user-select: none;
+        }
 
-.checkbox-container input {
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-}
+        .checkbox-container input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
 
-.contract-trades-list {
-    max-height: 400px;
-    overflow-y: auto;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    margin-bottom: 1.5rem;
-}
+        .contract-trades-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
 
-.contract-trade-item {
-    display: flex;
-    align-items: center;
-    padding: 1rem;
-    border-bottom: 1px solid #dee2e6;
-    transition: background 0.2s;
-}
+        .contract-trade-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #dee2e6;
+            transition: background 0.2s;
+        }
 
-.contract-trade-item:hover {
-    background: #f8f9fa;
-}
+        .contract-trade-item:hover {
+            background: #f8f9fa;
+        }
 
-.contract-trade-item:last-child {
-    border-bottom: none;
-}
+        .contract-trade-item:last-child {
+            border-bottom: none;
+        }
 
-.contract-trade-item input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    margin-right: 1rem;
-    cursor: pointer;
-}
+        .contract-trade-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-right: 1rem;
+            cursor: pointer;
+        }
 
-.trade-details {
-    flex: 1;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 1rem;
-}
+        .trade-details {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+        }
 
-.trade-detail {
-    display: flex;
-    flex-direction: column;
-}
+        .trade-detail {
+            display: flex;
+            flex-direction: column;
+        }
 
-.detail-label {
-    font-size: 0.8rem;
-    color: #7f8c8d;
-    margin-bottom: 0.25rem;
-}
+        .detail-label {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            margin-bottom: 0.25rem;
+        }
 
-.detail-value {
-    font-weight: 600;
-    color: #2c3e50;
-}
+        .detail-value {
+            font-weight: 600;
+            color: #2c3e50;
+        }
 
-.detail-value.buy {
-    color: #27ae60;
-}
+        .detail-value.buy {
+            color: #27ae60;
+        }
 
-.detail-value.sell {
-    color: #e74c3c;
-}
+        .detail-value.sell {
+            color: #e74c3c;
+        }
 
-.contract-actions {
-    display: flex;
-    gap: 1rem;
-    margin-top: 1rem;
-}
+        .contract-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
 
-.contract-actions button {
-    flex: 1;
-    padding: 1rem;
-    border: none;
-    border-radius: 8px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background 0.3s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-}
+        .contract-actions button {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
 
-.contract-actions .import-btn {
-    background: #27ae60;
-    color: white;
-}
+        .contract-actions .import-btn {
+            background: #27ae60;
+            color: white;
+        }
 
-.contract-actions .import-btn:hover {
-    background: #229954;
-}
+        .contract-actions .import-btn:hover {
+            background: #229954;
+        }
 
-.contract-actions .cancel-btn {
-    background: #95a5a6;
-    color: white;
-}
+        .contract-actions .cancel-btn {
+            background: #95a5a6;
+            color: white;
+        }
 
-.contract-actions .cancel-btn:hover {
-    background: #7f8c8d;
-}
+        .contract-actions .cancel-btn:hover {
+            background: #7f8c8d;
+        }
 
-/* Loading Spinner */
-.contract-loading {
-    text-align: center;
-    padding: 2rem;
-}
+        /* Loading Spinner */
+        .contract-loading {
+            text-align: center;
+            padding: 2rem;
+        }
 
-.contract-loading i {
-    font-size: 2rem;
-    color: #3498db;
-    margin-bottom: 1rem;
-}
+        .contract-loading i {
+            font-size: 2rem;
+            color: #3498db;
+            margin-bottom: 1rem;
+        }
 
-.contract-loading p {
-    color: #7f8c8d;
-}
+        .contract-loading p {
+            color: #7f8c8d;
+        }
 
-/* Responsive */
-@media (max-width: 768px) {
-    .fab-container {
-        bottom: 20px;
-        right: 20px;
-    }
-    
-    .fab {
-        width: 50px;
-        height: 50px;
-        font-size: 20px;
-    }
-    
-    .trade-details {
-        grid-template-columns: 1fr 1fr;
-    }
-}
+        /* Responsive */
+        @media (max-width: 768px) {
+            .fab-container {
+                bottom: 20px;
+                right: 20px;
+            }
+            
+            .fab {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+            
+            .trade-details {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+
+        .time-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .time-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .time-field label {
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .time-field input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        /* TP/SL display in table */
+        .tp-sl-badge {
+            display: inline-flex;
+            gap: 5px;
+            font-size: 0.8rem;
+        }
+
+        .tp-badge {
+            background: #27ae60;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .sl-badge {
+            background: #e74c3c;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .hit-tp {
+            background: #27ae60;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            display: inline-block;
+        }
+
+        .hit-sl {
+            background: #e74c3c;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            display: inline-block;
+        }
+
+        .strategy-tag {
+            background: #3498db;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
@@ -350,8 +422,51 @@
             </div>
 
             <div class="form-row">
+                <label>Take Profit (TP):</label>
+                <input type="number" id="takeProfit" step="0.01" placeholder="Target price">
+            </div>
+
+            <div class="form-row">
+                <label>Stop Loss (SL):</label>
+                <input type="number" id="stopLoss" step="0.01" placeholder="Stop loss price">
+            </div>
+
+            <div class="form-row">
                 <label>Quantity:</label>
                 <input type="number" id="quantity" required placeholder="100">
+            </div>
+
+            <div class="form-row time-row">
+                <div class="time-field">
+                    <label>Entry Time:</label>
+                    <input type="time" id="entryTime" step="1">
+                </div>
+                <div class="time-field">
+                    <label>Exit Time:</label>
+                    <input type="time" id="exitTime" step="1">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <label>Strategy:</label>
+                <select id="strategy">
+                    <option value="">Select Strategy</option>
+                    <option value="Breakout">Breakout</option>
+                    <option value="Pullback">Pullback</option>
+                    <option value="Reversal">Reversal</option>
+                    <option value="Trend Following">Trend Following</option>
+                    <option value="Range Trading">Range Trading</option>
+                    <option value="Scalping">Scalping</option>
+                    <option value="Swing Trading">Swing Trading</option>
+                    <option value="News Trading">News Trading</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <!-- Custom strategy input (shown when "Other" is selected) -->
+            <div class="form-row" id="customStrategyRow" style="display: none;">
+                <label>Custom Strategy:</label>
+                <input type="text" id="customStrategy" placeholder="Enter strategy name">
             </div>
 
             <div class="form-row">

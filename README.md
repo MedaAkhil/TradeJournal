@@ -13,7 +13,7 @@ A complete trading journal application to track daily trades, analyze performanc
 
 ## Live Demo 🚀
 
-[https://trade-journal-pro-e0ee0.web.app](https://trade-journal-pro-e0ee0.web.app)
+[https://trade-pro-e0ee0.web.app](https://trade-journal-pro-e0ee0.web.app)
 
 ## Tech Stack 💻
 
