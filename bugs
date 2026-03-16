@@ -1,0 +1,94 @@
+Yes, I found several issues and bugs in your code! Let me list them out:
+
+🐛 Critical Bugs & Issues
+1. DUPLICATE FUNCTION DECLARATIONS ⚠️
+You have multiple copies of the same functions:
+
+displayDayTrades declared at least 3 times (lines ~80, ~1900, ~2730)
+
+loadTodaysTrades declared twice (lines ~1100 and ~1640)
+
+deleteTradeFromForm declared twice (lines ~1140 and ~1680)
+
+viewTradeDetail declared twice (lines ~2070 and ~2670)
+
+goToAddTrade declared twice (lines ~1890 and ~2680)
+
+This causes the last declaration to override previous ones, leading to unexpected behavior.
+
+2. UNDEFINED VARIABLES ❌
+javascript
+// In displayDayTrades function (line ~1900)
+html += `<td class="${pnlAfterTaxClass}">$${formatNumber(trade.pnlAfterTax)}</td>`;
+// pnlAfterTaxClass is not defined anywhere!
+3. TAX CALCULATION CONFLICT 🔴
+You have two different tax calculation functions:
+
+calculateTradeFees() - Uses stored fee values
+
+calculateTradeTaxes() - Auto-calculates based on Dhan rules
+
+They conflict and give different results!
+
+4. DATE MISMATCH WARNING ⚠️
+In contract note import, you warn about date mismatch but still save to journal date. This could cause incorrect trade dating.
+
+5. CURRENCY SYMBOL MIX 💵
+You mix $ and ₹ throughout:
+
+Dashboard shows $0.00 but tax calculations use ₹
+
+Index page shows $ but you're trading in Indian market
+
+6. DUPLICATE DOMContentLoaded EVENTS 🔄
+You have multiple DOMContentLoaded listeners:
+
+Line ~460
+
+Line ~2000
+
+Line ~2380
+
+Line ~2500
+
+This causes multiple initializations!
+
+7. BROKEN TABLE HEADERS 📊
+In the index page displayDayTrades function (line ~2730), the table headers don't match the data columns:
+
+javascript
+// Headers: Symbol, Direction, Entry, Exit, TP/SL, Entry Time, Exit Time, Strategy, Qty, Gross P&L, Net P&L, Tax, Images, Actions
+// But data has: Symbol, Direction, Entry, Exit, Qty, Gross P&L, Net P&L, Tax, Images, Actions
+// Missing TP/SL, Entry Time, Exit Time, Strategy columns!
+8. INCOMPLETE CONTRACT NOTE IMPORT 📄
+The import function saves each leg separately but doesn't match buy/sell pairs, so P&L won't calculate correctly.
+
+9. MISSING ERROR HANDLING ⚠️
+No try-catch in many async functions, which could cause silent failures.
+
+10. REDUNDANT CALCULATIONS 🔄
+calculatePnLAfterTax() and calculateTradeFees() duplicate work that calculateTradeTaxes() already does.
+
+📋 Complete List of Issues
+#	Issue	Location	Severity
+1	Duplicate functions	Multiple	🔴 HIGH
+2	Undefined variable	Line ~1900	🔴 HIGH
+3	Conflicting tax functions	Lines ~1400, ~2200	🔴 HIGH
+4	Currency symbol mix	Throughout	🟡 MEDIUM
+5	Multiple DOM listeners	Lines 460,2000,2380,2500	🟡 MEDIUM
+6	Table header mismatch	Line ~2730	🟡 MEDIUM
+7	Contract note incomplete	Line ~700	🟡 MEDIUM
+8	Missing error handling	Various	🟡 MEDIUM
+9	Redundant calculations	Lines ~1380, ~1410	🟢 LOW
+10	Inconsistent formatting	Throughout	🟢 LOW
+✅ Recommended Fixes
+1. Remove all duplicates - Keep ONLY ONE copy of each function
+2. Choose ONE tax calculation method - Either stored fees or auto-calculated
+3. Standardize currency - Use ₹ for Indian market
+4. Fix table headers - Match columns with data
+5. Consolidate DOM listeners - Single listener with path checks
+6. Improve contract note import - Match buy/sell pairs
+🎯 Quick Fix for the Most Critical Bug
+The most immediate bug is the undefined pnlAfterTaxClass in line ~1900. Fix it by removing that line since you're already showing net P&L in the consolidated function at line ~2730.
+
+Want me to provide a cleaned-up version of the entire app.js with all these issues fixed?

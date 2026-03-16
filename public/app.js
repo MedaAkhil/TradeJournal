@@ -8,6 +8,14 @@ const firebaseConfig = {
     appId: "1:706152926446:web:2c03f11736e6cdf47377ff"
 };
 
+// Add this near the top of app.js (after Firebase init)
+window.isJournalFormInitialized = false;
+
+// Reset flags when page unloads
+window.addEventListener('beforeunload', function() {
+    window.isJournalFormInitialized = false;
+    window.isCameraInitialized = false;
+});
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
@@ -224,6 +232,13 @@ function displayDayTrades(date) {
 function setupJournalForm() {
     console.log("Setting up journal form...");
     
+    // Prevent double initialization
+    if (window.isJournalFormInitialized) {
+        console.log("Journal form already initialized, skipping...");
+        return;
+    }
+    window.isJournalFormInitialized = true;
+    
     // Get date from URL or use today
     const urlParams = new URLSearchParams(window.location.search);
     const date = urlParams.get('date') || TradeJournal.getTodayDate();
@@ -275,84 +290,97 @@ function setupJournalForm() {
         direction.addEventListener('change', calculatePnL);
     }
     
-    // Handle form submission
+    // Handle form submission with loading button
     const tradeForm = document.getElementById('tradeForm');
-    if (tradeForm) {
+    const saveBtn = document.getElementById('saveTradeBtn');
+    
+    if (tradeForm && saveBtn) {
         tradeForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-
-            let strategy = document.getElementById('strategy')?.value || '';
-            if (strategy === 'Other') {
-                strategy = document.getElementById('customStrategy')?.value || 'Other';
-            }
             
-            // Get current date and combine with time
-            const today = new Date().toISOString().split('T')[0];
+            // Prevent double submission
+            if (saveBtn.disabled) return;
             
-            const entryTime = document.getElementById('entryTime')?.value;
-            const exitTime = document.getElementById('exitTime')?.value;
+            // Show loading state
+            saveBtn.disabled = true;
+            saveBtn.classList.add('loading');
             
-            const entryDateTime = entryTime ? `${today}T${entryTime}:00` : new Date().toISOString();
-            const exitDateTime = exitTime ? `${today}T${exitTime}:00` : null;
-            
-            const entryPrice = parseFloat(document.getElementById('entryPrice')?.value || '0');
-            const exitPrice = parseFloat(document.getElementById('exitPrice')?.value || '0');
-            const direction = document.getElementById('direction')?.value || 'LONG';
-            const takeProfit = parseFloat(document.getElementById('takeProfit')?.value);
-            const stopLoss = parseFloat(document.getElementById('stopLoss')?.value);
-            
-            // Determine if TP or SL was hit
-            let hitTarget = 'none';
-            if (takeProfit && stopLoss) {
-                if (direction === 'LONG') {
-                    if (exitPrice >= takeProfit) hitTarget = 'TP';
-                    else if (exitPrice <= stopLoss) hitTarget = 'SL';
-                } else { // SHORT
-                    if (exitPrice <= takeProfit) hitTarget = 'TP';
-                    else if (exitPrice >= stopLoss) hitTarget = 'SL';
+            try {
+                // Get strategy value (handle custom)
+                let strategy = document.getElementById('strategy')?.value || '';
+                if (strategy === 'Other') {
+                    strategy = document.getElementById('customStrategy')?.value || 'Other';
                 }
-            }
-            
-            const tradeData = {
-                symbol: document.getElementById('symbol')?.value.toUpperCase() || '',
-                direction: document.getElementById('direction')?.value || 'LONG',
-                entryPrice: parseFloat(document.getElementById('entryPrice')?.value || '0'),
-                exitPrice: parseFloat(document.getElementById('exitPrice')?.value || '0'),
-                quantity: parseInt(document.getElementById('quantity')?.value || '0'),
-                pnl: parseFloat(document.getElementById('pnl')?.value || '0'),
-                notes: document.getElementById('notes')?.value || '',
-                // Tax fields (optional)
-                brokerage: parseFloat(document.getElementById('brokerage')?.value) || 0,
-                stt: parseFloat(document.getElementById('stt')?.value) || 0,
-                transactionCharges: parseFloat(document.getElementById('transactionCharges')?.value) || 0,
-                gst: parseFloat(document.getElementById('gst')?.value) || 0,
-                stampDuty: parseFloat(document.getElementById('stampDuty')?.value) || 0,
-
-
-                takeProfit: takeProfit,
-                stopLoss: stopLoss,
-                entryTime: entryDateTime,
-                exitTime: exitDateTime,
-                strategy: strategy,
-                hitTarget: hitTarget, // 'TP', 'SL', or 'none'
-                tags: currentTags || []
-            };
-            
-            const fileInput = document.getElementById('fileInput');
-            const screenshotFiles = fileInput ? fileInput.files : [];
-            
-            const success = await TradeJournal.saveTrade(date, tradeData, screenshotFiles);
-            
-            if (success) {
-                showNotification('Trade saved successfully!', 'success');
-                tradeForm.reset();
-                const preview = document.getElementById('preview');
-                if (preview) preview.innerHTML = '';
-                if (fileInput) fileInput.value = '';
-                clearTags();
-                loadTodaysTrades(date);
-            } else {
-                showNotification('Error saving trade. Check console for details.', 'error');
+                
+                // Get current date and combine with time
+                const today = new Date().toISOString().split('T')[0];
+                
+                const entryTime = document.getElementById('entryTime')?.value;
+                const exitTime = document.getElementById('exitTime')?.value;
+                
+                const entryDateTime = entryTime ? `${today}T${entryTime}:00` : new Date().toISOString();
+                const exitDateTime = exitTime ? `${today}T${exitTime}:00` : null;
+                
+                const entryPrice = parseFloat(document.getElementById('entryPrice')?.value || '0');
+                const exitPrice = parseFloat(document.getElementById('exitPrice')?.value || '0');
+                const direction = document.getElementById('direction')?.value || 'LONG';
+                const takeProfit = parseFloat(document.getElementById('takeProfit')?.value);
+                const stopLoss = parseFloat(document.getElementById('stopLoss')?.value);
+                
+                // Determine if TP or SL was hit
+                let hitTarget = 'none';
+                if (takeProfit && stopLoss) {
+                    if (direction === 'LONG') {
+                        if (exitPrice >= takeProfit) hitTarget = 'TP';
+                        else if (exitPrice <= stopLoss) hitTarget = 'SL';
+                    } else { // SHORT
+                        if (exitPrice <= takeProfit) hitTarget = 'TP';
+                        else if (exitPrice >= stopLoss) hitTarget = 'SL';
+                    }
+                }
+                
+                const tradeData = {
+                    symbol: document.getElementById('symbol')?.value.toUpperCase() || '',
+                    direction: direction,
+                    entryPrice: entryPrice,
+                    exitPrice: exitPrice,
+                    quantity: parseInt(document.getElementById('quantity')?.value || '0'),
+                    pnl: parseFloat(document.getElementById('pnl')?.value || '0'),
+                    notes: document.getElementById('notes')?.value || '',
+                    takeProfit: takeProfit,
+                    stopLoss: stopLoss,
+                    entryTime: entryDateTime,
+                    exitTime: exitDateTime,
+                    strategy: strategy,
+                    hitTarget: hitTarget
+                };
+                
+                const fileInput = document.getElementById('fileInput');
+                const screenshotFiles = fileInput ? fileInput.files : [];
+                
+                const success = await TradeJournal.saveTrade(date, tradeData, screenshotFiles);
+                
+                if (success) {
+                    showNotification('Trade saved successfully!', 'success');
+                    tradeForm.reset();
+                    const preview = document.getElementById('preview');
+                    if (preview) preview.innerHTML = '';
+                    if (fileInput) fileInput.value = '';
+                    
+                    // Reset custom strategy row
+                    if (customStrategyRow) customStrategyRow.style.display = 'none';
+                    
+                    loadTodaysTrades(date);
+                } else {
+                    showNotification('Error saving trade. Check console for details.', 'error');
+                }
+            } catch (error) {
+                console.error('Error saving trade:', error);
+                showNotification('Error saving trade. Please try again.', 'error');
+            } finally {
+                // Hide loading state
+                saveBtn.disabled = false;
+                saveBtn.classList.remove('loading');
             }
         });
     }
@@ -361,7 +389,6 @@ function setupJournalForm() {
     
     // Setup enhanced upload options (includes camera)
     setupEnhancedUpload();
-    
 }
 
 // Load today's trades in the table

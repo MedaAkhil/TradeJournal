@@ -384,6 +384,46 @@
             font-size: 0.8rem;
             display: inline-block;
         }
+
+
+
+
+
+
+        /* Save Button with Loading State */
+        #saveTradeBtn {
+            position: relative;
+            min-width: 150px;
+        }
+
+        #saveTradeBtn .btn-loader {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        #saveTradeBtn.loading .btn-text {
+            display: none;
+        }
+
+        #saveTradeBtn.loading .btn-loader {
+            display: flex;
+        }
+
+        #saveTradeBtn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .fa-spinner {
+            animation: spin 1s linear infinite;
+        }
     </style>
 </head>
 <body>
@@ -562,7 +602,12 @@
                 <textarea id="notes" rows="3" placeholder="Add notes about this trade..."></textarea>
             </div>
 
-            <button type="submit"><i class="fas fa-save"></i> Save Trade</button>
+            <button type="submit" id="saveTradeBtn">
+                <span class="btn-text"><i class="fas fa-save"></i> Save Trade</span>
+                <span class="btn-loader" style="display: none;">
+                    <i class="fas fa-spinner fa-spin"></i> Saving...
+                </span>
+            </button>
         </form>
 
         <div id="todaysTrades">
