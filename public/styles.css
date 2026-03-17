@@ -2011,3 +2011,702 @@ button[type="submit"]:hover {
         justify-content: center;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* responsive design */
+
+/* ============== INDEX PAGE STYLES ============== */
+
+/* Floating Plus Button */
+.floating-plus {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background: #27ae60;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 30px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+    z-index: 1000;
+    animation: pulse 2s infinite;
+}
+
+.floating-plus:hover {
+    transform: scale(1.1) rotate(90deg);
+    background: #229954;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+}
+
+.floating-plus i {
+    transition: transform 0.3s ease;
+}
+
+.floating-plus:hover i {
+    transform: rotate(90deg);
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3);
+    }
+    50% {
+        box-shadow: 0 4px 20px rgba(39, 174, 96, 0.6);
+    }
+    100% {
+        box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3);
+    }
+}
+
+/* Daily Summary Card */
+.daily-summary-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-around;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    border-left: 5px solid #3498db;
+}
+
+.summary-item {
+    text-align: center;
+    flex: 1;
+}
+
+.summary-label {
+    display: block;
+    color: #7f8c8d;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.summary-value {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.summary-value.profit {
+    color: #27ae60;
+}
+
+.summary-value.loss {
+    color: #e74c3c;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.empty-state i {
+    font-size: 4rem;
+    color: #bdc3c7;
+    margin-bottom: 1rem;
+}
+
+.empty-state p {
+    color: #7f8c8d;
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+}
+
+.add-first-trade-btn {
+    background: #27ae60;
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.add-first-trade-btn:hover {
+    background: #229954;
+}
+
+/* Image Count Badge */
+.image-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: #3498db;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.image-count:hover {
+    background: #2980b9;
+}
+
+.no-image {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: #95a5a6;
+    font-size: 0.9rem;
+}
+
+/* Slideshow Modal */
+.modal-content.large {
+    max-width: 800px;
+    width: 90%;
+}
+
+.slideshow-container {
+    position: relative;
+    max-width: 100%;
+    margin: auto;
+}
+
+.slide {
+    display: none;
+}
+
+.slide.active {
+    display: block;
+}
+
+.slide img {
+    width: 100%;
+    max-height: 500px;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+.prev, .next {
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    width: auto;
+    padding: 16px;
+    margin-top: -22px;
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+    transition: 0.6s ease;
+    border-radius: 0 3px 3px 0;
+    user-select: none;
+    background-color: rgba(0,0,0,0.3);
+}
+
+.next {
+    right: 0;
+    border-radius: 3px 0 0 3px;
+}
+
+.prev:hover, .next:hover {
+    background-color: rgba(0,0,0,0.8);
+}
+
+.slide-indicators {
+    text-align: center;
+    padding: 1rem;
+}
+
+.dot {
+    cursor: pointer;
+    height: 10px;
+    width: 10px;
+    margin: 0 5px;
+    background-color: #bbb;
+    border-radius: 50%;
+    display: inline-block;
+    transition: background-color 0.6s ease;
+}
+
+.dot.active, .dot:hover {
+    background-color: #3498db;
+}
+
+/* Date Display Enhancement */
+.date-display {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: white;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.date-display i {
+    color: #3498db;
+    font-size: 1.2rem;
+}
+
+.date-display input[type="date"] {
+    border: none;
+    padding: 0.25rem;
+    font-size: 1rem;
+    color: #2c3e50;
+}
+
+.date-display input[type="date"]:focus {
+    outline: none;
+}
+
+/* Total Row Enhancement */
+.total-row {
+    background: #f8f9fa;
+    font-weight: 600;
+}
+
+.total-row td {
+    padding: 1rem !important;
+    border-top: 2px solid #dee2e6;
+}
+
+/* ============== RESPONSIVE DESIGN FOR INDEX PAGE ============== */
+
+/* Mobile First Approach - Base styles for mobile */
+@media screen and (max-width: 768px) {
+    /* Navigation Bar */
+    .nav-bar {
+        padding: 0.5rem 1rem;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .nav-bar a {
+        margin: 0.25rem 0.5rem;
+        font-size: 0.9rem;
+        padding: 0.25rem 0.5rem;
+        white-space: nowrap;
+    }
+    
+    /* Container */
+    .container {
+        padding: 0 1rem;
+        margin: 1rem auto;
+    }
+    
+    /* Date Navigation */
+    .date-navigation {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .date-navigation button {
+        width: 100%;
+        padding: 0.75rem;
+        font-size: 1rem;
+    }
+    
+    .date-display {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .date-display input[type="date"] {
+        flex: 1;
+        min-width: 0;
+        font-size: 0.9rem;
+    }
+    
+    /* Daily Summary Card */
+    .daily-summary-card {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .summary-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        border-bottom: 1px solid #ecf0f1;
+        padding-bottom: 0.5rem;
+    }
+    
+    .summary-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+    
+    .summary-label {
+        margin-bottom: 0;
+        font-size: 0.85rem;
+    }
+    
+    .summary-value {
+        font-size: 1.2rem;
+    }
+    
+    /* Table Container - Make it horizontally scrollable */
+    .trades-container {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin: 1rem 0;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    /* Table Styles */
+    .trades-table {
+        min-width: 800px; /* Ensures table doesn't squish */
+        font-size: 0.85rem;
+    }
+    
+    .trades-table th,
+    .trades-table td {
+        padding: 0.75rem 0.5rem;
+        white-space: nowrap;
+    }
+    
+    .trades-table th {
+        font-size: 0.85rem;
+    }
+    
+    /* Floating Plus Button */
+    .floating-plus {
+        bottom: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        font-size: 24px;
+    }
+    
+    /* Empty State */
+    .empty-state {
+        padding: 2rem 1rem;
+    }
+    
+    .empty-state i {
+        font-size: 3rem;
+    }
+    
+    .empty-state p {
+        font-size: 1rem;
+    }
+    
+    .add-first-trade-btn {
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+        width: 100%;
+        justify-content: center;
+    }
+    
+    /* Modal adjustments */
+    .modal-content {
+        width: 95%;
+        margin: 10% auto;
+        padding: 1rem;
+    }
+    
+    .modal-content.large {
+        width: 95%;
+        max-height: 90vh;
+    }
+    
+    /* Slideshow adjustments */
+    .prev, .next {
+        padding: 10px;
+        font-size: 14px;
+    }
+    
+    .slide img {
+        max-height: 300px;
+    }
+    
+    /* Image Count Badge */
+    .image-count {
+        padding: 0.15rem 0.5rem;
+        font-size: 0.8rem;
+    }
+    
+    /* Total Row */
+    .total-row td {
+        padding: 0.75rem 0.5rem !important;
+    }
+}
+
+/* Small phones (portrait) */
+@media screen and (max-width: 480px) {
+    .nav-bar a {
+        font-size: 0.8rem;
+        margin: 0.15rem 0.25rem;
+    }
+    
+    .daily-summary-card {
+        padding: 0.75rem;
+    }
+    
+    .summary-value {
+        font-size: 1rem;
+    }
+    
+    .summary-label {
+        font-size: 0.8rem;
+    }
+    
+    .date-display i {
+        font-size: 1rem;
+    }
+    
+    .date-display input[type="date"] {
+        font-size: 0.8rem;
+        padding: 0.15rem;
+    }
+    
+    .floating-plus {
+        bottom: 15px;
+        right: 15px;
+        width: 45px;
+        height: 45px;
+        font-size: 20px;
+    }
+}
+
+/* Tablets (portrait and landscape) */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+    .container {
+        max-width: 90%;
+        padding: 0 1.5rem;
+    }
+    
+    .trades-table {
+        font-size: 0.9rem;
+    }
+    
+    .trades-table th,
+    .trades-table td {
+        padding: 0.75rem;
+    }
+    
+    .daily-summary-card {
+        padding: 1.25rem;
+    }
+    
+    .summary-value {
+        font-size: 1.5rem;
+    }
+}
+
+/* Large screens */
+@media screen and (min-width: 1025px) {
+    .container {
+        max-width: 1200px;
+    }
+    
+    .trades-table {
+        font-size: 1rem;
+    }
+    
+    /* Add hover effects only on desktop */
+    .trades-table tr:hover {
+        background: #f8f9fa;
+    }
+    
+    .clickable-row {
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+    
+    .clickable-row:hover {
+        background-color: #e8f4f8 !important;
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    /* Remove hover effects on touch devices */
+    .trades-table tr:hover {
+        background: none;
+    }
+    
+    .clickable-row:hover {
+        background: none;
+    }
+    
+    /* Make buttons larger for touch */
+    .image-count,
+    .delete-btn.small {
+        min-height: 36px;
+        min-width: 44px;
+        padding: 8px 12px;
+    }
+    
+    .delete-btn.small i {
+        font-size: 1.1rem;
+    }
+}
+
+/* Landscape mode on phones */
+@media screen and (max-width: 896px) and (orientation: landscape) {
+    .floating-plus {
+        bottom: 10px;
+        right: 10px;
+    }
+    
+    .modal-content {
+        max-height: 80vh;
+        margin: 5% auto;
+    }
+    
+    .daily-summary-card {
+        flex-direction: row;
+        padding: 0.75rem;
+    }
+    
+    .summary-item {
+        flex-direction: column;
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+}
+
+/* Print styles */
+@media print {
+    .nav-bar,
+    .floating-plus,
+    .date-navigation button,
+    .image-count,
+    .delete-btn {
+        display: none;
+    }
+    
+    .trades-table {
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+    
+    .daily-summary-card {
+        border: 1px solid #ddd;
+        box-shadow: none;
+    }
+}
+
+/* Dark mode support for modern browsers */
+@media (prefers-color-scheme: dark) {
+    body {
+        background: #1a1a1a;
+        color: #f0f0f0;
+    }
+    
+    .daily-summary-card,
+    .trades-table,
+    .empty-state,
+    .date-display {
+        background: #2d2d2d;
+        color: #f0f0f0;
+        border-color: #404040;
+    }
+    
+    .trades-table th {
+        background: #404040;
+    }
+    
+    .trades-table td {
+        border-color: #404040;
+    }
+    
+    .trades-table tr:hover {
+        background: #363636;
+    }
+    
+    .summary-label {
+        color: #aaa;
+    }
+    
+    .summary-value {
+        color: #f0f0f0;
+    }
+    
+    .date-display input[type="date"] {
+        background: #2d2d2d;
+        color: #f0f0f0;
+    }
+}
+
+/* Accessibility - Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    .floating-plus,
+    .floating-plus i,
+    .image-count,
+    .clickable-row {
+        animation: none;
+        transition: none;
+    }
+    
+    .floating-plus {
+        animation: none;
+    }
+    
+    .floating-plus:hover {
+        transform: none;
+    }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    .trades-table th {
+        background: #000;
+        color: #fff;
+    }
+    
+    .profit {
+        color: #006600;
+    }
+    
+    .loss {
+        color: #cc0000;
+    }
+    
+    .image-count {
+        background: #000;
+        border: 2px solid #fff;
+    }
+}
+
+/* Loading states */
+.loading-shimmer {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
