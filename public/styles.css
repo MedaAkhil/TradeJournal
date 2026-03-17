@@ -1902,3 +1902,27 @@ button[type="submit"]:hover {
         grid-template-columns: repeat(2, 1fr);
     }
 }
+
+
+.fab {
+    border: none;
+}
+
+
+.fab-add { background: #198754; }
+.fab-contract { background: #0d6efd; }
+
+
+
+@media (max-width: 768px) {
+    h2 {
+        font-size: 1.4rem;
+    }
+
+    .container {
+        padding: 10px;
+    }
+}
+
+
+

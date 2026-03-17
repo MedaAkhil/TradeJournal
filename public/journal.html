@@ -461,41 +461,45 @@
   </div>
 </nav>
 
-    <div class="container">
+    <div class="container mt-4 mb-5">
         <h2>Add Trade for <span id="currentDate"></span></h2>
         
         <form id="tradeForm">
-            <div class="form-row">
-                <label>Symbol:</label>
-                <input type="text" id="symbol" required placeholder="e.g., AAPL, BTCUSD">
+            <div class="mb-3">
+                <label class="form-label">Symbol</label>
+                <input type="text" id="symbol" class="form-control" placeholder="e.g., AAPL, BTCUSD" required>
             </div>
 
-            <div class="form-row">
-                <label>Direction:</label>
-                <select id="direction">
+            <div class="mb-3">
+                <label class="form-label">Direction</label>
+                <select id="direction" class="form-select">
                     <option value="LONG">Long 📈</option>
                     <option value="SHORT">Short 📉</option>
                 </select>
             </div>
 
-            <div class="form-row">
-                <label>Entry Price:</label>
-                <input type="number" id="entryPrice" step="0.01" required placeholder="0.00">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Entry Price</label>
+                    <input type="number" id="entryPrice" class="form-control" step="0.01">
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Exit Price</label>
+                    <input type="number" id="exitPrice" class="form-control" step="0.01">
+                </div>
             </div>
 
-            <div class="form-row">
-                <label>Exit Price:</label>
-                <input type="number" id="exitPrice" step="0.01" required placeholder="0.00">
-            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Take Profit</label>
+                    <input type="number" id="takeProfit" class="form-control">
+                </div>
 
-            <div class="form-row">
-                <label>Take Profit (TP):</label>
-                <input type="number" id="takeProfit" step="0.01" placeholder="Target price">
-            </div>
-
-            <div class="form-row">
-                <label>Stop Loss (SL):</label>
-                <input type="number" id="stopLoss" step="0.01" placeholder="Stop loss price">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Stop Loss</label>
+                    <input type="number" id="stopLoss" class="form-control">
+                </div>
             </div>
 
             <div class="form-row">
@@ -503,14 +507,15 @@
                 <input type="number" id="quantity" required placeholder="100">
             </div>
 
-            <div class="form-row time-row">
-                <div class="time-field">
-                    <label>Entry Time:</label>
-                    <input type="time" id="entryTime" step="1">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Entry Time</label>
+                    <input type="time" id="entryTime" class="form-control">
                 </div>
-                <div class="time-field">
-                    <label>Exit Time:</label>
-                    <input type="time" id="exitTime" step="1">
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Exit Time</label>
+                    <input type="time" id="exitTime" class="form-control">
                 </div>
             </div>
 
@@ -629,9 +634,9 @@
                 <textarea id="notes" rows="3" placeholder="Add notes about this trade..."></textarea>
             </div>
 
-            <button type="submit" id="saveTradeBtn">
+            <button type="submit" id="saveTradeBtn" class="btn btn-success w-100 py-2">
                 <span class="btn-text"><i class="fas fa-save"></i> Save Trade</span>
-                <span class="btn-loader" style="display: none;">
+                <span class="btn-loader">
                     <i class="fas fa-spinner fa-spin"></i> Saving...
                 </span>
             </button>
