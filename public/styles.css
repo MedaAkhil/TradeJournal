@@ -226,25 +226,7 @@ button[type="submit"]:hover {
     margin-bottom: 1rem;
 }
 
-@media (max-width: 768px) {
-    .nav-bar a {
-        display: block;
-        margin-bottom: 0.5rem;
-    }
-    
-    .date-navigation {
-        flex-direction: column;
-    }
-    
-    .trades-table {
-        font-size: 0.9rem;
-    }
-    
-    .trades-table th,
-    .trades-table td {
-        padding: 0.5rem;
-    }
-}
+
 /* Upload Options */
 .upload-options {
     display: flex;
@@ -1140,38 +1122,6 @@ button[type="submit"]:hover {
 
 
 
-/* Responsive Design for Index */
-@media (max-width: 768px) {
-    .daily-summary-card {
-        flex-direction: column;
-        gap: 1rem;
-    }
-    
-    .summary-value {
-        font-size: 1.5rem;
-    }
-    
-    .floating-plus {
-        bottom: 20px;
-        right: 20px;
-        width: 50px;
-        height: 50px;
-        font-size: 24px;
-    }
-    
-    .date-display {
-        width: 100%;
-    }
-    
-    .date-display input[type="date"] {
-        width: 100%;
-    }
-}
-
-
-
-
-
 
 
 
@@ -1605,34 +1555,6 @@ button[type="submit"]:hover {
     text-decoration: underline;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-    .trade-header {
-        flex-direction: column;
-        text-align: center;
-        gap: 1rem;
-    }
-    
-    .trade-pnl-large {
-        font-size: 2rem;
-    }
-    
-    .trade-details-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .action-buttons {
-        flex-direction: column;
-    }
-    
-    .gallery-grid {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    }
-    
-    #imageModal .modal-content {
-        max-width: 100%;
-    }
-}
 
 
 
@@ -1737,17 +1659,6 @@ button[type="submit"]:hover {
     color: #c0392b;
 }
 
-/* Responsive camera */
-@media (max-width: 768px) {
-    .camera-controls {
-        flex-direction: column;
-    }
-    
-    .capture-btn, .switch-btn {
-        width: 100%;
-        justify-content: center;
-    }
-}
 
 
 
@@ -1756,246 +1667,6 @@ button[type="submit"]:hover {
 
 
 
-
-
-
-/* Responsive design  */
-
-
-/* ============== RESPONSIVE DESIGN ============== */
-
-/* Mobile Devices (up to 768px) */
-@media screen and (max-width: 768px) {
-    /* Navigation */
-    .nav-bar {
-        padding: 0.5rem;
-        gap: 0.25rem;
-    }
-    
-    .nav-bar a {
-        margin: 0.15rem;
-        padding: 0.4rem 0.8rem;
-        font-size: 0.85rem;
-    }
-    
-    /* Container */
-    .container {
-        padding: 0 0.75rem;
-        margin: 0.75rem auto;
-    }
-    
-    /* Date Navigation */
-    .date-navigation {
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-    
-    .date-navigation button {
-        width: 100%;
-        padding: 0.75rem;
-        font-size: 1rem;
-        justify-content: center;
-    }
-    
-    .date-display {
-        width: 100%;
-        padding: 0.5rem;
-    }
-    
-    .date-display input[type="date"] {
-        width: 100%;
-        font-size: 0.9rem;
-    }
-    
-    /* Daily Summary Card */
-    .daily-summary-card {
-        flex-direction: column;
-        gap: 0.75rem;
-        padding: 1rem;
-    }
-    
-    .summary-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-        border-bottom: 1px solid #ecf0f1;
-        padding-bottom: 0.5rem;
-    }
-    
-    .summary-item:last-child {
-        border-bottom: none;
-        padding-bottom: 0;
-    }
-    
-    .summary-label {
-        margin-bottom: 0;
-        font-size: 0.9rem;
-    }
-    
-    .summary-value {
-        font-size: 1.2rem;
-    }
-    
-    /* Table - Make it scrollable horizontally */
-    .trades-container {
-        width: 100%;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        margin: 1rem 0;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    
-    .trades-table {
-        min-width: 700px; /* Forces horizontal scroll on mobile */
-        font-size: 0.85rem;
-    }
-    
-    .trades-table th,
-    .trades-table td {
-        padding: 0.75rem 0.5rem;
-        white-space: nowrap;
-    }
-    
-    .trades-table th {
-        font-size: 0.8rem;
-    }
-    
-    /* Floating Button */
-    .floating-plus {
-        bottom: 20px;
-        right: 20px;
-        width: 50px;
-        height: 50px;
-        font-size: 24px;
-    }
-    
-    /* Empty State */
-    .empty-state {
-        padding: 2rem 1rem;
-    }
-    
-    .empty-state i {
-        font-size: 3rem;
-    }
-    
-    .empty-state p {
-        font-size: 1rem;
-    }
-    
-    .add-first-trade-btn {
-        width: 100%;
-        justify-content: center;
-        padding: 0.75rem 1.5rem;
-        font-size: 1rem;
-    }
-    
-    /* Modal */
-    .modal-content {
-        width: 95%;
-        margin: 10% auto;
-        padding: 1rem;
-    }
-    
-    /* Form Elements */
-    .upload-options {
-        flex-direction: column;
-    }
-    
-    .upload-option {
-        width: 100%;
-    }
-    
-    .time-row {
-        grid-template-columns: 1fr;
-        gap: 0.5rem;
-    }
-    
-    /* Image Gallery */
-    .gallery-grid {
-        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-        gap: 0.75rem;
-    }
-    
-    /* Calendar */
-    .calendar-grid {
-        gap: 0.25rem;
-        padding: 0.5rem;
-    }
-    
-    .calendar-header {
-        font-size: 0.8rem;
-        padding: 0.25rem;
-    }
-    
-    .calendar-day {
-        padding: 0.25rem;
-    }
-    
-    .day-number {
-        font-size: 0.9rem;
-    }
-    
-    .trade-badge {
-        font-size: 0.6rem;
-        padding: 1px 4px;
-    }
-    
-    .calendar-legend {
-        flex-direction: column;
-        gap: 0.5rem;
-        align-items: flex-start;
-    }
-    
-    /* Dashboard */
-    .stats-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .charts-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .stat-card-large {
-        flex-direction: column;
-        text-align: center;
-    }
-    
-    /* Trade Detail Page */
-    .trade-header {
-        flex-direction: column;
-        text-align: center;
-        gap: 1rem;
-    }
-    
-    .trade-pnl-large {
-        font-size: 2rem;
-    }
-    
-    .trade-details-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .action-buttons {
-        flex-direction: column;
-    }
-    
-    .edit-btn, .delete-btn-large {
-        width: 100%;
-        justify-content: center;
-    }
-    
-    /* Camera */
-    .camera-controls {
-        flex-direction: column;
-    }
-    
-    .capture-btn, .switch-btn {
-        width: 100%;
-        justify-content: center;
-    }
-}
 
 /* Small Mobile Phones (up to 480px) */
 @media screen and (max-width: 480px) {
@@ -2291,5 +1962,549 @@ button[type="submit"]:hover {
     .nav-bar a,
     .floating-plus {
         border: 2px solid currentColor;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ============== SINGLE RESPONSIVE DESIGN - DO NOT ADD ANYTHING AFTER THIS ============== */
+
+/* Mobile First - Base styles for all devices */
+.container {
+    width: 100%;
+    padding: 0 15px;
+    margin: 0 auto;
+}
+
+/* Small phones (up to 480px) */
+@media screen and (max-width: 480px) {
+    /* Navigation */
+    .nav-bar {
+        padding: 0.5rem;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.25rem;
+    }
+    
+    .nav-bar a {
+        margin: 0;
+        padding: 0.4rem 0.6rem;
+        font-size: 0.75rem;
+        white-space: nowrap;
+    }
+    
+    /* Container */
+    .container {
+        padding: 0 10px;
+    }
+    
+    /* Headings */
+    h1 {
+        font-size: 1.5rem;
+    }
+    
+    h2 {
+        font-size: 1.2rem;
+    }
+    
+    /* Date Navigation */
+    .date-navigation {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .date-navigation button {
+        width: 100%;
+        padding: 0.6rem;
+        font-size: 0.9rem;
+    }
+    
+    .date-display {
+        width: 100%;
+        padding: 0.4rem;
+    }
+    
+    .date-display input[type="date"] {
+        width: 100%;
+        font-size: 0.85rem;
+    }
+    
+    /* Daily Summary Card */
+    .daily-summary-card {
+        flex-direction: column;
+        padding: 0.75rem;
+        gap: 0.5rem;
+    }
+    
+    .summary-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        padding: 0.25rem 0;
+        border-bottom: 1px solid #ecf0f1;
+    }
+    
+    .summary-item:last-child {
+        border-bottom: none;
+    }
+    
+    .summary-label {
+        margin-bottom: 0;
+        font-size: 0.8rem;
+    }
+    
+    .summary-value {
+        font-size: 1rem;
+    }
+    
+    /* Tables - Make scrollable */
+    .trades-container {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin: 0.5rem 0;
+    }
+    
+    .trades-table {
+        min-width: 600px;
+        font-size: 0.75rem;
+    }
+    
+    .trades-table th,
+    .trades-table td {
+        padding: 0.4rem;
+    }
+    
+    /* Forms */
+    .form-row {
+        margin-bottom: 0.75rem;
+    }
+    
+    .form-row input,
+    .form-row select,
+    .form-row textarea {
+        padding: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .time-row {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+    
+    /* Upload Options */
+    .upload-options {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .upload-option {
+        min-width: auto;
+        padding: 0.75rem;
+    }
+    
+    .upload-option i {
+        font-size: 1.5rem;
+    }
+    
+    .upload-option span {
+        font-size: 0.8rem;
+    }
+    
+    /* Preview Area */
+    .preview-item {
+        width: 80px;
+        height: 80px;
+    }
+    
+    /* Floating Button */
+    .floating-plus {
+        bottom: 15px;
+        right: 15px;
+        width: 45px;
+        height: 45px;
+        font-size: 20px;
+    }
+    
+    /* FAB Container */
+    .fab-container {
+        bottom: 15px;
+        right: 15px;
+        gap: 10px;
+    }
+    
+    .fab {
+        width: 45px;
+        height: 45px;
+        font-size: 18px;
+    }
+    
+    /* Calendar */
+    .calendar-grid {
+        gap: 0.2rem;
+        padding: 0.25rem;
+    }
+    
+    .calendar-header {
+        font-size: 0.7rem;
+        padding: 0.2rem;
+    }
+    
+    .calendar-day {
+        padding: 0.2rem;
+        font-size: 0.75rem;
+    }
+    
+    .day-number {
+        font-size: 0.8rem;
+    }
+    
+    .trade-badge {
+        font-size: 0.5rem;
+        padding: 1px 3px;
+    }
+    
+    /* Dashboard */
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .stat-card-large {
+        flex-direction: column;
+        text-align: center;
+        padding: 1rem;
+    }
+    
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .stat-icon i {
+        font-size: 1.2rem;
+    }
+    
+    .stat-value {
+        font-size: 1.2rem;
+    }
+    
+    .charts-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .chart-container {
+        height: 250px;
+        padding: 1rem;
+    }
+    
+    /* Trade Detail */
+    .trade-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+    }
+    
+    .trade-pnl-large {
+        font-size: 2rem;
+    }
+    
+    .trade-metrics-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .metric-card {
+        padding: 0.75rem;
+    }
+    
+    .metric-icon {
+        width: 35px;
+        height: 35px;
+    }
+    
+    .metric-icon i {
+        font-size: 1rem;
+    }
+    
+    .metric-value {
+        font-size: 1.1rem;
+    }
+    
+    .trade-details-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .edit-btn, .delete-btn-large {
+        width: 100%;
+        padding: 0.75rem;
+    }
+    
+    /* Gallery */
+    .gallery-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 0.5rem;
+    }
+    
+    /* Camera */
+    .camera-controls {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .capture-btn, .switch-btn {
+        width: 100%;
+        padding: 0.75rem;
+    }
+    
+    /* Modal */
+    .modal-content {
+        width: 95%;
+        margin: 10% auto;
+        padding: 1rem;
+    }
+    
+    /* Backup Cards */
+    .backup-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .backup-card {
+        padding: 1.25rem;
+    }
+    
+    .backup-icon {
+        font-size: 2rem;
+    }
+}
+
+/* Medium phones and small tablets (481px - 768px) */
+@media screen and (min-width: 481px) and (max-width: 768px) {
+    /* Navigation */
+    .nav-bar {
+        padding: 0.75rem;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    
+    .nav-bar a {
+        margin: 0;
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    /* Container */
+    .container {
+        padding: 0 15px;
+    }
+    
+    /* Date Navigation */
+    .date-navigation {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .date-navigation button {
+        width: 100%;
+    }
+    
+    .date-display {
+        width: 100%;
+    }
+    
+    /* Daily Summary Card */
+    .daily-summary-card {
+        padding: 1rem;
+    }
+    
+    .summary-value {
+        font-size: 1.2rem;
+    }
+    
+    /* Tables */
+    .trades-container {
+        overflow-x: auto;
+    }
+    
+    .trades-table {
+        min-width: 700px;
+    }
+    
+    /* Forms */
+    .time-row {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Dashboard */
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Trade Detail */
+    .trade-metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    /* Gallery */
+    .gallery-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+}
+
+/* Tablets and small laptops (769px - 1024px) */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+    .container {
+        max-width: 95%;
+        padding: 0 20px;
+    }
+    
+    .trades-table {
+        font-size: 0.9rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .charts-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .gallery-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+}
+
+/* Landscape mode on mobile */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+    .floating-plus {
+        bottom: 10px;
+        right: 10px;
+    }
+    
+    .modal-content {
+        max-height: 80vh;
+        margin: 2% auto;
+    }
+    
+    .daily-summary-card {
+        flex-direction: row;
+    }
+    
+    .camera-preview {
+        max-height: 250px;
+    }
+}
+
+/* Fix for very small devices */
+@media screen and (max-width: 320px) {
+    .nav-bar a {
+        font-size: 0.7rem;
+        padding: 0.3rem 0.4rem;
+    }
+    
+    .summary-value {
+        font-size: 0.9rem;
+    }
+    
+    .trades-table {
+        min-width: 500px;
+        font-size: 0.7rem;
+    }
+    
+    .floating-plus {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+        bottom: 10px;
+        right: 10px;
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    /* Remove hover effects */
+    .trades-table tr:hover {
+        background: inherit;
+    }
+    
+    .clickable-row:hover {
+        background: inherit;
+    }
+    
+    .gallery-item:hover {
+        transform: none;
+    }
+    
+    /* Larger touch targets */
+    .nav-bar a,
+    .date-navigation button,
+    .upload-option,
+    .image-count,
+    .delete-btn,
+    .fab,
+    .calendar-day {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
+
+/* Print styles */
+@media print {
+    .nav-bar,
+    .floating-plus,
+    .fab-container,
+    .date-navigation button,
+    .image-count,
+    .delete-btn,
+    .action-buttons,
+    .back-btn {
+        display: none !important;
+    }
+    
+    .trades-table {
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+    
+    .daily-summary-card {
+        border: 1px solid #000;
+        box-shadow: none;
     }
 }
