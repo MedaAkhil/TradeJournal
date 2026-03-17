@@ -9,33 +9,39 @@ body {
     background: #f5f5f5;
     color: #333;
     line-height: 1.6;
+    overflow-x: hidden;
 }
 
 .nav-bar {
     background: #2c3e50;
-    padding: 1rem 2rem;
+    padding: 0.75rem 1rem;
     position: sticky;
     top: 0;
     z-index: 100;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    white-space: nowrap;
 }
 
 .nav-bar a {
     color: white;
     text-decoration: none;
-    margin-right: 2rem;
-    font-size: 1.1rem;
-    transition: color 0.3s;
+    font-size: 0.95rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    flex-shrink: 0;
 }
 
-.nav-bar a:hover {
-    color: #3498db;
+.nav-bar a.active {
+    background: #3498db;
 }
 
 .container {
+    width: 100%;
     max-width: 1200px;
-    margin: 2rem auto;
-    padding: 0 2rem;
+    margin: 1.5rem auto;
+    padding: 0 1rem;
 }
 
 .date-navigation {
@@ -1682,20 +1688,20 @@ button[type="submit"]:hover {
     }
     
     /* Daily Summary Card */
-    .daily-summary-card {
-        flex-direction: column;
-        gap: 0.75rem;
-        padding: 1rem;
-    }
-    
-    .summary-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-        border-bottom: 1px solid #ecf0f1;
-        padding-bottom: 0.5rem;
-    }
+.daily-summary-card {
+    display: flex;
+    justify-content: space-between;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.summary-item {
+    text-align: center;
+    flex: 1;
+}
     
     .summary-item:last-child {
         border-bottom: none;
@@ -1711,15 +1717,13 @@ button[type="submit"]:hover {
     }
     
     /* Make tables scrollable */
-    .trades-container {
-        width: 100%;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-    
-    .trades-table {
-        min-width: 700px;
-    }
+.trades-container {
+    overflow-x: auto;
+}
+
+.trades-table {
+    min-width: 700px;
+}
     
     /* Forms */
     .time-row {
@@ -1820,12 +1824,21 @@ button[type="submit"]:hover {
     
     /* Floating button */
     .floating-plus {
-        bottom: 20px;
-        right: 20px;
-        width: 50px;
-        height: 50px;
-        font-size: 24px;
-    }
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    width: 55px;
+    height: 55px;
+    background: #3498db;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    cursor: pointer;
+}
     
     .fab-container {
         bottom: 20px;
@@ -1856,12 +1869,21 @@ button[type="submit"]:hover {
     }
     
     .floating-plus {
-        bottom: 15px;
-        right: 15px;
-        width: 45px;
-        height: 45px;
-        font-size: 20px;
-    }
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    width: 55px;
+    height: 55px;
+    background: #3498db;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    cursor: pointer;
+}
     
     .fab {
         width: 45px;

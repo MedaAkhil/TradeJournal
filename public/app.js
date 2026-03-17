@@ -2609,13 +2609,29 @@ function displayDayTrades(date) {
                 // Make the entire row clickable
                 html += `<tr onclick="viewTradeDetail('${date}', ${index})" style="cursor: pointer;" class="clickable-row">
                     <td><strong>${trade.symbol || 'N/A'}</strong></td>
-                    <td class="${dirClass}">${trade.direction === 'LONG' ? '📈 LONG' : '📉 SHORT'}</td>
+
+                    <td class="${dirClass}">
+                        ${trade.direction === 'LONG' ? '📈 LONG' : '📉 SHORT'}
+                    </td>
+
                     <td>₹${formatNumber(trade.entryPrice)}</td>
                     <td>₹${formatNumber(trade.exitPrice)}</td>
+
+                    <td>
+                        ${trade.takeProfit ? 'TP: ₹' + formatNumber(trade.takeProfit) : '-'}<br>
+                        ${trade.stopLoss ? 'SL: ₹' + formatNumber(trade.stopLoss) : ''}
+                    </td>
+
+                    <td>${trade.entryTime || '-'}</td>
+                    <td>${trade.exitTime || '-'}</td>
+                    <td>${trade.strategy || '-'}</td>
+
                     <td>${trade.quantity || 0}</td>
+
                     <td class="${grossClass}">₹${formatNumber(trade.grossPnL)}</td>
                     <td class="${netClass}">₹${formatNumber(trade.netPnL)}</td>
                     <td>₹${formatNumber(trade.totalFees)}</td>
+
                     <td onclick="event.stopPropagation()">
                         ${screenshotCount > 0 ? 
                             `<span class="image-count" onclick="showScreenshots('${date}', ${index})">
@@ -2624,8 +2640,9 @@ function displayDayTrades(date) {
                             '<span class="no-image"><i class="far fa-image"></i> 0</span>'
                         }
                     </td>
+
                     <td onclick="event.stopPropagation()">
-                        <button onclick="deleteTrade('${date}', ${index})" class="delete-btn small" title="Delete Trade">
+                        <button onclick="deleteTrade('${date}', ${index})" class="delete-btn small">
                             <i class="fas fa-trash"></i>
                         </button>
                     </td>
