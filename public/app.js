@@ -1893,7 +1893,7 @@ function displayDayTrades(date) {
             dayData.trades.forEach((trade, index) => {
                 const pnlClass = trade.pnl >= 0 ? 'profit' : 'loss';
                 const dirClass = trade.direction ? trade.direction.toLowerCase() : 'long';
-                const screenshotCount = trade.screenshots ? trade.screenshots.length : 0;
+                // const screenshotCount = trade.screenshots ? trade.screenshots.length : 0;
                 
                 html += `<tr>
                     <td><strong>${trade.symbol || 'N/A'}</strong></td>
@@ -1957,6 +1957,7 @@ function updateDailySummary(date, dayData, totalGrossPnL, totalNetPnL, totalTax)
     const totalTradesEl = document.getElementById('totalTradesBadge');
     const dayPnLEl = document.getElementById('dayPnL');
     const screenshotsEl = document.getElementById('totalScreenshotsBadge');
+    const netPnLEl = document.getElementById('netPnL');
     
     if (totalTradesEl) {
         const tradeCount = dayData.trades ? dayData.trades.length : 0;
@@ -1964,9 +1965,17 @@ function updateDailySummary(date, dayData, totalGrossPnL, totalNetPnL, totalTax)
     }
     
     if (dayPnLEl) {
-        // Show net P&L in summary card
-        dayPnLEl.textContent = '₹' + formatNumber(totalNetPnL);
-        dayPnLEl.className = totalNetPnL >= 0 ? 'summary-value profit' : 'summary-value loss';
+        dayPnLEl.textContent = '₹' + formatNumber(totalGrossPnL);
+        dayPnLEl.className = totalGrossPnL >= 0 
+            ? 'summary-value profit' 
+            : 'summary-value loss';
+    }
+    
+    if (netPnLEl) {
+        netPnLEl.textContent = '₹' + formatNumber(totalNetPnL);
+        netPnLEl.className = totalNetPnL >= 0 
+            ? 'summary-value profit' 
+            : 'summary-value loss';
     }
     
     if (screenshotsEl) {
@@ -2595,7 +2604,7 @@ function displayDayTrades(date) {
             html += '<th>Qty</th>';
             html += '<th>Gross P&L</th>';
             html += '<th>Net P&L</th>';
-            html += '<th>Tax</th>'; 
+            html += '<th>Charges</th>';
             html += '<th>Images</th>';
             html += '<th>Actions</th>';
             html += '</tr></thead><tbody>';
@@ -2632,14 +2641,7 @@ function displayDayTrades(date) {
                     <td class="${netClass}">₹${formatNumber(trade.netPnL)}</td>
                     <td>₹${formatNumber(trade.totalFees)}</td>
 
-                    <td onclick="event.stopPropagation()">
-                        ${screenshotCount > 0 ? 
-                            `<span class="image-count" onclick="showScreenshots('${date}', ${index})">
-                                <i class="fas fa-image"></i> ${screenshotCount}
-                            </span>` : 
-                            '<span class="no-image"><i class="far fa-image"></i> 0</span>'
-                        }
-                    </td>
+                   
 
                     <td onclick="event.stopPropagation()">
                         <button onclick="deleteTrade('${date}', ${index})" class="delete-btn small">
@@ -2651,7 +2653,7 @@ function displayDayTrades(date) {
             
             // Add total row (not clickable)
             html += `<tr class="total-row">
-                <td colspan="5"><strong>Daily Total:</strong></td>
+                <td colspan="9"><strong>Daily Total:</strong></td>
                 <td class="${totalGrossPnL >= 0 ? 'profit' : 'loss'}">
                     <strong>₹${formatNumber(totalGrossPnL)}</strong>
                 </td>

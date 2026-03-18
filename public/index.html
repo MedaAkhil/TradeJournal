@@ -14,43 +14,43 @@
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
-  <div class="container-fluid">
+    <div class="container-fluid">
 
-    <a class="navbar-brand fw-bold" href="/">📊 Trade Journal</a>
+        <a class="navbar-brand fw-bold" href="/">📊 Trade Journal</a>
 
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+        </button>
 
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav ms-auto">
+        <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
 
-        <li class="nav-item">
-          <a class="nav-link" href="index.html">Journal</a>
-        </li>
+            <li class="nav-item">
+            <a class="nav-link" href="index.html">Journal</a>
+            </li>
 
-        <li class="nav-item">
-          <a class="nav-link" href="calendar.html">Calendar</a>
-        </li>
+            <li class="nav-item">
+            <a class="nav-link" href="calendar.html">Calendar</a>
+            </li>
 
-        <li class="nav-item">
-          <a class="nav-link" href="dashboard.html">Dashboard</a>
-        </li>
+            <li class="nav-item">
+            <a class="nav-link" href="dashboard.html">Dashboard</a>
+            </li>
 
-        <li class="nav-item">
-          <a class="nav-link" href="export.html">Backup</a>
-        </li>
+            <li class="nav-item">
+            <a class="nav-link" href="export.html">Backup</a>
+            </li>
 
-      </ul>
+        </ul>
+        </div>
     </div>
-  </div>
-</nav>
+    </nav>
 
     <div class="container">
         <div class="date-navigation">
             <button onclick="previousDay()"><i class="fas fa-chevron-left"></i> Previous</button>
             <div class="date-display">
-                <i class="fas fa-calendar-day"></i>
+                <!-- <i class="fas fa-calendar-day"></i> -->
                 <input type="date" id="datePicker" onchange="loadDate(this.value)">
             </div>
             <button onclick="nextDay()">Next <i class="fas fa-chevron-right"></i></button>
@@ -58,18 +58,22 @@
 
         <!-- Daily Summary Card -->
         <div class="daily-summary-card" id="dailySummary">
-            <div class="summary-item">
+            <!-- <div class="summary-item">
                 <span class="summary-label">Total Trades</span>
                 <span class="summary-value" id="totalTradesBadge">0</span>
-            </div>
+            </div> -->
             <div class="summary-item">
                 <span class="summary-label">Day P&L</span>
                 <span class="summary-value" id="dayPnL">$0.00</span>
             </div>
             <div class="summary-item">
+                <span class="summary-label">P&L After Tax</span>
+                <span class="summary-value" id="netPnL">₹0.00</span>
+            </div>
+            <!-- <div class="summary-item">
                 <span class="summary-label">Screenshots</span>
                 <span class="summary-value" id="totalScreenshotsBadge">0</span>
-            </div>
+            </div> -->
         </div>
 
         <div id="journalContent">

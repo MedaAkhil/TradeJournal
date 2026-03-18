@@ -314,7 +314,6 @@
             }
         }
 
-
         .time-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -386,11 +385,6 @@
             display: inline-block;
         }
 
-
-
-
-
-
         /* Save Button with Loading State */
         #saveTradeBtn {
             position: relative;
@@ -425,41 +419,490 @@
         .fa-spinner {
             animation: spin 1s linear infinite;
         }
+
+        /* ============== ENHANCED SCREENSHOT SECTION ============== */
+        .screenshot-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .upload-options {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .upload-option {
+            flex: 1;
+            min-width: 120px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-option:hover {
+            border-color: #3498db;
+            background: #f0f9ff;
+        }
+
+        .upload-option i {
+            font-size: 24px;
+            color: #3498db;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .upload-option span {
+            font-size: 14px;
+            color: #2c3e50;
+        }
+
+        /* Image Preview Grid */
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .preview-item {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 1px solid #e0e0e0;
+        }
+
+        .preview-image-container {
+            position: relative;
+            background: #f5f5f5;
+            text-align: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .preview-image-container img {
+            max-width: 100%;
+            max-height: 200px;
+            object-fit: contain;
+            cursor: pointer;
+        }
+
+        .image-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 8px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .preview-image-container:hover .image-actions {
+            opacity: 1;
+        }
+
+        .image-action-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: white;
+            border: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2c3e50;
+            transition: all 0.3s;
+        }
+
+        .image-action-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .image-action-btn.edit-btn:hover {
+            background: #3498db;
+            color: white;
+        }
+
+        .image-action-btn.delete-btn:hover {
+            background: #e74c3c;
+            color: white;
+        }
+
+        /* Tags Section */
+        .tags-section {
+            padding: 12px;
+            background: #f8f9fa;
+        }
+
+        .tags-label {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .tag {
+            background: #e8f0fe;
+            color: #3498db;
+            padding: 4px 10px;
+            border-radius: 16px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .tag i {
+            cursor: pointer;
+            font-size: 10px;
+            opacity: 0.6;
+        }
+
+        .tag i:hover {
+            opacity: 1;
+        }
+
+        .tag-input-container {
+            display: flex;
+            gap: 5px;
+        }
+
+        .tag-input {
+            flex: 1;
+            padding: 6px 10px;
+            border: 1px solid #ddd;
+            border-radius: 16px;
+            font-size: 12px;
+            outline: none;
+        }
+
+        .tag-input:focus {
+            border-color: #3498db;
+        }
+
+        .add-tag-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .add-tag-btn:hover {
+            background: #2980b9;
+        }
+
+        /* Drawing Modal */
+        .drawing-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .drawing-modal.active {
+            display: flex;
+        }
+
+        .drawing-container {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 1200px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .drawing-header {
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .drawing-header h3 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 18px;
+        }
+
+        .drawing-tools {
+            padding: 15px 20px;
+            background: white;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .tool-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            padding: 0 10px;
+            border-right: 1px solid #dee2e6;
+        }
+
+        .tool-group:last-child {
+            border-right: none;
+        }
+
+        .tool-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2c3e50;
+            transition: all 0.3s;
+        }
+
+        .tool-btn:hover {
+            background: #f0f9ff;
+            border-color: #3498db;
+        }
+
+        .tool-btn.active {
+            background: #3498db;
+            border-color: #3498db;
+            color: white;
+        }
+
+        .color-picker {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            cursor: pointer;
+            padding: 2px;
+        }
+
+        .line-width-slider {
+            width: 100px;
+        }
+
+        .drawing-canvas-container {
+            flex: 1;
+            overflow: auto;
+            background: #f5f5f5;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        #drawingCanvas {
+            background: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            max-width: 100%;
+            height: auto;
+            cursor: crosshair;
+        }
+
+        .drawing-footer {
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .drawing-footer button {
+            padding: 8px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .save-drawing-btn {
+            background: #27ae60;
+            color: white;
+        }
+
+        .save-drawing-btn:hover {
+            background: #229954;
+        }
+
+        .cancel-drawing-btn {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .cancel-drawing-btn:hover {
+            background: #7f8c8d;
+        }
+
+        /* Text Input Modal for Drawing */
+        .text-input-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            z-index: 2100;
+            display: none;
+        }
+
+        .text-input-modal.active {
+            display: block;
+        }
+
+        .text-input-modal input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .text-input-modal button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .text-input-modal .confirm-btn {
+            background: #3498db;
+            color: white;
+        }
+
+        .text-input-modal .cancel-btn {
+            background: #95a5a6;
+            color: white;
+        }
+
+        /* Camera Modal */
+        .camera-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 2000;
+        }
+
+        .camera-modal.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .camera-modal-content {
+            background: white;
+            border-radius: 12px;
+            max-width: 800px;
+            width: 90%;
+        }
+
+        .camera-controls {
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        #cameraPreview {
+            width: 100%;
+            max-height: 500px;
+            object-fit: contain;
+        }
+
+        .capture-btn, .switch-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .capture-btn {
+            background: #27ae60;
+            color: white;
+        }
+
+        .switch-btn {
+            background: #3498db;
+            color: white;
+        }
     </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
-  <div class="container-fluid">
-
-    <a class="navbar-brand fw-bold" href="#">📊 Trade Journal</a>
-
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav ms-auto">
-
-        <li class="nav-item">
-          <a class="nav-link" href="index.html">Journal</a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link" href="calendar.html">Calendar</a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link" href="dashboard.html">Dashboard</a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link" href="export.html">Backup</a>
-        </li>
-
-      </ul>
-    </div>
-  </div>
-</nav>
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="#">📊 Trade Journal</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Journal</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="calendar.html">Calendar</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="dashboard.html">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="export.html">Backup</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
     <div class="container mt-4 mb-5">
         <h2>Add Trade for <span id="currentDate"></span></h2>
@@ -481,30 +924,30 @@
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Entry Price</label>
-                    <input type="number" id="entryPrice" class="form-control" step="0.01">
+                    <input type="number" id="entryPrice" class="form-control" step="0.01" required>
                 </div>
 
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Exit Price</label>
-                    <input type="number" id="exitPrice" class="form-control" step="0.01">
+                    <input type="number" id="exitPrice" class="form-control" step="0.01" required>
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Take Profit</label>
-                    <input type="number" id="takeProfit" class="form-control">
+                    <input type="number" id="takeProfit" class="form-control" step="0.01">
                 </div>
 
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Stop Loss</label>
-                    <input type="number" id="stopLoss" class="form-control">
+                    <input type="number" id="stopLoss" class="form-control" step="0.01">
                 </div>
             </div>
 
-            <div class="form-row">
-                <label>Quantity:</label>
-                <input type="number" id="quantity" required placeholder="100">
+            <div class="mb-3">
+                <label class="form-label">Quantity</label>
+                <input type="number" id="quantity" class="form-control" required placeholder="100">
             </div>
 
             <div class="row">
@@ -519,9 +962,9 @@
                 </div>
             </div>
 
-            <div class="form-row">
-                <label>Strategy:</label>
-                <select id="strategy">
+            <div class="mb-3">
+                <label class="form-label">Strategy</label>
+                <select id="strategy" class="form-select">
                     <option value="">Select Strategy</option>
                     <option value="Breakout">Breakout</option>
                     <option value="Pullback">Pullback</option>
@@ -536,102 +979,57 @@
             </div>
 
             <!-- Custom strategy input (shown when "Other" is selected) -->
-            <div class="form-row" id="customStrategyRow" style="display: none;">
-                <label>Custom Strategy:</label>
-                <input type="text" id="customStrategy" placeholder="Enter strategy name">
+            <div class="mb-3" id="customStrategyRow" style="display: none;">
+                <label class="form-label">Custom Strategy</label>
+                <input type="text" id="customStrategy" class="form-control" placeholder="Enter strategy name">
             </div>
 
-            <div class="form-row">
-                <label>P&L:</label>
-                <input type="number" id="pnl" step="0.01" readonly>
+            <div class="mb-3">
+                <label class="form-label">P&L</label>
+                <input type="number" id="pnl" class="form-control" step="0.01" readonly>
             </div>
 
-            <div class="form-row">
-                <label>Screenshots:</label>
+            <!-- ENHANCED SCREENSHOT SECTION -->
+            <div class="screenshot-section">
+                <label class="form-label fw-bold mb-3">
+                    <i class="fas fa-camera"></i> Screenshots with Annotations
+                </label>
                 
-                <!-- Three upload options -->
+                <!-- Upload Options -->
                 <div class="upload-options">
-                    <!-- Option 1: Traditional Upload -->
                     <div class="upload-option" id="uploadOption">
                         <i class="fas fa-cloud-upload-alt"></i>
                         <span>Browse Files</span>
                         <input type="file" id="fileInput" multiple accept="image/*" style="display: none;">
                     </div>
 
-                    <!-- Option 2: Paste from Clipboard -->
                     <div class="upload-option" id="pasteOption">
                         <i class="fas fa-clipboard"></i>
                         <span>Paste (Ctrl+V)</span>
                     </div>
 
-                    <!-- NEW: Camera Capture Option -->
                     <div class="upload-option" id="cameraOption">
                         <i class="fas fa-camera"></i>
                         <span>Take Photo</span>
                     </div>
-
-                    <!-- Option 3: Clipboard History -->
-                    <!-- <div class="upload-option" id="historyOption">
-                        <i class="fas fa-history"></i>
-                        <span>Clipboard History</span>
-                    </div> -->
                 </div>
 
-                <!-- Hidden input to handle paste events -->
-                <div style="position: relative;">
-                    <textarea id="pasteArea" placeholder="Or paste images here (Ctrl+V)" rows="2" style="width: 100%; margin-top: 10px;"></textarea>
+                <!-- Paste Area -->
+                <div class="mb-3">
+                    <textarea id="pasteArea" placeholder="Or paste images here (Ctrl+V)" rows="2" class="form-control"></textarea>
                 </div>
 
-                <!-- Preview area -->
-                <div id="preview"></div>
-                <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display: none;">
-                <div id="cameraModal" class="modal">
-                    <div class="modal-content camera-modal-content">
-                        <div class="modal-header">
-                            <h3><i class="fas fa-camera"></i> Take Photo</h3>
-                            <span class="close" onclick="closeCameraModal()">&times;</span>
-                        </div>
-                        <div class="modal-body">
-                            <video id="cameraPreview" autoplay playsinline></video>
-                            <canvas id="cameraCanvas" style="display: none;"></canvas>
-                            <div class="camera-controls">
-                                <button onclick="capturePhoto()" class="capture-btn">
-                                    <i class="fas fa-circle"></i> Capture
-                                </button>
-                                <button onclick="switchCamera()" class="switch-btn">
-                                    <i class="fas fa-sync-alt"></i> Switch Camera
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Clipboard History Modal (hidden by default) -->
-                <div id="clipboardModal" class="modal">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h3>Clipboard History</h3>
-                            <span class="close">&times;</span>
-                        </div>
-                        <div class="modal-body" id="clipboardHistory">
-                            <div class="history-loading">Loading clipboard history...</div>
-                        </div>
-                    </div>
-                </div>
+                <!-- Preview Grid with Tags and Edit Options -->
+                <div id="preview" class="preview-grid"></div>
             </div>
-            <!-- Add to journal.html form -->
-            <!-- <div class="form-row">
-                <label>Tax Details (from contract note):</label>
-                <div class="tax-fields-grid">
-                    <input type="number" id="brokerage" step="0.01" placeholder="Brokerage">
-                    <input type="number" id="stt" step="0.01" placeholder="STT">
-                    <input type="number" id="transactionCharges" step="0.01" placeholder="Transaction Charges">
-                    <input type="number" id="gst" step="0.01" placeholder="GST">
-                    <input type="number" id="stampDuty" step="0.01" placeholder="Stamp Duty">
-                </div>
-            </div> -->
-            <div class="form-row">
-                <label>Trade Notes:</label>
-                <textarea id="notes" rows="3" placeholder="Add notes about this trade..."></textarea>
+
+            <!-- Hidden camera input -->
+            <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display: none;">
+
+            <!-- Trade Notes -->
+            <div class="mb-3">
+                <label class="form-label">Trade Notes</label>
+                <textarea id="notes" rows="3" class="form-control" placeholder="Add notes about this trade..."></textarea>
             </div>
 
             <button type="submit" id="saveTradeBtn" class="btn btn-success w-100 py-2">
@@ -642,23 +1040,25 @@
             </button>
         </form>
 
-        <div id="todaysTrades">
+        <div id="todaysTrades" class="mt-5">
             <h3>Today's Trades</h3>
-            <table id="tradesTable">
-                <thead>
-                    <tr>
-                        <th>Symbol</th>
-                        <th>Direction</th>
-                        <th>Entry</th>
-                        <th>Exit</th>
-                        <th>Qty</th>
-                        <th>P&L</th>
-                        <th>Images</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="tradesList"></tbody>
-            </table>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Symbol</th>
+                            <th>Direction</th>
+                            <th>Entry</th>
+                            <th>Exit</th>
+                            <th>Qty</th>
+                            <th>P&L</th>
+                            <th>Images</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tradesList"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -673,7 +1073,7 @@
     </div>
 
     <!-- Contract Note Import Modal -->
-    <div id="contractNoteModal" class="modal">
+    <div id="contractNoteModal" class="modal" style="display: none;">
         <div class="modal-content contract-modal-content">
             <div class="modal-header">
                 <h3><i class="fas fa-file-invoice"></i> Import from Contract Note</h3>
@@ -691,7 +1091,7 @@
                     
                     <div class="contract-password-section">
                         <label>PDF Password:</label>
-                        <input type="password" id="contractPassword" value="uefbugebfvu" placeholder="Enter PDF password">
+                        <input type="password" id="contractPassword" value="uefbugebfvu" class="form-control" placeholder="Enter PDF password">
                     </div>
                     
                     <button onclick="parseContractNote()" class="parse-btn">
@@ -709,8 +1109,7 @@
                     <div class="contract-select-all">
                         <label class="checkbox-container">
                             <input type="checkbox" id="selectAllTrades" onchange="toggleAllTrades()">
-                            <span class="checkmark"></span>
-                            Select All Trades
+                            <span>Select All Trades</span>
                         </label>
                         <span id="selectedCount">0 trades selected</span>
                     </div>
@@ -732,294 +1131,947 @@
         </div>
     </div>
 
-    <script src="app.js"></script>
-    <script>
-        // ============== CONTRACT NOTE IMPORT FUNCTIONS ==============
+    <!-- Drawing Modal -->
+    <div id="drawingModal" class="drawing-modal">
+        <div class="drawing-container">
+            <div class="drawing-header">
+                <h3><i class="fas fa-paint-brush"></i> Annotate Image</h3>
+                <button class="btn-close" onclick="closeDrawingModal()"></button>
+            </div>
+            
+            <div class="drawing-tools">
+                <div class="tool-group">
+                    <button class="tool-btn" onclick="setTool('pen')" id="toolPen" title="Pen">
+                        <i class="fas fa-pen"></i>
+                    </button>
+                    <button class="tool-btn" onclick="setTool('arrow')" id="toolArrow" title="Arrow">
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                    <button class="tool-btn" onclick="setTool('rectangle')" id="toolRect" title="Rectangle">
+                        <i class="far fa-square"></i>
+                    </button>
+                    <button class="tool-btn" onclick="setTool('circle')" id="toolCircle" title="Circle">
+                        <i class="far fa-circle"></i>
+                    </button>
+                    <button class="tool-btn" onclick="setTool('text')" id="toolText" title="Text">
+                        <i class="fas fa-font"></i>
+                    </button>
+                </div>
 
-let parsedTrades = [];
-let contractDate = null;
+                <div class="tool-group">
+                    <input type="color" id="drawingColor" class="color-picker" value="#3498db">
+                    <input type="range" id="lineWidth" class="line-width-slider" min="1" max="20" value="3">
+                    <span id="lineWidthValue">3px</span>
+                </div>
 
-// Open contract note modal
-function openContractNoteModal() {
-    const modal = document.getElementById('contractNoteModal');
-    if (modal) {
-        modal.style.display = 'block';
-        resetContractImport();
-    }
-}
-
-// Close contract note modal
-function closeContractNoteModal() {
-    const modal = document.getElementById('contractNoteModal');
-    if (modal) {
-        modal.style.display = 'none';
-    }
-}
-
-// Reset contract import
-function resetContractImport() {
-    document.getElementById('contractStep1').style.display = 'block';
-    document.getElementById('contractStep2').style.display = 'none';
-    document.getElementById('contractFile').value = '';
-    document.getElementById('dateWarning').style.display = 'none';
-    parsedTrades = [];
-    contractDate = null;
-}
-
-// Parse contract note PDF
-async function parseContractNote() {
-    const fileInput = document.getElementById('contractFile');
-    const password = document.getElementById('contractPassword').value;
-    
-    if (!fileInput.files || fileInput.files.length === 0) {
-        showNotification('Please select a contract note PDF', 'error');
-        return;
-    }
-    
-    const file = fileInput.files[0];
-    
-    showNotification('Parsing contract note...', 'info');
-    
-    try {
-        // Read file as ArrayBuffer
-        const arrayBuffer = await file.arrayBuffer();
-        
-        // Load PDF with password
-        const loadingTask = pdfjsLib.getDocument({
-            data: arrayBuffer,
-            password: password
-        });
-        
-        const pdf = await loadingTask.promise;
-        
-        // Extract text from all pages
-        let fullText = '';
-        for (let i = 1; i <= pdf.numPages; i++) {
-            const page = await pdf.getPage(i);
-            const textContent = await page.getTextContent();
-            const pageText = textContent.items.map(item => item.str).join(' ');
-            fullText += pageText + '\n';
-        }
-        
-        // Parse the extracted text
-        parseContractText(fullText);
-        
-    } catch (error) {
-        console.error('Error parsing PDF:', error);
-        
-        if (error.message.includes('Incorrect password')) {
-            showNotification('Incorrect PDF password. Please check and try again.', 'error');
-        } else {
-            showNotification('Error parsing PDF. Please check the file format.', 'error');
-        }
-    }
-}
-
-// Parse contract note text
-function parseContractText(text) {
-    console.log("Parsing contract text...");
-    
-    // Extract contract date (look for date patterns)
-    const dateMatch = text.match(/Contract Date[:\s]+(\d{2}[-\/]\d{2}[-\/]\d{4})/i) ||
-                     text.match(/(\d{2}[-\/]\d{2}[-\/]\d{4})/);
-    
-    if (dateMatch) {
-        contractDate = dateMatch[1].replace(/\//g, '-');
-        console.log("Contract date found:", contractDate);
-    }
-    
-    // Parse Nifty options trades
-    const trades = [];
-    const lines = text.split('\n');
-    
-    // Regular expression for OPTIDX NIFTY trades
-    const tradeRegex = /OPTIDX\s+NIFTY\s+(\d{2}[A-Za-z]+\d{4})\s+(\d+)\s+(CE|PE)\s+-\s+NSE\s+(B|S)\s+(\d+)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)\s+([-\d,]+)/g;
-    
-    let match;
-    while ((match = tradeRegex.exec(text)) !== null) {
-        const expiry = match[1];
-        const strike = parseInt(match[2]);
-        const optionType = match[3];
-        const direction = match[4] === 'B' ? 'LONG' : 'SHORT';
-        const quantity = parseInt(match[5]);
-        const price = parseFloat(match[6]);
-        const brokerage = parseFloat(match[7]);
-        const priceAfterBrokerage = parseFloat(match[8]);
-        const netTotal = parseFloat(match[9].replace(/,/g, ''));
-        
-        trades.push({
-            symbol: 'NIFTY',
-            expiry: expiry,
-            strike: strike,
-            optionType: optionType,
-            direction: direction,
-            quantity: quantity,
-            entryPrice: price,
-            brokerage: brokerage,
-            priceAfterBrokerage: priceAfterBrokerage,
-            netTotal: netTotal,
-            displayName: `${strike} ${optionType} ${expiry}`
-        });
-    }
-    
-    if (trades.length === 0) {
-        showNotification('No Nifty options trades found in contract note', 'error');
-        return;
-    }
-    
-    parsedTrades = trades;
-    displayTradesForSelection();
-}
-
-// Display trades for selection
-function displayTradesForSelection() {
-    const step1 = document.getElementById('contractStep1');
-    const step2 = document.getElementById('contractStep2');
-    const tradesList = document.getElementById('contractTradesList');
-    const dateWarning = document.getElementById('dateWarning');
-    const dateWarningMessage = document.getElementById('dateWarningMessage');
-    
-    // Check if contract date matches selected journal date
-    const journalDate = document.getElementById('currentDate').textContent;
-    
-    if (contractDate && contractDate !== journalDate) {
-        dateWarning.style.display = 'flex';
-        dateWarningMessage.innerHTML = `Contract note date (${contractDate}) doesn't match selected journal date (${journalDate}). Trades will be saved to ${journalDate}.`;
-    } else {
-        dateWarning.style.display = 'none';
-    }
-    
-    // Build trades list
-    let html = '';
-    parsedTrades.forEach((trade, index) => {
-        const dirClass = trade.direction === 'LONG' ? 'buy' : 'sell';
-        const dirIcon = trade.direction === 'LONG' ? '📈' : '📉';
-        
-        html += `
-            <div class="contract-trade-item">
-                <input type="checkbox" class="trade-checkbox" data-index="${index}" checked onchange="updateSelectedCount()">
-                <div class="trade-details">
-                    <div class="trade-detail">
-                        <span class="detail-label">Symbol</span>
-                        <span class="detail-value">${trade.symbol} ${trade.strike} ${trade.optionType}</span>
-                    </div>
-                    <div class="trade-detail">
-                        <span class="detail-label">Expiry</span>
-                        <span class="detail-value">${trade.expiry}</span>
-                    </div>
-                    <div class="trade-detail">
-                        <span class="detail-label">Direction</span>
-                        <span class="detail-value ${dirClass}">${dirIcon} ${trade.direction}</span>
-                    </div>
-                    <div class="trade-detail">
-                        <span class="detail-label">Qty</span>
-                        <span class="detail-value">${trade.quantity}</span>
-                    </div>
-                    <div class="trade-detail">
-                        <span class="detail-label">Price</span>
-                        <span class="detail-value">₹${trade.entryPrice.toFixed(2)}</span>
-                    </div>
-                    <div class="trade-detail">
-                        <span class="detail-label">Net Total</span>
-                        <span class="detail-value">₹${trade.netTotal.toFixed(2)}</span>
-                    </div>
+                <div class="tool-group">
+                    <button class="tool-btn" onclick="undo()" title="Undo">
+                        <i class="fas fa-undo"></i>
+                    </button>
+                    <button class="tool-btn" onclick="redo()" title="Redo">
+                        <i class="fas fa-redo"></i>
+                    </button>
+                    <button class="tool-btn" onclick="clearCanvas()" title="Clear All">
+                        <i class="fas fa-trash"></i>
+                    </button>
                 </div>
             </div>
-        `;
-    });
-    
-    tradesList.innerHTML = html;
-    
-    // Update step visibility
-    step1.style.display = 'none';
-    step2.style.display = 'block';
-    
-    updateSelectedCount();
-}
 
-// Toggle all trades
-function toggleAllTrades() {
-    const selectAll = document.getElementById('selectAllTrades');
-    const checkboxes = document.querySelectorAll('.trade-checkbox');
-    
-    checkboxes.forEach(cb => {
-        cb.checked = selectAll.checked;
-    });
-    
-    updateSelectedCount();
-}
+            <div class="drawing-canvas-container">
+                <canvas id="drawingCanvas"></canvas>
+            </div>
 
-// Update selected trades count
-function updateSelectedCount() {
-    const checkboxes = document.querySelectorAll('.trade-checkbox');
-    const selectedCount = document.getElementById('selectedCount');
-    const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
-    
-    selectedCount.textContent = `${checkedCount} trades selected`;
-    
-    // Update select all checkbox
-    const selectAll = document.getElementById('selectAllTrades');
-    if (selectAll) {
-        selectAll.checked = checkedCount === checkboxes.length;
-        selectAll.indeterminate = checkedCount > 0 && checkedCount < checkboxes.length;
-    }
-}
+            <div class="drawing-footer">
+                <button class="cancel-drawing-btn" onclick="closeDrawingModal()">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button class="save-drawing-btn" onclick="saveAnnotatedImage()">
+                    <i class="fas fa-save"></i> Save Annotations
+                </button>
+            </div>
+        </div>
+    </div>
 
-// Import selected trades
-async function importSelectedTrades() {
-    const checkboxes = document.querySelectorAll('.trade-checkbox:checked');
-    const journalDate = document.getElementById('currentDate').textContent;
-    
-    if (checkboxes.length === 0) {
-        showNotification('No trades selected', 'error');
-        return;
-    }
-    
-    showNotification(`Importing ${checkboxes.length} trades...`, 'info');
-    
-    let successCount = 0;
-    
-    for (let checkbox of checkboxes) {
-        const index = checkbox.dataset.index;
-        const trade = parsedTrades[index];
-        
-        // Create trade data object
-        const tradeData = {
-            symbol: trade.symbol,
-            direction: trade.direction,
-            entryPrice: trade.entryPrice,
-            exitPrice: trade.entryPrice, // For single leg, exit same as entry? Need both legs
-            quantity: trade.quantity,
-            pnl: trade.netTotal, // Using net total as P&L
-            notes: `Imported from contract note - ${trade.strike} ${trade.optionType} ${trade.expiry}`,
-            contractNote: true,
-            strike: trade.strike,
-            optionType: trade.optionType,
-            expiry: trade.expiry,
-            brokerage: trade.brokerage
-        };
-        
-        // For paired trades (both buy and sell), you'd need to match them
-        // This is simplified - in reality you'd need to match buy and sell legs
-        
-        const success = await TradeJournal.saveTrade(journalDate, tradeData, []);
-        if (success) successCount++;
-    }
-    
-    if (successCount > 0) {
-        showNotification(`${successCount} trades imported successfully!`, 'success');
-        closeContractNoteModal();
-        loadTodaysTrades(journalDate); // Refresh the trades list
-    } else {
-        showNotification('Failed to import trades', 'error');
-    }
-}
+    <!-- Text Input Modal for Drawing -->
+    <div id="textInputModal" class="text-input-modal">
+        <h4>Enter Text</h4>
+        <input type="text" id="textInput" class="form-control" placeholder="Type your text here...">
+        <div class="mt-3">
+            <button class="btn btn-primary" onclick="addTextToCanvas()">Add</button>
+            <button class="btn btn-secondary" onclick="closeTextInput()">Cancel</button>
+        </div>
+    </div>
 
-// Scroll to top function for add button
-function scrollToTop() {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-    </script>
+    <!-- Camera Modal -->
+    <div id="cameraModal" class="camera-modal">
+        <div class="camera-modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-camera"></i> Take Photo</h3>
+                <span class="close" onclick="closeCameraModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <video id="cameraPreview" autoplay playsinline></video>
+                <canvas id="cameraCanvas" style="display: none;"></canvas>
+                <div class="camera-controls">
+                    <button onclick="capturePhoto()" class="capture-btn">
+                        <i class="fas fa-circle"></i> Capture
+                    </button>
+                    <button onclick="switchCamera()" class="switch-btn">
+                        <i class="fas fa-sync-alt"></i> Switch Camera
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // ============== GLOBAL VARIABLES ==============
+        let screenshotImages = [];
+        let currentEditingIndex = -1;
+        let isDrawing = false;
+        let currentTool = 'pen';
+        let canvas = null;
+        let ctx = null;
+        let originalImage = null;
+        let undoStack = [];
+        let redoStack = [];
+        let startX = 0, startY = 0;
+        let textPosition = { x: 0, y: 0 };
+        let cameraStream = null;
+        let currentCamera = 'environment';
+        let parsedTrades = [];
+        let contractDate = null;
+
+        // ============== TRADE JOURNAL MOCK (Replace with actual from app.js) ==============
+        const TradeJournal = {
+            saveTrade: async function(date, tradeData, screenshots) {
+                console.log('Saving trade:', date, tradeData, screenshots);
+                return true;
+            },
+            getTrades: async function(date) {
+                return [];
+            }
+        };
+
+        // ============== INITIALIZATION ==============
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set today's date
+            const today = new Date();
+            const formattedDate = today.toISOString().split('T')[0];
+            document.getElementById('currentDate').textContent = formattedDate;
+            
+            // Load today's trades
+            loadTodaysTrades(formattedDate);
+            
+            // Initialize canvas event listeners
+            initCanvasListeners();
+            
+            // Strategy dropdown
+            document.getElementById('strategy').addEventListener('change', function() {
+                const customRow = document.getElementById('customStrategyRow');
+                customRow.style.display = this.value === 'Other' ? 'block' : 'none';
+            });
+
+            // P&L calculation
+            document.getElementById('entryPrice').addEventListener('input', calculatePnL);
+            document.getElementById('exitPrice').addEventListener('input', calculatePnL);
+            document.getElementById('quantity').addEventListener('input', calculatePnL);
+            document.getElementById('direction').addEventListener('change', calculatePnL);
+
+            // File upload
+            document.getElementById('uploadOption').addEventListener('click', function() {
+                document.getElementById('fileInput').click();
+            });
+
+            document.getElementById('fileInput').addEventListener('change', function(e) {
+                handleFiles(e.target.files);
+            });
+
+            // Paste handling
+            document.getElementById('pasteOption').addEventListener('click', function() {
+                document.getElementById('pasteArea').focus();
+                document.getElementById('pasteArea').select();
+                showNotification('📋 Press Ctrl+V to paste image', 'info');
+            });
+
+            document.getElementById('pasteArea').addEventListener('paste', function(e) {
+                e.preventDefault();
+                const items = e.clipboardData.items;
+                
+                for (let i = 0; i < items.length; i++) {
+                    if (items[i].type.indexOf('image') !== -1) {
+                        const blob = items[i].getAsFile();
+                        const reader = new FileReader();
+                        
+                        reader.onload = function(event) {
+                            screenshotImages.push({
+                                data: event.target.result,
+                                tags: [],
+                                annotations: []
+                            });
+                            refreshPreviewGrid();
+                        };
+                        
+                        reader.readAsDataURL(blob);
+                        document.getElementById('pasteArea').value = '';
+                    }
+                }
+            });
+
+            // Camera
+            document.getElementById('cameraOption').addEventListener('click', function() {
+                openCameraModal();
+            });
+
+            // Update line width display
+            document.getElementById('lineWidth').addEventListener('input', function() {
+                document.getElementById('lineWidthValue').textContent = this.value + 'px';
+            });
+
+            // Form submission
+            document.getElementById('tradeForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const saveBtn = document.getElementById('saveTradeBtn');
+                saveBtn.classList.add('loading');
+                saveBtn.disabled = true;
+                
+                try {
+                    const tradeData = {
+                        symbol: document.getElementById('symbol').value,
+                        direction: document.getElementById('direction').value,
+                        entryPrice: parseFloat(document.getElementById('entryPrice').value),
+                        exitPrice: parseFloat(document.getElementById('exitPrice').value),
+                        quantity: parseInt(document.getElementById('quantity').value),
+                        takeProfit: document.getElementById('takeProfit').value ? parseFloat(document.getElementById('takeProfit').value) : null,
+                        stopLoss: document.getElementById('stopLoss').value ? parseFloat(document.getElementById('stopLoss').value) : null,
+                        entryTime: document.getElementById('entryTime').value,
+                        exitTime: document.getElementById('exitTime').value,
+                        strategy: document.getElementById('strategy').value === 'Other' ? 
+                                 document.getElementById('customStrategy').value : 
+                                 document.getElementById('strategy').value,
+                        notes: document.getElementById('notes').value,
+                        pnl: parseFloat(document.getElementById('pnl').value) || 0,
+                        screenshots: screenshotImages
+                    };
+                    
+                    const journalDate = document.getElementById('currentDate').textContent;
+                    const success = await TradeJournal.saveTrade(journalDate, tradeData, screenshotImages);
+                    
+                    if (success) {
+                        showNotification('Trade saved successfully!', 'success');
+                        document.getElementById('tradeForm').reset();
+                        screenshotImages = [];
+                        refreshPreviewGrid();
+                        loadTodaysTrades(journalDate);
+                    } else {
+                        showNotification('Failed to save trade', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error saving trade:', error);
+                    showNotification('Error saving trade', 'error');
+                } finally {
+                    saveBtn.classList.remove('loading');
+                    saveBtn.disabled = false;
+                }
+            });
+        });
+
+        // ============== CANVAS FUNCTIONS ==============
+        function initCanvasListeners() {
+            const canvas = document.getElementById('drawingCanvas');
+            if (!canvas) return;
+            
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseleave', stopDrawing);
+        }
+
+        function initDrawingCanvas(imageData, index) {
+            currentEditingIndex = index;
+            const modal = document.getElementById('drawingModal');
+            const canvas = document.getElementById('drawingCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Load image
+            const img = new Image();
+            img.onload = function() {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                originalImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                undoStack = [originalImage];
+                redoStack = [];
+            };
+            img.src = imageData;
+            
+            modal.classList.add('active');
+        }
+
+        function setTool(tool) {
+            currentTool = tool;
+            
+            // Update active button
+            document.querySelectorAll('.tool-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            const toolId = 'tool' + tool.charAt(0).toUpperCase() + tool.slice(1);
+            const toolBtn = document.getElementById(toolId);
+            if (toolBtn) toolBtn.classList.add('active');
+        }
+
+        function startDrawing(e) {
+            const canvas = document.getElementById('drawingCanvas');
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
+            startX = (e.clientX - rect.left) * scaleX;
+            startY = (e.clientY - rect.top) * scaleY;
+            
+            isDrawing = true;
+            
+            if (currentTool === 'text') {
+                textPosition = { x: startX, y: startY };
+                document.getElementById('textInputModal').classList.add('active');
+                isDrawing = false;
+            }
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            
+            const canvas = document.getElementById('drawingCanvas');
+            const ctx = canvas.getContext('2d');
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
+            const currentX = (e.clientX - rect.left) * scaleX;
+            const currentY = (e.clientY - rect.top) * scaleY;
+            
+            // Clear and redraw from last state
+            if (undoStack.length > 0) {
+                ctx.putImageData(undoStack[undoStack.length - 1], 0, 0);
+            }
+            
+            ctx.beginPath();
+            ctx.strokeStyle = document.getElementById('drawingColor').value;
+            ctx.lineWidth = document.getElementById('lineWidth').value;
+            ctx.fillStyle = document.getElementById('drawingColor').value;
+            
+            switch(currentTool) {
+                case 'pen':
+                    ctx.beginPath();
+                    ctx.moveTo(startX, startY);
+                    ctx.lineTo(currentX, currentY);
+                    ctx.stroke();
+                    startX = currentX;
+                    startY = currentY;
+                    break;
+                    
+                case 'arrow':
+                    drawArrow(ctx, startX, startY, currentX, currentY);
+                    break;
+                    
+                case 'rectangle':
+                    ctx.strokeRect(startX, startY, currentX - startX, currentY - startY);
+                    break;
+                    
+                case 'circle':
+                    const radius = Math.sqrt(Math.pow(currentX - startX, 2) + Math.pow(currentY - startY, 2));
+                    ctx.beginPath();
+                    ctx.arc(startX, startY, radius, 0, 2 * Math.PI);
+                    ctx.stroke();
+                    break;
+            }
+        }
+
+        function drawArrow(ctx, fromX, fromY, toX, toY) {
+            const headLength = 15;
+            const angle = Math.atan2(toY - fromY, toX - fromX);
+            
+            ctx.beginPath();
+            ctx.moveTo(fromX, fromY);
+            ctx.lineTo(toX, toY);
+            ctx.stroke();
+            
+            // Draw arrow head
+            ctx.beginPath();
+            ctx.moveTo(toX, toY);
+            ctx.lineTo(toX - headLength * Math.cos(angle - Math.PI / 6), toY - headLength * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(toX - headLength * Math.cos(angle + Math.PI / 6), toY - headLength * Math.sin(angle + Math.PI / 6));
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function stopDrawing() {
+            if (isDrawing) {
+                isDrawing = false;
+                // Save state to undo stack
+                const canvas = document.getElementById('drawingCanvas');
+                const ctx = canvas.getContext('2d');
+                const currentState = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                undoStack.push(currentState);
+                redoStack = [];
+            }
+        }
+
+        function addTextToCanvas() {
+            const text = document.getElementById('textInput').value;
+            if (text) {
+                const canvas = document.getElementById('drawingCanvas');
+                const ctx = canvas.getContext('2d');
+                
+                ctx.font = `${document.getElementById('lineWidth').value * 5}px Arial`;
+                ctx.fillStyle = document.getElementById('drawingColor').value;
+                ctx.fillText(text, textPosition.x, textPosition.y);
+                
+                // Save state
+                const currentState = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                undoStack.push(currentState);
+                redoStack = [];
+            }
+            closeTextInput();
+        }
+
+        function undo() {
+            if (undoStack.length > 1) {
+                const lastState = undoStack.pop();
+                redoStack.push(lastState);
+                const canvas = document.getElementById('drawingCanvas');
+                const ctx = canvas.getContext('2d');
+                ctx.putImageData(undoStack[undoStack.length - 1], 0, 0);
+            }
+        }
+
+        function redo() {
+            if (redoStack.length > 0) {
+                const state = redoStack.pop();
+                undoStack.push(state);
+                const canvas = document.getElementById('drawingCanvas');
+                const ctx = canvas.getContext('2d');
+                ctx.putImageData(state, 0, 0);
+            }
+        }
+
+        function clearCanvas() {
+            if (originalImage) {
+                const canvas = document.getElementById('drawingCanvas');
+                const ctx = canvas.getContext('2d');
+                ctx.putImageData(originalImage, 0, 0);
+                undoStack = [originalImage];
+                redoStack = [];
+            }
+        }
+
+        function saveAnnotatedImage() {
+            const canvas = document.getElementById('drawingCanvas');
+            const annotatedImage = canvas.toDataURL('image/png');
+            
+            // Update the screenshot with annotations
+            if (currentEditingIndex !== -1 && screenshotImages[currentEditingIndex]) {
+                screenshotImages[currentEditingIndex].data = annotatedImage;
+                refreshPreviewGrid();
+            }
+            
+            closeDrawingModal();
+        }
+
+        function closeDrawingModal() {
+            document.getElementById('drawingModal').classList.remove('active');
+            currentEditingIndex = -1;
+        }
+
+        function closeTextInput() {
+            document.getElementById('textInputModal').classList.remove('active');
+            document.getElementById('textInput').value = '';
+        }
+
+        // ============== IMAGE FUNCTIONS ==============
+        function handleFiles(files) {
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(event) {
+                        screenshotImages.push({
+                            data: event.target.result,
+                            tags: [],
+                            annotations: []
+                        });
+                        refreshPreviewGrid();
+                    };
+                    
+                    reader.readAsDataURL(file);
+                }
+            }
+        }
+
+        function refreshPreviewGrid() {
+            const preview = document.getElementById('preview');
+            if (!preview) return;
+            
+            let html = '';
+            
+            screenshotImages.forEach((image, index) => {
+                const tags = image.tags || [];
+                const tagsHtml = tags.map((tag, tagIndex) => 
+                    `<span class="tag">${tag} <i class="fas fa-times" onclick="removeTag(${index}, ${tagIndex})"></i></span>`
+                ).join('');
+                
+                html += `
+                    <div class="preview-item">
+                        <div class="preview-image-container">
+                            <img src="${image.data}" alt="Screenshot ${index + 1}">
+                            <div class="image-actions">
+                                <button class="image-action-btn edit-btn" onclick="editImage(${index})" title="Edit Image">
+                                    <i class="fas fa-paint-brush"></i>
+                                </button>
+                                <button class="image-action-btn delete-btn" onclick="deleteImage(${index})" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="tags-section">
+                            <div class="tags-label">
+                                <i class="fas fa-tags"></i> Tags
+                            </div>
+                            
+                            <div class="tags-container" id="tags-container-${index}">
+                                ${tagsHtml}
+                            </div>
+                            
+                            <div class="tag-input-container">
+                                <input type="text" id="tag-input-${index}" class="tag-input" placeholder="Add tag..." onkeypress="if(event.key==='Enter') addTag(${index})">
+                                <button class="add-tag-btn" onclick="addTag(${index})">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            preview.innerHTML = html;
+        }
+
+        function addTag(index) {
+            const input = document.getElementById(`tag-input-${index}`);
+            if (!input) return;
+            
+            const tag = input.value.trim();
+            
+            if (tag && screenshotImages[index]) {
+                if (!screenshotImages[index].tags) {
+                    screenshotImages[index].tags = [];
+                }
+                screenshotImages[index].tags.push(tag);
+                input.value = '';
+                refreshPreviewGrid();
+            }
+        }
+
+        function removeTag(imageIndex, tagIndex) {
+            if (screenshotImages[imageIndex] && screenshotImages[imageIndex].tags) {
+                screenshotImages[imageIndex].tags.splice(tagIndex, 1);
+                refreshPreviewGrid();
+            }
+        }
+
+        function editImage(index) {
+            if (screenshotImages[index]) {
+                initDrawingCanvas(screenshotImages[index].data, index);
+            }
+        }
+
+        function deleteImage(index) {
+            screenshotImages.splice(index, 1);
+            refreshPreviewGrid();
+        }
+
+        // ============== CAMERA FUNCTIONS ==============
+        function openCameraModal() {
+            const modal = document.getElementById('cameraModal');
+            modal.classList.add('active');
+            startCamera();
+        }
+
+        function closeCameraModal() {
+            const modal = document.getElementById('cameraModal');
+            modal.classList.remove('active');
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+                cameraStream = null;
+            }
+        }
+
+        async function startCamera() {
+            try {
+                cameraStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: currentCamera } 
+                });
+                const video = document.getElementById('cameraPreview');
+                video.srcObject = cameraStream;
+            } catch (err) {
+                console.error('Camera error:', err);
+                showNotification('Could not access camera', 'error');
+            }
+        }
+
+        async function switchCamera() {
+            currentCamera = currentCamera === 'environment' ? 'user' : 'environment';
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+            }
+            await startCamera();
+        }
+
+        function capturePhoto() {
+            const video = document.getElementById('cameraPreview');
+            const canvas = document.getElementById('cameraCanvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            
+            const imageData = canvas.toDataURL('image/png');
+            screenshotImages.push({
+                data: imageData,
+                tags: [],
+                annotations: []
+            });
+            
+            refreshPreviewGrid();
+            closeCameraModal();
+        }
+
+        // ============== UTILITY FUNCTIONS ==============
+        function calculatePnL() {
+            const entry = parseFloat(document.getElementById('entryPrice').value);
+            const exit = parseFloat(document.getElementById('exitPrice').value);
+            const quantity = parseInt(document.getElementById('quantity').value);
+            const direction = document.getElementById('direction').value;
+            
+            if (entry && exit && quantity) {
+                let pnl = (exit - entry) * quantity;
+                if (direction === 'SHORT') {
+                    pnl = -pnl;
+                }
+                document.getElementById('pnl').value = pnl.toFixed(2);
+            }
+        }
+
+        async function loadTodaysTrades(date) {
+            const trades = await TradeJournal.getTrades(date);
+            const tbody = document.getElementById('tradesList');
+            
+            if (!tbody) return;
+            
+            if (trades.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center">No trades for today</td></tr>';
+                return;
+            }
+            
+            let html = '';
+            trades.forEach(trade => {
+                const pnlClass = trade.pnl >= 0 ? 'text-success' : 'text-danger';
+                html += `
+                    <tr>
+                        <td>${trade.symbol || ''}</td>
+                        <td>${trade.direction || ''}</td>
+                        <td>${trade.entryPrice || 0}</td>
+                        <td>${trade.exitPrice || 0}</td>
+                        <td>${trade.quantity || 0}</td>
+                        <td class="${pnlClass}">${(trade.pnl || 0).toFixed(2)}</td>
+                        <td>${trade.screenshots ? trade.screenshots.length : 0} images</td>
+                        <td>
+                            <button class="btn btn-sm btn-info" onclick="viewTrade('${trade.id}')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteTrade('${trade.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = html;
+        }
+
+        function showNotification(message, type) {
+            console.log(`${type}: ${message}`);
+            // You can implement a proper notification here
+            alert(message);
+        }
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function viewTrade(id) {
+            console.log('View trade:', id);
+        }
+
+        function deleteTrade(id) {
+            console.log('Delete trade:', id);
+        }
+
+        // ============== CONTRACT NOTE FUNCTIONS ==============
+        function openContractNoteModal() {
+            const modal = document.getElementById('contractNoteModal');
+            if (modal) {
+                modal.style.display = 'block';
+                resetContractImport();
+            }
+        }
+
+        function closeContractNoteModal() {
+            const modal = document.getElementById('contractNoteModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        function resetContractImport() {
+            document.getElementById('contractStep1').style.display = 'block';
+            document.getElementById('contractStep2').style.display = 'none';
+            document.getElementById('contractFile').value = '';
+            document.getElementById('dateWarning').style.display = 'none';
+            parsedTrades = [];
+            contractDate = null;
+        }
+
+        async function parseContractNote() {
+            const fileInput = document.getElementById('contractFile');
+            const password = document.getElementById('contractPassword').value;
+            
+            if (!fileInput.files || fileInput.files.length === 0) {
+                showNotification('Please select a contract note PDF', 'error');
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            
+            showNotification('Parsing contract note...', 'info');
+            
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                
+                const loadingTask = pdfjsLib.getDocument({
+                    data: arrayBuffer,
+                    password: password
+                });
+                
+                const pdf = await loadingTask.promise;
+                
+                let fullText = '';
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    const pageText = textContent.items.map(item => item.str).join(' ');
+                    fullText += pageText + '\n';
+                }
+                
+                parseContractText(fullText);
+                
+            } catch (error) {
+                console.error('Error parsing PDF:', error);
+                
+                if (error.message.includes('Incorrect password')) {
+                    showNotification('Incorrect PDF password. Please check and try again.', 'error');
+                } else {
+                    showNotification('Error parsing PDF. Please check the file format.', 'error');
+                }
+            }
+        }
+
+        function parseContractText(text) {
+            console.log("Parsing contract text...");
+            
+            const dateMatch = text.match(/Contract Date[:\s]+(\d{2}[-\/]\d{2}[-\/]\d{4})/i) ||
+                             text.match(/(\d{2}[-\/]\d{2}[-\/]\d{4})/);
+            
+            if (dateMatch) {
+                contractDate = dateMatch[1].replace(/\//g, '-');
+                console.log("Contract date found:", contractDate);
+            }
+            
+            const trades = [];
+            
+            const tradeRegex = /OPTIDX\s+NIFTY\s+(\d{2}[A-Za-z]+\d{4})\s+(\d+)\s+(CE|PE)\s+-\s+NSE\s+(B|S)\s+(\d+)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)\s+([-\d,]+)/g;
+            
+            let match;
+            while ((match = tradeRegex.exec(text)) !== null) {
+                const expiry = match[1];
+                const strike = parseInt(match[2]);
+                const optionType = match[3];
+                const direction = match[4] === 'B' ? 'LONG' : 'SHORT';
+                const quantity = parseInt(match[5]);
+                const price = parseFloat(match[6]);
+                const brokerage = parseFloat(match[7]);
+                const priceAfterBrokerage = parseFloat(match[8]);
+                const netTotal = parseFloat(match[9].replace(/,/g, ''));
+                
+                trades.push({
+                    symbol: 'NIFTY',
+                    expiry: expiry,
+                    strike: strike,
+                    optionType: optionType,
+                    direction: direction,
+                    quantity: quantity,
+                    entryPrice: price,
+                    brokerage: brokerage,
+                    priceAfterBrokerage: priceAfterBrokerage,
+                    netTotal: netTotal,
+                    displayName: `${strike} ${optionType} ${expiry}`
+                });
+            }
+            
+            if (trades.length === 0) {
+                showNotification('No Nifty options trades found in contract note', 'error');
+                return;
+            }
+            
+            parsedTrades = trades;
+            displayTradesForSelection();
+        }
+
+        function displayTradesForSelection() {
+            const step1 = document.getElementById('contractStep1');
+            const step2 = document.getElementById('contractStep2');
+            const tradesList = document.getElementById('contractTradesList');
+            const dateWarning = document.getElementById('dateWarning');
+            const dateWarningMessage = document.getElementById('dateWarningMessage');
+            
+            const journalDate = document.getElementById('currentDate').textContent;
+            
+            if (contractDate && contractDate !== journalDate) {
+                dateWarning.style.display = 'flex';
+                dateWarningMessage.innerHTML = `Contract note date (${contractDate}) doesn't match selected journal date (${journalDate}). Trades will be saved to ${journalDate}.`;
+            } else {
+                dateWarning.style.display = 'none';
+            }
+            
+            let html = '';
+            parsedTrades.forEach((trade, index) => {
+                const dirClass = trade.direction === 'LONG' ? 'buy' : 'sell';
+                const dirIcon = trade.direction === 'LONG' ? '📈' : '📉';
+                
+                html += `
+                    <div class="contract-trade-item">
+                        <input type="checkbox" class="trade-checkbox" data-index="${index}" checked onchange="updateSelectedCount()">
+                        <div class="trade-details">
+                            <div class="trade-detail">
+                                <span class="detail-label">Symbol</span>
+                                <span class="detail-value">${trade.symbol} ${trade.strike} ${trade.optionType}</span>
+                            </div>
+                            <div class="trade-detail">
+                                <span class="detail-label">Expiry</span>
+                                <span class="detail-value">${trade.expiry}</span>
+                            </div>
+                            <div class="trade-detail">
+                                <span class="detail-label">Direction</span>
+                                <span class="detail-value ${dirClass}">${dirIcon} ${trade.direction}</span>
+                            </div>
+                            <div class="trade-detail">
+                                <span class="detail-label">Qty</span>
+                                <span class="detail-value">${trade.quantity}</span>
+                            </div>
+                            <div class="trade-detail">
+                                <span class="detail-label">Price</span>
+                                <span class="detail-value">₹${trade.entryPrice.toFixed(2)}</span>
+                            </div>
+                            <div class="trade-detail">
+                                <span class="detail-label">Net Total</span>
+                                <span class="detail-value">₹${trade.netTotal.toFixed(2)}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            tradesList.innerHTML = html;
+            
+            step1.style.display = 'none';
+            step2.style.display = 'block';
+            
+            updateSelectedCount();
+        }
+
+        function toggleAllTrades() {
+            const selectAll = document.getElementById('selectAllTrades');
+            const checkboxes = document.querySelectorAll('.trade-checkbox');
+            
+            checkboxes.forEach(cb => {
+                cb.checked = selectAll.checked;
+            });
+            
+            updateSelectedCount();
+        }
+
+        function updateSelectedCount() {
+            const checkboxes = document.querySelectorAll('.trade-checkbox');
+            const selectedCount = document.getElementById('selectedCount');
+            const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+            
+            selectedCount.textContent = `${checkedCount} trades selected`;
+            
+            const selectAll = document.getElementById('selectAllTrades');
+            if (selectAll) {
+                selectAll.checked = checkedCount === checkboxes.length;
+                selectAll.indeterminate = checkedCount > 0 && checkedCount < checkboxes.length;
+            }
+        }
+
+        async function importSelectedTrades() {
+            const checkboxes = document.querySelectorAll('.trade-checkbox:checked');
+            const journalDate = document.getElementById('currentDate').textContent;
+            
+            if (checkboxes.length === 0) {
+                showNotification('No trades selected', 'error');
+                return;
+            }
+            
+            showNotification(`Importing ${checkboxes.length} trades...`, 'info');
+            
+            let successCount = 0;
+            
+            for (let checkbox of checkboxes) {
+                const index = checkbox.dataset.index;
+                const trade = parsedTrades[index];
+                
+                const tradeData = {
+                    symbol: trade.symbol,
+                    direction: trade.direction,
+                    entryPrice: trade.entryPrice,
+                    exitPrice: trade.entryPrice,
+                    quantity: trade.quantity,
+                    pnl: trade.netTotal,
+                    notes: `Imported from contract note - ${trade.strike} ${trade.optionType} ${trade.expiry}`,
+                    contractNote: true,
+                    strike: trade.strike,
+                    optionType: trade.optionType,
+                    expiry: trade.expiry,
+                    brokerage: trade.brokerage
+                };
+                
+                const success = await TradeJournal.saveTrade(journalDate, tradeData, []);
+                if (success) successCount++;
+            }
+            
+            if (successCount > 0) {
+                showNotification(`${successCount} trades imported successfully!`, 'success');
+                closeContractNoteModal();
+                loadTodaysTrades(journalDate);
+            } else {
+                showNotification('Failed to import trades', 'error');
+            }
+        }
+    </script>
 </body>
 </html>
