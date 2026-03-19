@@ -48,91 +48,70 @@ const TradeJournal = {
     // Save a trade for a specific date
     saveTrade: async function(date, tradeData, screenshotFiles = []) {
         try {
-            console.log("Saving trade to date:", date);
-            console.log("Trade data received:", tradeData);
-            console.log("Screenshot files:", screenshotFiles.length);
+            console.log("Initiating atomic save for date:", date);
             
-            // Upload screenshots first
-            const screenshotUrls = [];
-for (let file of screenshotFiles) {
-    if (!file) continue;
-    
-    const url = await this.uploadScreenshot(file, date);
-    if (url) {
-        const isAnnotated = file.name.includes('_annotated') || 
-                           (file.metadata && file.metadata.annotated === true);
-        
-        screenshotUrls.push({
-            url: url,
-            name: file.name || '',
-            annotated: isAnnotated,
-            tags: (file.metadata && file.metadata.tags) || []
-        });
-        console.log('Uploaded screenshot:', { url, annotated: isAnnotated, tags: file.metadata?.tags });
-    }
-}
-
-            // Get existing day data
-            const dayData = await this.loadDayTrades(date);
-            
-            // Clean tradeData - remove any undefined values
-            const cleanedTradeData = {};
-            Object.keys(tradeData).forEach(key => {
-                if (tradeData[key] !== undefined && tradeData[key] !== null) {
-                    cleanedTradeData[key] = tradeData[key];
+            // 1. Upload all screenshots first (all or nothing)
+            const screenshotMetadata = [];
+            for (let file of screenshotFiles) {
+                if (!file) continue;
+                
+                const url = await this.uploadScreenshot(file, date);
+                if (url) {
+                    screenshotMetadata.push({
+                        url: url,
+                        name: file.name || 'screenshot.png',
+                        // Ensure metadata from the UI is preserved
+                        annotated: file.metadata?.annotated || false,
+                        tags: file.metadata?.tags || []
+                    });
                 }
-            });
-            
-            // Add screenshot URLs to cleaned trade data
-            cleanedTradeData.screenshots = screenshotUrls;
-            
-            // Ensure required fields exist with defaults
-            cleanedTradeData.pnl = cleanedTradeData.pnl || 0;
-            cleanedTradeData.quantity = cleanedTradeData.quantity || 0;
-            cleanedTradeData.entryPrice = cleanedTradeData.entryPrice || 0;
-            cleanedTradeData.exitPrice = cleanedTradeData.exitPrice || 0;
-            cleanedTradeData.symbol = cleanedTradeData.symbol || '';
-            cleanedTradeData.direction = cleanedTradeData.direction || 'LONG';
-            
-            dayData.trades.push(cleanedTradeData);
-            
-            // Recalculate daily P&L
-            dayData.totalPnL = dayData.trades.reduce((sum, trade) => sum + (trade.pnl || 0), 0);
-            
-            // Clean dayData - ensure no undefined values
-            const cleanedDayData = {
-                trades: dayData.trades,
-                totalPnL: dayData.totalPnL || 0,
-                notes: dayData.notes || ''
+            }
+
+            // 2. Prepare the trade object
+            const newTrade = {
+                ...tradeData,
+                screenshots: screenshotMetadata,
+                id: Date.now().toString() // Unique ID for the trade
             };
+
+            // 3. Load existing day data to append
+            const dayData = await this.loadDayTrades(date);
+            dayData.trades.push(newTrade);
             
-            console.log("Saving to Firestore:", cleanedDayData);
-            console.log("Uploaded screenshot metadata:", screenshotUrls);
+            // 4. Calculate total P&L including new trade
+            dayData.totalPnL = dayData.trades.reduce((sum, t) => sum + (t.pnl || 0), 0);
+
+            // 5. Final Write to Firestore
+            await db.collection('trades').doc(date).set(dayData);
             
-            // Save to Firestore
-            await db.collection('trades').doc(date).set(cleanedDayData);
-            
+            console.log("Trade saved successfully with", screenshotMetadata.length, "images.");
             return true;
         } catch (error) {
-            console.error("Error saving trade:", error);
+            console.error("Critical error saving trade:", error);
             return false;
         }
     },
 
     // Upload screenshot to Firebase Storage
-    uploadScreenshot: async function(file, date) {
+uploadScreenshot: async function(file, date) {
         try {
             if (!file) return null;
             
-            const fileName = `${Date.now()}_${file.name || 'screenshot.png'}`;
+            const fileName = file.name || `${Date.now()}_screenshot.png`;
             const storageRef = storage.ref(`screenshots/${date}/${fileName}`);
             
-            await storageRef.put(file);
-            const url = await storageRef.getDownloadURL();
+            // Attach metadata to the Firebase Storage object
+            const metadata = {
+                customMetadata: {
+                    'annotated': String(file.metadata?.annotated || false),
+                    'tags': JSON.stringify(file.metadata?.tags || [])
+                }
+            };
             
-            return url;
+            await storageRef.put(file, metadata);
+            return await storageRef.getDownloadURL();
         } catch (error) {
-            console.error("Error uploading screenshot:", error);
+            console.error("Upload failed:", error);
             return null;
         }
     },

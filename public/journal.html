@@ -1360,150 +1360,149 @@
             const tradeForm = document.getElementById('tradeForm');
             if (tradeForm) {
                 tradeForm.addEventListener('submit', async function(e) {
-                    e.preventDefault();
-                    
-                    const saveBtn = document.getElementById('saveTradeBtn');
-                    saveBtn.classList.add('loading');
-                    saveBtn.disabled = true;
-                    
-                    try {
-                        // Get the current date from the span element
-                        const currentDateSpan = document.getElementById('currentDate');
-                        const journalDate = currentDateSpan ? currentDateSpan.textContent : new Date().toISOString().split('T')[0];
-                        
-                        // Get strategy value
-                        let strategy = document.getElementById('strategy').value;
-                        if (strategy === 'Other') {
-                            strategy = document.getElementById('customStrategy').value;
-                        }
-                        
-                        // Calculate P&L if not already calculated
-                        const pnl = parseFloat(document.getElementById('pnl').value) || 0;
-                        
-                        // Create trade data object with defaults to prevent undefined
-                        const tradeData = {
-                            symbol: (document.getElementById('symbol').value || '').toUpperCase(),
-                            direction: document.getElementById('direction').value || 'LONG',
-                            entryPrice: parseFloat(document.getElementById('entryPrice').value) || 0,
-                            exitPrice: parseFloat(document.getElementById('exitPrice').value) || 0,
-                            quantity: parseInt(document.getElementById('quantity').value) || 0,
-                            pnl: pnl,
-                            notes: document.getElementById('notes').value || '',
-                            timestamp: new Date().toISOString()
-                        };
-                        
-                        // Add optional fields only if they have values
-                        const takeProfit = document.getElementById('takeProfit').value;
-                        if (takeProfit && takeProfit.trim() !== '') {
-                            tradeData.takeProfit = parseFloat(takeProfit);
-                        }
-                        
-                        const stopLoss = document.getElementById('stopLoss').value;
-                        if (stopLoss && stopLoss.trim() !== '') {
-                            tradeData.stopLoss = parseFloat(stopLoss);
-                        }
-                        
-                        const entryTime = document.getElementById('entryTime').value;
-                        if (entryTime && entryTime.trim() !== '') {
-                            tradeData.entryTime = entryTime;
-                        }
-                        
-                        const exitTime = document.getElementById('exitTime').value;
-                        if (exitTime && exitTime.trim() !== '') {
-                            tradeData.exitTime = exitTime;
-                        }
-                        
-                        if (strategy && strategy.trim() !== '') {
-                            tradeData.strategy = strategy;
-                        }
-                        
-                        console.log("Saving trade for date:", journalDate);
-                        console.log("Trade data:", tradeData);
-                        console.log("Screenshot images:", screenshotImages.length);
-                        
-                        // Convert screenshot images to files for upload
-                        const screenshotFiles = [];
-                        for (let i = 0; i < screenshotImages.length; i++) {
-                            const img = screenshotImages[i];
-                            if (img && img.data) {
-                                try {
-                                    // Use dataURLToBlob instead of fetch
-                                    const blob = dataURLToBlob(img.data);
-                                    
-                                    // Generate a filename preserving annotation flag
-                                    const baseName = img.name || `trade_${Date.now()}_${i}`;
-                                    const fileName = img.annotated 
-                                        ? baseName.replace(/\.(png|jpg|jpeg)$/i, '_annotated.$1') || `${baseName}_annotated.png`
-                                        : baseName;
-                                    
-                                    const file = new File([blob], fileName, { type: 'image/png' });
-                                    
-                                    // Attach metadata
-                                    file.metadata = {
-                                        annotated: img.annotated === true,
-                                        tags: img.tags || []
-                                    };
-                                    
-                                    screenshotFiles.push(file);
-                                    console.log(`Processed image ${i}:`, img.annotated ? 'ANNOTATED' : 'original', img.tags);
-                                } catch (err) {
-                                    console.error(`Error converting image ${i}:`, err);
-                                    // Optionally show a notification to the user
-                                    showNotification(`Failed to process image ${i+1}`, 'error');
-                                }
-                            } else {
-                                console.warn(`Skipping invalid image at index ${i}`, img);
-                            }
-                        }
-                        
-                        // Use TradeJournal.saveTrade
-                        const success = await TradeJournal.saveTrade(journalDate, tradeData, screenshotFiles);
-                        
-                        if (success) {
-                            showNotification('Trade saved successfully!', 'success');
-                            tradeForm.reset();
-                            screenshotImages = [];
-                            refreshPreviewGrid();
-                            
-                            // Reset custom strategy row
-                            const customRow = document.getElementById('customStrategyRow');
-                            if (customRow) customRow.style.display = 'none';
-                            
-                            // Reload trades
-                            await loadTodaysTrades(journalDate);
-                        } else {
-                            showNotification('Failed to save trade', 'error');
-                        }
-                    } catch (error) {
-                        console.error('Error saving trade:', error);
-                        showNotification('Error saving trade: ' + error.message, 'error');
-                    } finally {
-                        saveBtn.classList.remove('loading');
-                        saveBtn.disabled = false;
-                    }
-                });
+    e.preventDefault();
+    
+    const saveBtn = document.getElementById('saveTradeBtn');
+    saveBtn.classList.add('loading');
+    saveBtn.disabled = true;
+    
+    try {
+        const journalDate = document.getElementById('currentDate').textContent;
+        
+        // 1. Convert current UI images (with annotations) to Files
+        const screenshotFiles = [];
+        for (let i = 0; i < screenshotImages.length; i++) {
+            const img = screenshotImages[i];
+            
+            // Use helper to convert DataURL to Blob
+            const blob = dataURLToBlob(img.data);
+            const fileName = img.name || `trade_${Date.now()}_${i}.png`;
+            
+            const file = new File([blob], fileName, { type: 'image/png' });
+            
+            // Attach metadata for the saveTrade function to pick up
+            file.metadata = {
+                annotated: img.annotated === true,
+                tags: img.tags || []
+            };
+            
+            screenshotFiles.push(file);
+        }
+
+        // 2. Collect Trade Data
+        const tradeData = {
+            symbol: document.getElementById('symbol').value.toUpperCase(),
+            direction: document.getElementById('direction').value,
+            entryPrice: parseFloat(document.getElementById('entryPrice').value) || 0,
+            exitPrice: parseFloat(document.getElementById('exitPrice').value) || 0,
+            quantity: parseInt(document.getElementById('quantity').value) || 0,
+            pnl: parseFloat(document.getElementById('pnl').value) || 0,
+            notes: document.getElementById('notes').value,
+            strategy: document.getElementById('strategy').value === 'Other' 
+                       ? document.getElementById('customStrategy').value 
+                       : document.getElementById('strategy').value,
+            timestamp: new Date().toISOString()
+        };
+
+        // 3. Trigger atomic save
+        const success = await TradeJournal.saveTrade(journalDate, tradeData, screenshotFiles);
+        
+        if (success) {
+            showNotification('Trade saved successfully!', 'success');
+            tradeForm.reset();
+            screenshotImages = []; // Clear local preview
+            refreshPreviewGrid();
+            loadTodaysTrades(journalDate);
+        } else {
+            showNotification('Error saving trade. Please try again.', 'error');
+        }
+    } catch (err) {
+        console.error("Save flow failed:", err);
+        showNotification('An unexpected error occurred.', 'error');
+    } finally {
+        saveBtn.classList.remove('loading');
+        saveBtn.disabled = false;
+    }
+});
             }
         });
 
-        function dataURLToBlob(dataURL) {
+        tradeForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const saveBtn = document.getElementById('saveTradeBtn');
+    saveBtn.classList.add('loading');
+    saveBtn.disabled = true;
+    
     try {
-        const parts = dataURL.split(';base64,');
-        if (parts.length !== 2) throw new Error('Invalid data URL');
+        const journalDate = document.getElementById('currentDate').textContent;
         
-        const contentType = parts[0].split(':')[1] || 'image/png';
-        const raw = window.atob(parts[1]);
-        const rawLength = raw.length;
-        const uInt8Array = new Uint8Array(rawLength);
-        
-        for (let i = 0; i < rawLength; ++i) {
-            uInt8Array[i] = raw.charCodeAt(i);
+        // 1. Convert current UI images (with annotations) to Files
+        const screenshotFiles = [];
+        for (let i = 0; i < screenshotImages.length; i++) {
+            const img = screenshotImages[i];
+            
+            // Use helper to convert DataURL to Blob
+            const blob = dataURLToBlob(img.data);
+            const fileName = img.name || `trade_${Date.now()}_${i}.png`;
+            
+            const file = new File([blob], fileName, { type: 'image/png' });
+            
+            // Attach metadata for the saveTrade function to pick up
+            file.metadata = {
+                annotated: img.annotated === true,
+                tags: img.tags || []
+            };
+            
+            screenshotFiles.push(file);
         }
-        return new Blob([uInt8Array], { type: contentType });
-    } catch (e) {
-        console.error('dataURLToBlob error:', e);
-        // Fallback: create a blob via fetch (slower but robust)
-        return fetch(dataURL).then(res => res.blob());
+
+        // 2. Collect Trade Data
+        const tradeData = {
+            symbol: document.getElementById('symbol').value.toUpperCase(),
+            direction: document.getElementById('direction').value,
+            entryPrice: parseFloat(document.getElementById('entryPrice').value) || 0,
+            exitPrice: parseFloat(document.getElementById('exitPrice').value) || 0,
+            quantity: parseInt(document.getElementById('quantity').value) || 0,
+            pnl: parseFloat(document.getElementById('pnl').value) || 0,
+            notes: document.getElementById('notes').value,
+            strategy: document.getElementById('strategy').value === 'Other' 
+                       ? document.getElementById('customStrategy').value 
+                       : document.getElementById('strategy').value,
+            timestamp: new Date().toISOString()
+        };
+
+        // 3. Trigger atomic save
+        const success = await TradeJournal.saveTrade(journalDate, tradeData, screenshotFiles);
+        
+        if (success) {
+            showNotification('Trade saved successfully!', 'success');
+            tradeForm.reset();
+            screenshotImages = []; // Clear local preview
+            refreshPreviewGrid();
+            loadTodaysTrades(journalDate);
+        } else {
+            showNotification('Error saving trade. Please try again.', 'error');
+        }
+    } catch (err) {
+        console.error("Save flow failed:", err);
+        showNotification('An unexpected error occurred.', 'error');
+    } finally {
+        saveBtn.classList.remove('loading');
+        saveBtn.disabled = false;
     }
+});
+
+// Robust DataURL to Blob helper
+function dataURLToBlob(dataURL) {
+    const byteString = atob(dataURL.split(',')[1]);
+    const mimeString = dataURL.split(',')[0].split(':')[1].split(';')[0];
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+    }
+    return new Blob([ab], { type: mimeString });
 }
 
         // ============== TRADE FUNCTIONS ==============
@@ -1700,38 +1699,33 @@
         }
 
         function initDrawingCanvas(imageData, index) {
-            currentEditingIndex = index;
-            const modal = document.getElementById('drawingModal');
-            const canvasElement = document.getElementById('drawingCanvas');
-            
-            if (!modal || !canvasElement) return;
-            
-            canvas = canvasElement;
-            ctx = canvas.getContext('2d');
-            isDrawing = false;
-            
-            const img = new Image();
-            img.crossOrigin = "anonymous";
-            
-            img.onload = function() {
-                canvas.width = img.width;
-                canvas.height = img.height;
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                undoStack = [originalImageData];
-                redoStack = [];
-                modal.classList.add('active');
-                setTool('pen');
-            };
-            
-            img.onerror = function() {
-                console.error("Failed to load image");
-                showNotification('Failed to load image for editing', 'error');
-            };
-            
-            img.src = imageData;
-        }
-
+    currentEditingIndex = index;
+    const modal = document.getElementById('drawingModal');
+    const canvasElement = document.getElementById('drawingCanvas');
+    
+    if (!modal || !canvasElement) return;
+    
+    canvas = canvasElement;
+    // Fix the performance warning and UI lag
+    ctx = canvas.getContext('2d', { willReadFrequently: true }); 
+    isDrawing = false;
+    
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    
+    img.onload = function() {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        undoStack = [originalImageData];
+        redoStack = [];
+        modal.classList.add('active'); // Use classList for better UI reaction
+        modal.style.display = 'flex';   // Ensure it's actually visible
+        setTool('pen');
+    };
+    img.src = imageData;
+}
         function setTool(tool) {
             currentTool = tool;
             
@@ -1910,26 +1904,32 @@
         }
 
         function saveAnnotatedImage() {
-    if (!canvas || currentEditingIndex === -1) return;
+    if (!canvas || currentEditingIndex === -1) {
+        console.error("Save failed: No canvas or index found.");
+        return;
+    }
     
-    const annotatedImage = canvas.toDataURL('image/png');
-    
-    if (screenshotImages && screenshotImages[currentEditingIndex]) {
-        screenshotImages[currentEditingIndex].data = annotatedImage;
-        screenshotImages[currentEditingIndex].annotated = true;  // mark as annotated
-        screenshotImages[currentEditingIndex].modified = Date.now();
+    try {
+        const annotatedImage = canvas.toDataURL('image/png');
         
-        // Also rename to include '_annotated' for extra safety
-        if (!screenshotImages[currentEditingIndex].name) {
-            screenshotImages[currentEditingIndex].name = `annotated_${Date.now()}.png`;
-        } else if (!screenshotImages[currentEditingIndex].name.includes('_annotated')) {
-            screenshotImages[currentEditingIndex].name = 
-                screenshotImages[currentEditingIndex].name.replace(/\.[^/.]+$/, '_annotated$&');
+        if (screenshotImages[currentEditingIndex]) {
+            // Update the local array with the new annotated data
+            screenshotImages[currentEditingIndex].data = annotatedImage;
+            screenshotImages[currentEditingIndex].annotated = true;
+            
+            // Rename file to indicate it is annotated
+            let originalName = screenshotImages[currentEditingIndex].name || `trade_${Date.now()}.png`;
+            if (!originalName.includes('_annotated')) {
+                screenshotImages[currentEditingIndex].name = originalName.replace(/\.(png|jpg|jpeg)$/i, '_annotated.$1');
+            }
+
+            refreshPreviewGrid(); // Force UI update
+            closeDrawingModal();  // Hide the modal
+            showNotification('Annotations saved to local list!', 'success');
         }
-        
-        refreshPreviewGrid();
-        closeDrawingModal();
-        showNotification('Annotations saved!', 'success');
+    } catch (err) {
+        console.error("Error generating annotated image:", err);
+        showNotification('Failed to save annotations.', 'error');
     }
 }
 
