@@ -3,6 +3,7 @@
 <head>
     <title>Calendar - Trade Journal</title>
     <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Firebase SDK -->
@@ -70,44 +71,61 @@
             /* background: #ffe0b2; */
             border: 2px solid #ff9800;
         }
+        /* Color coding based on your legend */
+.calendar-day.profitable-day {
+    background-color: #d4edda !important; /* light green */
+    border-color: #c3e6cb;
+}
+
+.calendar-day.losing-day {
+    background-color: #f8d7da !important; /* light red */
+    border-color: #f5c6cb;
+}
+
+.calendar-day.breakeven-day {
+    background-color: #fff3cd !important; /* light yellow/gray */
+    border-color: #ffeeba;
+}
+
+.calendar-day.no-trade-day {
+    background-color: #ffffff;
+}
+
+/* Ensure text remains readable */
+.profitable-day .day-pnl-value { color: #155724; }
+.losing-day .day-pnl-value { color: #721c24; }
+.breakeven-day .day-pnl-value { color: #856404; }
+
+/* Expiry labels shouldn't hide the P&L */
+.calendar-day {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 5px;
+    min-height: 90px;
+}
     </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
-    <div class="container-fluid">
-
-        <a class="navbar-brand fw-bold" href="/">📊 Trade Journal</a>
-
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
-
-            <li class="nav-item">
-            <a class="nav-link" href="index.html">Journal</a>
-            </li>
-
-            <li class="nav-item">
-            <a class="nav-link" href="calendar.html">Calendar</a>
-            </li>
-
-            <li class="nav-item">
-            <a class="nav-link" href="dashboard.html">Dashboard</a>
-            </li>
-
-            <li class="nav-item">
-            <a class="nav-link" href="export.html">Backup</a>
-            </li>
-
-        </ul>
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="index.html">Trade Journal</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Journal</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="calendar.html">Calendar</a></li>
+                    <li class="nav-item"><a class="nav-link" href="dashboard.html">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="export.html">Backup</a></li>
+                </ul>
+            </div>
         </div>
-    </div>
     </nav>
 
     <div class="container">
-        <h1><i class="fas fa-calendar-alt"></i> Trading Calendar</h1>
+        <!-- <h7><i class="fas fa-calendar-alt"></i> Trading Calendar</h7> -->
         
         <!-- Month Navigation -->
         <div class="calendar-nav">

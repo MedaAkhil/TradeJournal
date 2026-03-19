@@ -100,7 +100,7 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
         <div class="container-fluid">
-            <a class="navbar-brand fw-bold" href="/">📊 Trade Journal</a>
+            <a class="navbar-brand fw-bold" href="/">Trade Journal</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -205,6 +205,10 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // In trade-detail.html, add this function
+
+        document.addEventListener('DOMContentLoaded', () => {
+    loadTradeDetail();
+});
         function displayScreenshots(screenshots) {
             const gallery = document.getElementById('screenshotsGallery');
             const grid = document.getElementById('galleryGrid');
@@ -246,64 +250,110 @@
 
         // Update the loadTradeDetail function to use the new display function
         async function loadTradeDetail() {
-            console.log("loadTradeDetail function called");
-            
-            // Get parameters from URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const date = urlParams.get('date');
-            const tradeIndex = parseInt(urlParams.get('index'));
-            
-            console.log("Date:", date, "Index:", tradeIndex);
-            
-            if (!date || isNaN(tradeIndex)) {
-                showError('Invalid trade reference');
-                return;
-            }
-            
-            try {
-                // Load trade data
-                const dayData = await TradeJournal.loadDayTrades(date);
-                console.log("Day data loaded:", dayData);
-                
-                if (!dayData.trades || !dayData.trades[tradeIndex]) {
-                    showError('Trade not found');
-                    return;
-                }
-                
-                const trade = dayData.trades[tradeIndex];
-                console.log("Trade found:", trade);
-                
-                // Hide loading spinner
-                const spinner = document.getElementById('loadingSpinner');
-                if (spinner) spinner.style.display = 'none';
-                
-                // Display trade details
-                displayTradeDetails(date, tradeIndex, trade, dayData);
-                
-                // Display screenshots if any
-                if (trade.screenshots && trade.screenshots.length > 0) {
-                    displayScreenshots(trade.screenshots);
-                } else {
-                    document.getElementById('screenshotsGallery').style.display = 'none';
-                }
-                
-                // Show action buttons
-                const actionButtons = document.getElementById('actionButtons');
-                if (actionButtons) actionButtons.style.display = 'flex';
-                
-                // Store trade info for edit/delete
-                window.currentTrade = {
-                    date: date,
-                    index: tradeIndex,
-                    trade: trade,
-                    dayData: dayData
-                };
-                
-            } catch (error) {
-                console.error("Error loading trade detail:", error);
-                showError('Error loading trade details');
-            }
+    const urlParams = new URLSearchParams(window.location.search);
+    const date = urlParams.get('date');
+    const tradeIndex = parseInt(urlParams.get('index'));
+
+    if (!date || isNaN(tradeIndex)) {
+        showError('Invalid trade reference');
+        return;
+    }
+
+    try {
+        // Use the method from your app.js
+        const dayData = await TradeJournal.loadDay(date);
+        
+        if (!dayData.trades || !dayData.trades[tradeIndex]) {
+            showError('Trade not found');
+            return;
         }
+
+        const trade = dayData.trades[tradeIndex];
+        
+        // Hide spinner
+        document.getElementById('loadingSpinner').style.display = 'none';
+
+        // --- 3. CALL DISPLAY FUNCTIONS ---
+        displayTradeDetails(date, trade);
+        
+        if (trade.screenshots && trade.screenshots.length > 0) {
+            displayScreenshots(trade.screenshots);
+        }
+
+        // Show buttons
+        document.getElementById('actionButtons').style.display = 'flex';
+
+    } catch (error) {
+        console.error("Load Error:", error);
+        showError('Failed to connect to database');
+    }
+}
+function displayTradeDetails(date, trade) {
+    const container = document.getElementById('tradeDetailCard');
+    const taxes = Calc.tradeTaxes(trade); // Uses the math from your app.js
+    
+    container.innerHTML = `
+        <div class="trade-header">
+            <div class="trade-title">
+                <h1>${trade.symbol}</h1>
+                <span class="trade-date">${Calc.formatDate(date)} | ${trade.strategy || 'No Strategy'}</span>
+            </div>
+            <div class="trade-pnl-large ${taxes.netPnL >= 0 ? 'profit' : 'loss'}">
+                ₹${Calc.format(taxes.netPnL)}
+                <small class="d-block text-muted" style="font-size: 0.9rem">Net P&L</small>
+            </div>
+        </div>
+
+        <div class="trade-metrics-grid mb-4">
+            <div class="metric-card">
+                <span class="metric-label">Entry</span>
+                <span class="metric-value">₹${trade.entryPrice}</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">Exit</span>
+                <span class="metric-value">₹${trade.exitPrice}</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">Quantity</span>
+                <span class="metric-value">${trade.quantity}</span>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <table class="table table-sm">
+                    <tr><td>Time</td><td>${trade.entryTime || '--'} - ${trade.exitTime || '--'}</td></tr>
+                    <tr><td>Target (TP)</td><td class="text-success">₹${trade.takeProfit || '--'}</td></tr>
+                    <tr><td>Stop Loss</td><td class="text-danger">₹${trade.stopLoss || '--'}</td></tr>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <div class="notes-section p-3 bg-light rounded">
+                    <h6>Notes:</h6>
+                    <p class="mb-0">${trade.notes || 'No notes provided.'}</p>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// --- 5. UI HELPERS ---
+function goBack() { window.location.href = 'index.html'; }
+
+function showError(msg) {
+    document.getElementById('tradeDetailCard').innerHTML = `
+        <div class="alert alert-danger m-3 text-center">
+            <i class="fas fa-exclamation-triangle"></i> ${msg}
+            <br><button class="btn btn-sm btn-outline-danger mt-2" onclick="goBack()">Go Back</button>
+        </div>`;
+}
+
+// Modal Logic for Screenshots
+function openFullscreenImage(url) {
+    document.getElementById('imageModal').style.display = "block";
+    document.getElementById('fullscreenImage').src = url;
+}
+function closeImageModal() { document.getElementById('imageModal').style.display = "none"; }
     </script>
 </body>
 </html>

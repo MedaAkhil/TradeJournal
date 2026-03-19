@@ -1,105 +1,413 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Trade Journal</title>
-    <link rel="stylesheet" href="styles.css">
-    <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Firebase SDK -->
+    <title>Journal - Trade Journal Pro</title>
+    
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+
+    <style>
+        /* Modern FAB Stack */
+        .fab-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 9999;
+        }
+
+        .floating-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: transform 0.3s;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .floating-btn:hover {
+            transform: scale(1.1);
+            color: white;
+        }
+
+        .btn-manual { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+        .btn-dhan { background: linear-gradient(135deg, #6a11cb, #2575fc); }
+
+        /* Modal Checklist Styling */
+        .trade-item-row:hover { background-color: #f8f9fa; }
+    </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
-    <div class="container-fluid">
-
-        <a class="navbar-brand fw-bold" href="/">📊 Trade Journal</a>
-
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
-
-            <li class="nav-item">
-            <a class="nav-link" href="index.html">Journal</a>
-            </li>
-
-            <li class="nav-item">
-            <a class="nav-link" href="calendar.html">Calendar</a>
-            </li>
-
-            <li class="nav-item">
-            <a class="nav-link" href="dashboard.html">Dashboard</a>
-            </li>
-
-            <li class="nav-item">
-            <a class="nav-link" href="export.html">Backup</a>
-            </li>
-
-        </ul>
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="index.html">Trade Journal</a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link active" href="index.html">Journal</a></li>
+                    <li class="nav-item"><a class="nav-link" href="calendar.html">Calendar</a></li>
+                    <li class="nav-item"><a class="nav-link" href="dashboard.html">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="export.html">Backup</a></li>
+                </ul>
+            </div>
         </div>
-    </div>
     </nav>
- 
-    <div class="container">
-        <div class="date-navigation">
-            <button onclick="previousDay()"><i class="fas fa-chevron-left"></i> Previous</button>
-            <div class="date-display">
-                <!-- <i class="fas fa-calendar-day"></i> -->
-                <input type="date" id="datePicker" onchange="loadDate(this.value)">
-            </div>
-            <button onclick="nextDay()">Next <i class="fas fa-chevron-right"></i></button>
+
+    <div class="container mt-4">
+        <div class="date-navigation d-flex justify-content-center align-items-center mb-4">
+            <button class="btn btn-outline-primary me-3" onclick="changeDateBy(-1)"><i class="fas fa-chevron-left"></i> Previous</button>
+            <input type="date" id="datePicker" class="form-control w-auto" onchange="renderJournal(this.value)">
+            <button class="btn btn-outline-primary ms-3" onclick="changeDateBy(1)">Next <i class="fas fa-chevron-right"></i></button>
         </div>
 
-        <!-- Daily Summary Card -->
-        <div class="daily-summary-card" id="dailySummary">
-            <!-- <div class="summary-item">
-                <span class="summary-label">Total Trades</span>
-                <span class="summary-value" id="totalTradesBadge">0</span>
-            </div> -->
-            <div class="summary-item">
-                <span class="summary-label">Day P&L</span>
-                <span class="summary-value" id="dayPnL">$0.00</span>
+        <div class="daily-summary-card d-flex justify-content-around p-3 mb-4 bg-white shadow-sm rounded">
+            <div class="text-center">
+                <small class="text-muted d-block">Gross P&L</small>
+                <span class="h4 fw-bold" id="dayPnL">₹0.00</span>
             </div>
-            <div class="summary-item">
-                <span class="summary-label">P&L After Tax</span>
-                <span class="summary-value" id="netPnL">₹0.00</span>
+            <div class="text-center border-start ps-4">
+                <small class="text-muted d-block">Net P&L (After Tax)</small>
+                <span class="h4 fw-bold" id="netPnL">₹0.00</span>
             </div>
-            <!-- <div class="summary-item">
-                <span class="summary-label">Screenshots</span>
-                <span class="summary-value" id="totalScreenshotsBadge">0</span>
-            </div> -->
         </div>
 
         <div id="journalContent">
-            <!-- Journal entries will load here -->
+            <div class="text-center p-5 text-muted">Loading trades...</div>
         </div>
     </div>
 
-    <!-- Floating Plus Button -->
-    <div class="floating-plus" onclick="goToAddTrade()" title="Add New Trade">
-        <i class="fas fa-plus"></i>
+    <div class="fab-container">
+        <button class="floating-btn btn-dhan" onclick="document.getElementById('pdfInput').click()" title="Import Dhan PDF">
+            <i class="fas fa-file-invoice"></i>
+        </button>
+        <button class="floating-btn btn-manual" onclick="location.href='journal.html'" title="Add Manual Trade">
+            <i class="fas fa-plus"></i>
+        </button>
     </div>
 
-    <!-- Quick Stats Modal (optional) -->
-    <div id="statsModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Day Statistics</h3>
-                <span class="close" onclick="closeStatsModal()">&times;</span>
+    
+    <div class="modal fade" id="importModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-list-check me-2"></i> Select Positions to Import</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body" id="statsModalBody">
-                <!-- Stats will be populated here -->
+            <div class="modal-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-3"><input type="checkbox" id="selectAllTrades" onclick="toggleAllTrades(this)" checked></th>
+                                <th>Symbol</th>
+                                <th>Qty</th>
+                                <th>Entry → Exit</th>
+                                <th>Gross P&L</th>
+                            </tr>
+                        </thead>
+                        <tbody id="parsedTradesTable">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary px-4" onclick="importSelectedTrades()">
+                    Import Selected (<span id="selectedCount">0</span>)
+                </button>
             </div>
         </div>
     </div>
+</div>
+<input type="file" id="pdfInput" accept=".pdf" style="display: none;" onchange="processDhanPDF(this)">
 
     <script src="app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+
+function handlePasteImport(rawText) {
+    if (!rawText || rawText.length < 20) return;
+
+    // 1. Auto-detect date from pasted text
+    const dateMatch = rawText.match(/(\d{2}-\d{2}-\d{4})/);
+    if (dateMatch) {
+        const [dd, mm, yyyy] = dateMatch[1].split('-');
+        const formattedDate = `${yyyy}-${mm}-${dd}`;
+        document.getElementById('datePicker').value = formattedDate;
+        document.getElementById('targetDateLabel').innerText = formattedDate;
+    }
+
+    // 2. Extract Trades using a refined Regex
+    extractedTrades = [];
+    const tradesMap = {};
+    
+    // Pattern matches: SYMBOL ... B/S ... QTY ... PRICE
+    // Handles Dhan structure: OPTIDX NIFTY 02Mar2026 24650 CE NSE B 65 67.45
+    const regex = /(OPTIDX|OPTSTK|EQ)\s+([A-Z0-9\s]+NSE)\s+([BS])\s+(\d+)\s+(\d+\.\d+)/g;
+    
+    let match;
+    const cleanText = rawText.replace(/\n/g, ' ');
+
+    while ((match = regex.exec(cleanText)) !== null) {
+        const symbol = match[1] + " " + match[2].replace(' NSE', '').trim();
+        const side = match[3] === 'B' ? 'BUY' : 'SELL';
+        const qty = parseInt(match[4]);
+        const price = parseFloat(match[5]);
+
+        if (!tradesMap[symbol]) tradesMap[symbol] = { BUY: null, SELL: null };
+        tradesMap[symbol][side] = { qty, price };
+    }
+
+    // 3. Pair them up
+    for (const symbol in tradesMap) {
+        const leg = tradesMap[symbol];
+        if (leg.BUY && leg.SELL) {
+            const pnl = (leg.SELL.price - leg.BUY.price) * leg.BUY.qty;
+            extractedTrades.push({
+                symbol: symbol,
+                direction: "LONG",
+                quantity: leg.BUY.qty,
+                entryPrice: leg.BUY.price,
+                exitPrice: leg.SELL.price,
+                pnl: pnl.toFixed(2)
+            });
+        }
+    }
+
+    if (extractedTrades.length > 0) {
+        displayTradesForSelection(extractedTrades);
+        document.getElementById('selectionSection').style.display = 'block';
+    }
+}
+
+function displayTradesForSelection(trades) {
+    const tbody = document.getElementById('parsedTradesTable');
+    tbody.innerHTML = trades.map((t, i) => `
+        <tr>
+            <td><input type="checkbox" class="trade-check" data-index="${i}" checked></td>
+            <td><small>${t.symbol}</small></td>
+            <td>${t.quantity}</td>
+            <td>₹${t.entryPrice} <i class="fas fa-arrow-right"></i> ₹${t.exitPrice}</td>
+            <td class="${t.pnl >= 0 ? 'text-success' : 'text-danger'} fw-bold">₹${t.pnl}</td>
+        </tr>
+    `).join('');
+}
+
+async function importSelectedTrades() {
+    const selectedIdx = Array.from(document.querySelectorAll('.trade-check:checked')).map(cb => cb.dataset.index);
+    const date = document.getElementById('datePicker').value;
+
+    for (let idx of selectedIdx) {
+        const trade = extractedTrades[idx];
+        await TradeJournal.saveTrade(date, {
+            ...trade,
+            strategy: "Quick Paste Import",
+            notes: "Imported via Dhan Table Paste"
+        }, []);
+    }
+
+    const modal = bootstrap.Modal.getInstance(document.getElementById('importModal'));
+    modal.hide();
+    document.getElementById('pasteArea').value = '';
+    renderJournal(date);
+    alert("Import Complete!");
+}
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+let extractedTrades = [];
+let importModal = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+    importModal = new bootstrap.Modal(document.getElementById('importModal'));
+});
+
+// --- 2. FILE PROCESSING ---
+async function processDhanPDF(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async function() {
+        try {
+            const typedarray = new Uint8Array(this.result);
+            
+            // Start PDF Load
+            const loadingTask = pdfjsLib.getDocument({
+                data: typedarray,
+                password: 'INEPM0439N', // Your Dhan Password
+                cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.16.105/cmaps/',
+                cMapPacked: true,
+            });
+
+            const pdf = await loadingTask.promise;
+            let fullText = "";
+
+            // Loop through all pages to extract text
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const content = await page.getTextContent();
+                fullText += content.items.map(item => item.str).join(" ") + " \n";
+            }
+
+            // A. Auto-Set Date from PDF text
+            const dateMatch = fullText.match(/Trade Date:\s*(\d{2}-\d{2}-\d{4})/);
+            if (dateMatch) {
+                const [dd, mm, yyyy] = dateMatch[1].split('-');
+                document.getElementById('datePicker').value = `${yyyy}-${mm}-${dd}`;
+            }
+
+            // B. Parse messy text into clean objects
+            extractedTrades = parseDhanTrades(fullText);
+            
+            if (extractedTrades.length > 0) {
+                displayTradesForSelection(extractedTrades);
+            } else {
+                alert("Decrypted, but no matching trade rows found. Check your Dhan PDF format.");
+            }
+
+        } catch (err) {
+            console.error("PDF Engine Error:", err);
+            alert(err.name === 'PasswordException' ? "Decryption failed. Check password." : "Error reading PDF.");
+        } finally {
+            input.value = ""; // Reset for next file
+        }
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+// --- 3. THE PARSING ENGINE ---
+function parseDhanTrades(text) {
+    const tradesMap = {}; 
+    const finalTrades = [];
+    const cleanText = text.replace(/\s+/g, ' ');
+
+    // Match Symbol -> Side (B/S) -> Qty -> Price
+    const regex = /(OPTIDX|OPTSTK|EQ)\s+(.*?)\s+(?:-\s+NSE|NSE|BSE)?\s+(B|S-?)\s+(\d+)\s+(\d+\.\d+)/g;
+    
+    let match;
+    while ((match = regex.exec(cleanText)) !== null) {
+        const type = match[1];
+        // Clean Symbol (e.g. NIFTY 02Mar2026 24650 CE)
+        let details = match[2].split(" ").slice(0, 5).join(" ").trim();
+        const fullSymbol = `${type} ${details}`.replace(/- NSE|NSE|BSE/g, '').trim();
+        
+        const sideRaw = match[3];
+        const qty = parseInt(match[4]);
+        const price = parseFloat(match[5]);
+        const side = sideRaw.startsWith('B') ? "BUY" : "SELL";
+
+        if (!tradesMap[fullSymbol]) tradesMap[fullSymbol] = { BUY: [], SELL: [] };
+        tradesMap[fullSymbol][side].push({ qty, price });
+    }
+
+    // Pair Legs & Calculate Weighted Averages
+    for (const sym in tradesMap) {
+        const buys = tradesMap[sym].BUY;
+        const sells = tradesMap[sym].SELL;
+        
+        if (buys.length > 0 && sells.length > 0) {
+            const totalBuyQty = buys.reduce((s, b) => s + b.qty, 0);
+            const avgBuyPrice = buys.reduce((s, b) => s + (b.price * b.qty), 0) / totalBuyQty;
+            const totalSellQty = sells.reduce((s, b) => s + b.qty, 0);
+            const avgSellPrice = sells.reduce((s, b) => s + (b.price * b.qty), 0) / totalSellQty;
+
+            const tradeQty = Math.min(totalBuyQty, totalSellQty);
+            const pnl = (avgSellPrice - avgBuyPrice) * tradeQty;
+
+            finalTrades.push({
+                symbol: sym,
+                direction: "LONG", 
+                quantity: tradeQty,
+                entryPrice: avgBuyPrice.toFixed(2),
+                exitPrice: avgSellPrice.toFixed(2),
+                pnl: pnl.toFixed(2)
+            });
+        }
+    }
+    // Filter out duplicates (Summary page vs Annexure)
+    return Array.from(new Map(finalTrades.map(t => [t.symbol + t.pnl, t])).values());
+}
+
+// --- 4. SELECTION UI ---
+function displayTradesForSelection(trades) {
+    const tbody = document.getElementById('parsedTradesTable');
+    tbody.innerHTML = trades.map((t, i) => `
+        <tr class="align-middle">
+            <td class="ps-3"><input type="checkbox" class="trade-check" data-index="${i}" onchange="updateSelectedCount()" checked></td>
+            <td>
+                <div class="fw-bold text-dark" style="font-size: 0.9rem;">${t.symbol}</div>
+                <small class="text-muted">Imported Trade</small>
+            </td>
+            <td><span class="badge bg-light text-dark border">${t.quantity}</span></td>
+            <td>
+                <span class="text-muted small">₹${t.entryPrice}</span> 
+                <i class="fas fa-arrow-right mx-1 text-primary small"></i> 
+                <span class="text-muted small">₹${t.exitPrice}</span>
+            </td>
+            <td class="${t.pnl >= 0 ? 'text-success' : 'text-danger'} fw-bold">
+                ${t.pnl >= 0 ? '+' : ''}₹${t.pnl}
+            </td>
+        </tr>
+    `).join('');
+    
+    updateSelectedCount();
+    importModal.show();
+}
+
+function updateSelectedCount() {
+    const count = document.querySelectorAll('.trade-check:checked').length;
+    document.getElementById('selectedCount').innerText = count;
+}
+
+function toggleAllTrades(source) {
+    document.querySelectorAll('.trade-check').forEach(cb => cb.checked = source.checked);
+    updateSelectedCount();
+}
+
+async function importSelectedTrades() {
+    const selectedIdx = Array.from(document.querySelectorAll('.trade-check:checked')).map(cb => cb.dataset.index);
+    if (selectedIdx.length === 0) return alert("Select at least one position to import.");
+
+    const date = document.getElementById('datePicker').value;
+    
+    // Save to Firebase
+    for (let idx of selectedIdx) {
+        const trade = extractedTrades[idx];
+        await TradeJournal.saveTrade(date, {
+            ...trade,
+            strategy: "Dhan PDF Import",
+            notes: "Position auto-extracted from Contact Note."
+        }, []);
+    }
+
+    importModal.hide();
+    renderJournal(date); // Refresh UI
+    alert(`Success! ${selectedIdx.length} positions imported.`);
+}
+
+        function changeDateBy(days) {
+    const picker = document.getElementById('datePicker');
+    let current = new Date(picker.value);
+    current.setDate(current.getDate() + days);
+    const newDateStr = current.toISOString().split('T')[0];
+    picker.value = newDateStr;
+    renderJournal(newDateStr);
+}
+    </script>
 </body>
 </html>

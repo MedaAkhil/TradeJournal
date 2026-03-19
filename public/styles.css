@@ -1926,3 +1926,8 @@ button[type="submit"]:hover {
 
 
 
+
+
+
+.profit { color: #2ecc71 !important; font-weight: bold; }
+.loss { color: #e74c3c !important; font-weight: bold; }
