@@ -10,40 +10,118 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Annotated badge */
+        .annotated-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #3498db;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            z-index: 2;
+        }
+
+        .annotated-badge i {
+            font-size: 0.8rem;
+        }
+
+        /* Image tags */
+        .image-tags {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            z-index: 2;
+        }
+
+        .image-tag {
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            backdrop-filter: blur(2px);
+        }
+
+        /* Update gallery item to handle badges */
+        .gallery-item {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .gallery-item:hover {
+            transform: scale(1.05);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .gallery-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 3;
+        }
+
+        .gallery-item:hover .gallery-overlay {
+            opacity: 1;
+        }
+
+        .gallery-overlay i {
+            color: white;
+            font-size: 2rem;
+        }
+    </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <div class="container-fluid">
-    
-    <!-- Logo -->
-    <a class="navbar-brand" href="/">Trade Journal</a>
-
-    <!-- Hamburger Button -->
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <!-- Collapsible Menu -->
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav ms-auto">
-        
-        <li class="nav-item">
-          <a class="nav-link" href="index.html">Dashboard</a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link" href="journal.html">Journal</a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link" href="analytics.html">Analytics</a>
-        </li>
-
-      </ul>
-    </div>
-
-  </div>
-</nav>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="/">📊 Trade Journal</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Journal</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="calendar.html">Calendar</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="dashboard.html">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="export.html">Backup</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
     <div class="container">
         <!-- Back button -->
@@ -125,5 +203,107 @@
 
     <script src="app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // In trade-detail.html, add this function
+        function displayScreenshots(screenshots) {
+            const gallery = document.getElementById('screenshotsGallery');
+            const grid = document.getElementById('galleryGrid');
+            
+            if (!gallery || !grid) return;
+            
+            if (!screenshots || screenshots.length === 0) {
+                gallery.style.display = 'none';
+                return;
+            }
+            
+            gallery.style.display = 'block';
+            
+            let html = '';
+            screenshots.forEach((screenshot, index) => {
+                // Handle both old format (string URL) and new format (object with url)
+                const imageUrl = typeof screenshot === 'string' ? screenshot : screenshot.url;
+                const isAnnotated = typeof screenshot === 'object' && screenshot.annotated === true;
+                const tags = typeof screenshot === 'object' && screenshot.tags ? screenshot.tags : [];
+                
+                html += `
+                    <div class="gallery-item" onclick="openFullscreenImage('${imageUrl}', ${index + 1})">
+                        <img src="${imageUrl}" alt="Screenshot ${index + 1}">
+                        ${isAnnotated ? '<div class="annotated-badge"><i class="fas fa-paint-brush"></i> Annotated</div>' : ''}
+                        <div class="gallery-overlay">
+                            <i class="fas fa-search-plus"></i>
+                        </div>
+                        ${tags.length > 0 ? `
+                            <div class="image-tags">
+                                ${tags.map(tag => `<span class="image-tag">${tag}</span>`).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+            
+            grid.innerHTML = html;
+        }
+
+        // Update the loadTradeDetail function to use the new display function
+        async function loadTradeDetail() {
+            console.log("loadTradeDetail function called");
+            
+            // Get parameters from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const date = urlParams.get('date');
+            const tradeIndex = parseInt(urlParams.get('index'));
+            
+            console.log("Date:", date, "Index:", tradeIndex);
+            
+            if (!date || isNaN(tradeIndex)) {
+                showError('Invalid trade reference');
+                return;
+            }
+            
+            try {
+                // Load trade data
+                const dayData = await TradeJournal.loadDayTrades(date);
+                console.log("Day data loaded:", dayData);
+                
+                if (!dayData.trades || !dayData.trades[tradeIndex]) {
+                    showError('Trade not found');
+                    return;
+                }
+                
+                const trade = dayData.trades[tradeIndex];
+                console.log("Trade found:", trade);
+                
+                // Hide loading spinner
+                const spinner = document.getElementById('loadingSpinner');
+                if (spinner) spinner.style.display = 'none';
+                
+                // Display trade details
+                displayTradeDetails(date, tradeIndex, trade, dayData);
+                
+                // Display screenshots if any
+                if (trade.screenshots && trade.screenshots.length > 0) {
+                    displayScreenshots(trade.screenshots);
+                } else {
+                    document.getElementById('screenshotsGallery').style.display = 'none';
+                }
+                
+                // Show action buttons
+                const actionButtons = document.getElementById('actionButtons');
+                if (actionButtons) actionButtons.style.display = 'flex';
+                
+                // Store trade info for edit/delete
+                window.currentTrade = {
+                    date: date,
+                    index: tradeIndex,
+                    trade: trade,
+                    dayData: dayData
+                };
+                
+            } catch (error) {
+                console.error("Error loading trade detail:", error);
+                showError('Error loading trade details');
+            }
+        }
+    </script>
 </body>
 </html>

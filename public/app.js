@@ -48,27 +48,69 @@ const TradeJournal = {
     // Save a trade for a specific date
     saveTrade: async function(date, tradeData, screenshotFiles = []) {
         try {
+            console.log("Saving trade to date:", date);
+            console.log("Trade data received:", tradeData);
+            console.log("Screenshot files:", screenshotFiles.length);
+            
             // Upload screenshots first
             const screenshotUrls = [];
-            for (let file of screenshotFiles) {
-                const url = await this.uploadScreenshot(file, date);
-                if (url) screenshotUrls.push(url);
-            }
+for (let file of screenshotFiles) {
+    if (!file) continue;
+    
+    const url = await this.uploadScreenshot(file, date);
+    if (url) {
+        const isAnnotated = file.name.includes('_annotated') || 
+                           (file.metadata && file.metadata.annotated === true);
+        
+        screenshotUrls.push({
+            url: url,
+            name: file.name || '',
+            annotated: isAnnotated,
+            tags: (file.metadata && file.metadata.tags) || []
+        });
+        console.log('Uploaded screenshot:', { url, annotated: isAnnotated, tags: file.metadata?.tags });
+    }
+}
 
             // Get existing day data
             const dayData = await this.loadDayTrades(date);
             
-            // Add new trade with screenshot URLs
-            tradeData.screenshots = screenshotUrls;
-            tradeData.timestamp = new Date().toISOString();
+            // Clean tradeData - remove any undefined values
+            const cleanedTradeData = {};
+            Object.keys(tradeData).forEach(key => {
+                if (tradeData[key] !== undefined && tradeData[key] !== null) {
+                    cleanedTradeData[key] = tradeData[key];
+                }
+            });
             
-            dayData.trades.push(tradeData);
+            // Add screenshot URLs to cleaned trade data
+            cleanedTradeData.screenshots = screenshotUrls;
+            
+            // Ensure required fields exist with defaults
+            cleanedTradeData.pnl = cleanedTradeData.pnl || 0;
+            cleanedTradeData.quantity = cleanedTradeData.quantity || 0;
+            cleanedTradeData.entryPrice = cleanedTradeData.entryPrice || 0;
+            cleanedTradeData.exitPrice = cleanedTradeData.exitPrice || 0;
+            cleanedTradeData.symbol = cleanedTradeData.symbol || '';
+            cleanedTradeData.direction = cleanedTradeData.direction || 'LONG';
+            
+            dayData.trades.push(cleanedTradeData);
             
             // Recalculate daily P&L
             dayData.totalPnL = dayData.trades.reduce((sum, trade) => sum + (trade.pnl || 0), 0);
             
+            // Clean dayData - ensure no undefined values
+            const cleanedDayData = {
+                trades: dayData.trades,
+                totalPnL: dayData.totalPnL || 0,
+                notes: dayData.notes || ''
+            };
+            
+            console.log("Saving to Firestore:", cleanedDayData);
+            console.log("Uploaded screenshot metadata:", screenshotUrls);
+            
             // Save to Firestore
-            await db.collection('trades').doc(date).set(dayData);
+            await db.collection('trades').doc(date).set(cleanedDayData);
             
             return true;
         } catch (error) {
@@ -80,7 +122,9 @@ const TradeJournal = {
     // Upload screenshot to Firebase Storage
     uploadScreenshot: async function(file, date) {
         try {
-            const fileName = `${Date.now()}_${file.name}`;
+            if (!file) return null;
+            
+            const fileName = `${Date.now()}_${file.name || 'screenshot.png'}`;
             const storageRef = storage.ref(`screenshots/${date}/${fileName}`);
             
             await storageRef.put(file);
@@ -1028,12 +1072,47 @@ function renderCalendar() {
     }
 }
 
+// ============== EXPIRY DAY FUNCTIONS ==============
+
+// Check if a date is an expiry day
+function isExpiryDay(date) {
+    const day = date.getDay(); // 0 = Sunday, 1 = Monday, 2 = Tuesday, 3 = Wednesday, 4 = Thursday, 5 = Friday, 6 = Saturday
+    
+    // Nifty expires on Tuesday (2)
+    // Sensex expires on Thursday (4)
+    return {
+        isNiftyExpiry: day === 2, // Tuesday
+        isSensexExpiry: day === 4, // Thursday
+        expiryType: day === 2 ? 'nifty' : (day === 4 ? 'sensex' : null)
+    };
+}
+
+// Get expiry name
+function getExpiryName(date) {
+    const day = date.getDay();
+    if (day === 2) return 'Nifty Expiry';
+    if (day === 4) return 'Sensex Expiry';
+    return null;
+}
+
 // Create a day cell
 function createDayCell(day, isOtherMonth, dateStr = null, dayData = null) {
     const cell = document.createElement('div');
     cell.className = 'calendar-day';
     if (isOtherMonth) {
         cell.classList.add('other-month');
+    }
+    
+    // Check if this is an expiry day (only for current month days)
+    if (!isOtherMonth && dateStr) {
+        const date = new Date(dateStr + 'T12:00:00');
+        const expiry = isExpiryDay(date);
+        
+        if (expiry.isNiftyExpiry) {
+            cell.classList.add('nifty-expiry');
+        } else if (expiry.isSensexExpiry) {
+            cell.classList.add('sensex-expiry');
+        }
     }
     
     // Add day number
@@ -1091,7 +1170,17 @@ function showDaySummary(dateStr, dayData) {
         // Format date
         const date = new Date(dateStr + 'T12:00:00');
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        selectedDate.textContent = date.toLocaleDateString('en-US', options);
+        
+        // Check if expiry day
+        const expiry = isExpiryDay(date);
+        let expiryText = '';
+        if (expiry.isNiftyExpiry) {
+            expiryText = ' 📈 Nifty Expiry';
+        } else if (expiry.isSensexExpiry) {
+            expiryText = ' 📊 Sensex Expiry';
+        }
+        
+        selectedDate.textContent = date.toLocaleDateString('en-US', options) + expiryText;
         
         // Update stats
         summaryTrades.textContent = dayData.tradeCount;
@@ -2391,19 +2480,33 @@ function displayTradeDetails(date, tradeIndex, trade, dayData) {
 function displayScreenshots(screenshots) {
     const gallery = document.getElementById('screenshotsGallery');
     const grid = document.getElementById('galleryGrid');
-    
     if (!gallery || !grid) return;
+    
+    if (!screenshots || screenshots.length === 0) {
+        gallery.style.display = 'none';
+        return;
+    }
     
     gallery.style.display = 'block';
     
     let html = '';
-    screenshots.forEach((url, index) => {
+    screenshots.forEach((screenshot, index) => {
+        const imageUrl = typeof screenshot === 'string' ? screenshot : screenshot.url;
+        const isAnnotated = typeof screenshot === 'object' && screenshot.annotated === true;
+        const tags = (typeof screenshot === 'object' && screenshot.tags) ? screenshot.tags : [];
+        
         html += `
-            <div class="gallery-item" onclick="openFullscreenImage('${url}', ${index + 1})">
-                <img src="${url}" alt="Screenshot ${index + 1}">
+            <div class="gallery-item" onclick="openFullscreenImage('${imageUrl}', ${index + 1})">
+                <img src="${imageUrl}" alt="Screenshot ${index + 1}">
+                ${isAnnotated ? '<div class="annotated-badge"><i class="fas fa-paint-brush"></i> Annotated</div>' : ''}
                 <div class="gallery-overlay">
                     <i class="fas fa-search-plus"></i>
                 </div>
+                ${tags.length > 0 ? `
+                    <div class="image-tags">
+                        ${tags.map(tag => `<span class="image-tag">${tag}</span>`).join('')}
+                    </div>
+                ` : ''}
             </div>
         `;
     });

@@ -1224,6 +1224,7 @@
         </div>
     </div>
 
+    <script src="app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // ============== GLOBAL VARIABLES ==============
@@ -1233,32 +1234,27 @@
         let currentTool = 'pen';
         let canvas = null;
         let ctx = null;
-        let originalImage = null;
+        let originalImageData = null;
         let undoStack = [];
         let redoStack = [];
-        let startX = 0, startY = 0;
+        let startX = 0, startY = 0, lastX = 0, lastY = 0;
         let textPosition = { x: 0, y: 0 };
         let cameraStream = null;
         let currentCamera = 'environment';
         let parsedTrades = [];
         let contractDate = null;
 
-        let lastX = 0, lastY = 0;
-        let originalImageData = null;
-
-        // ============== TRADE JOURNAL MOCK (Replace with actual from app.js) ==============
-        const TradeJournal = {
-            saveTrade: async function(date, tradeData, screenshots) {
-                console.log('Saving trade:', date, tradeData, screenshots);
-                return true;
-            },
-            getTrades: async function(date) {
-                return [];
-            }
-        };
-
         // ============== INITIALIZATION ==============
         document.addEventListener('DOMContentLoaded', function() {
+            // Check if TradeJournal is available
+            if (typeof TradeJournal === 'undefined' || !TradeJournal.saveTrade) {
+                console.error('TradeJournal not properly loaded!');
+                alert('Error: Application not properly initialized. Please refresh the page.');
+                return;
+            }
+            
+            console.log('TradeJournal loaded successfully');
+            
             // Set today's date
             const today = new Date();
             const formattedDate = today.toISOString().split('T')[0];
@@ -1267,442 +1263,91 @@
             // Load today's trades
             loadTodaysTrades(formattedDate);
             
-            // Initialize canvas event listeners
-            initCanvasListeners();
-            
-            // Strategy dropdown
-            document.getElementById('strategy').addEventListener('change', function() {
-                const customRow = document.getElementById('customStrategyRow');
-                customRow.style.display = this.value === 'Other' ? 'block' : 'none';
-            });
-
-            // P&L calculation
-            document.getElementById('entryPrice').addEventListener('input', calculatePnL);
-            document.getElementById('exitPrice').addEventListener('input', calculatePnL);
-            document.getElementById('quantity').addEventListener('input', calculatePnL);
-            document.getElementById('direction').addEventListener('change', calculatePnL);
-
-            // File upload
-            document.getElementById('uploadOption').addEventListener('click', function() {
-                document.getElementById('fileInput').click();
-            });
-
-            document.getElementById('fileInput').addEventListener('change', function(e) {
-                handleFiles(e.target.files);
-            });
-
-            // Paste handling
-            document.getElementById('pasteOption').addEventListener('click', function() {
-                document.getElementById('pasteArea').focus();
-                document.getElementById('pasteArea').select();
-                showNotification('📋 Press Ctrl+V to paste image', 'info');
-            });
-
-            document.getElementById('pasteArea').addEventListener('paste', function(e) {
-                e.preventDefault();
-                const items = e.clipboardData.items;
-                
-                for (let i = 0; i < items.length; i++) {
-                    if (items[i].type.indexOf('image') !== -1) {
-                        const blob = items[i].getAsFile();
-                        const reader = new FileReader();
-                        
-                        reader.onload = function(event) {
-                            screenshotImages.push({
-                                data: event.target.result,
-                                tags: [],
-                                annotations: []
-                            });
-                            refreshPreviewGrid();
-                        };
-                        
-                        reader.readAsDataURL(blob);
-                        document.getElementById('pasteArea').value = '';
-                    }
-                }
-            });
-
-            // Camera
-            document.getElementById('cameraOption').addEventListener('click', function() {
-                openCameraModal();
-            });
-
-            // Update line width display
-            document.getElementById('lineWidth').addEventListener('input', function() {
-                document.getElementById('lineWidthValue').textContent = this.value + 'px';
-            });
-
-            // Form submission
-            document.getElementById('tradeForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const saveBtn = document.getElementById('saveTradeBtn');
-                saveBtn.classList.add('loading');
-                saveBtn.disabled = true;
-                
-                try {
-                    const tradeData = {
-                        symbol: document.getElementById('symbol').value,
-                        direction: document.getElementById('direction').value,
-                        entryPrice: parseFloat(document.getElementById('entryPrice').value),
-                        exitPrice: parseFloat(document.getElementById('exitPrice').value),
-                        quantity: parseInt(document.getElementById('quantity').value),
-                        takeProfit: document.getElementById('takeProfit').value ? parseFloat(document.getElementById('takeProfit').value) : null,
-                        stopLoss: document.getElementById('stopLoss').value ? parseFloat(document.getElementById('stopLoss').value) : null,
-                        entryTime: document.getElementById('entryTime').value,
-                        exitTime: document.getElementById('exitTime').value,
-                        strategy: document.getElementById('strategy').value === 'Other' ? 
-                                 document.getElementById('customStrategy').value : 
-                                 document.getElementById('strategy').value,
-                        notes: document.getElementById('notes').value,
-                        pnl: parseFloat(document.getElementById('pnl').value) || 0,
-                        screenshots: screenshotImages
-                    };
-                    
-                    const journalDate = document.getElementById('currentDate').textContent;
-                    const success = await TradeJournal.saveTrade(journalDate, tradeData, screenshotImages);
-                    
-                    if (success) {
-                        showNotification('Trade saved successfully!', 'success');
-                        document.getElementById('tradeForm').reset();
-                        screenshotImages = [];
-                        refreshPreviewGrid();
-                        loadTodaysTrades(journalDate);
-                    } else {
-                        showNotification('Failed to save trade', 'error');
-                    }
-                } catch (error) {
-                    console.error('Error saving trade:', error);
-                    showNotification('Error saving trade', 'error');
-                } finally {
-                    saveBtn.classList.remove('loading');
-                    saveBtn.disabled = false;
-                }
-            });
-        });
-
-        // ============== CANVAS FUNCTIONS ==============
-        function initCanvasListeners() {
-            const canvas = document.getElementById('drawingCanvas');
-            if (!canvas) return;
-            
-            canvas.addEventListener('mousedown', startDrawing);
-            canvas.addEventListener('mousemove', draw);
-            canvas.addEventListener('mouseup', stopDrawing);
-            canvas.addEventListener('mouseleave', stopDrawing);
-        }
-
-        function initDrawingCanvas(imageData, index) {
-    currentEditingIndex = index;
-    const modal = document.getElementById('drawingModal');
-    const canvasElement = document.getElementById('drawingCanvas');
-    
-    if (!modal || !canvasElement) return;
-    
-    // Reset state
-    canvas = canvasElement;
-    ctx = canvas.getContext('2d');
-    isDrawing = false;
-    
-    // Load image
-            const img = new Image();
-            img.crossOrigin = "anonymous";
-            
-            img.onload = function() {
-                // Set canvas dimensions to match image
-                canvas.width = img.width;
-                canvas.height = img.height;
-                
-                // Draw image
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                
-                // Save original state
-                originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                undoStack = [originalImageData];
-                redoStack = [];
-                
-                // Show modal
-                modal.classList.add('active');
-                
-                // Set default tool
-                setTool('pen');
-            };
-            
-            img.onerror = function() {
-                console.error("Failed to load image");
-                showNotification('Failed to load image for editing', 'error');
-            };
-            
-            img.src = imageData;
-        }
-
-        function setTool(tool) {
-            currentTool = tool;
-            
-            // Update active button
-            document.querySelectorAll('.tool-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            
-            const toolMap = {
-                'pen': 'toolPen',
-                'arrow': 'toolArrow',
-                'rectangle': 'toolRect',
-                'circle': 'toolCircle',
-                'text': 'toolText'
-            };
-            
-            const toolId = toolMap[tool];
-            if (toolId) {
-                const toolBtn = document.getElementById(toolId);
-                if (toolBtn) toolBtn.classList.add('active');
-            }
-        }
-
-        function startDrawing(e) {
-            e.preventDefault();
-            
-            if (!canvas || !ctx) return;
-    
-            const rect = canvas.getBoundingClientRect();
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
-            
-            // Calculate coordinates relative to canvas
-            const mouseX = (e.clientX - rect.left) * scaleX;
-            const mouseY = (e.clientY - rect.top) * scaleY;
-            
-            // Clamp to canvas boundaries
-            startX = Math.max(0, Math.min(canvas.width, mouseX));
-            startY = Math.max(0, Math.min(canvas.height, mouseY));
-            lastX = startX;
-            lastY = startY;
-            
-            isDrawing = true;
-            
-            // Handle text tool
-            if (currentTool === 'text') {
-                textPosition = { x: startX, y: startY };
-                document.getElementById('textInputModal').classList.add('active');
-                isDrawing = false;
-                return;
-            }
-            
-            // Start path for pen
-            if (currentTool === 'pen') {
-                ctx.beginPath();
-                ctx.moveTo(startX, startY);
-            }
-        }
-
-        function draw(e) {
-            if (!isDrawing || !canvas || !ctx) return;
-            e.preventDefault();
-            
-            const rect = canvas.getBoundingClientRect();
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
-            
-            // Calculate coordinates
-            const currentX = Math.max(0, Math.min(canvas.width, (e.clientX - rect.left) * scaleX));
-            const currentY = Math.max(0, Math.min(canvas.height, (e.clientY - rect.top) * scaleY));
-            
-            // Set drawing styles
-            ctx.strokeStyle = document.getElementById('drawingColor').value;
-            ctx.fillStyle = document.getElementById('drawingColor').value;
-            ctx.lineWidth = parseInt(document.getElementById('lineWidth').value);
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-            
-            if (currentTool === 'pen') {
-                // Draw line
-                ctx.beginPath();
-                ctx.moveTo(lastX, lastY);
-                ctx.lineTo(currentX, currentY);
-                ctx.stroke();
-                
-                lastX = currentX;
-                lastY = currentY;
-            } else {
-                // For shape tools, we need to redraw from last saved state
-                redrawFromLastState();
-                
-                // Draw current shape preview
-                ctx.beginPath();
-                
-                switch(currentTool) {
-                    case 'arrow':
-                        drawArrow(ctx, startX, startY, currentX, currentY);
-                        break;
-                        
-                    case 'rectangle':
-                        ctx.strokeRect(startX, startY, currentX - startX, currentY - startY);
-                        break;
-                        
-                    case 'circle':
-                        const radius = Math.sqrt(Math.pow(currentX - startX, 2) + Math.pow(currentY - startY, 2));
-                        ctx.beginPath();
-                        ctx.arc(startX, startY, radius, 0, 2 * Math.PI);
-                        ctx.stroke();
-                        break;
-                }
-            }
-        }
-
-        function redrawFromLastState() {
-            if (undoStack.length > 0) {
-                ctx.putImageData(undoStack[undoStack.length - 1], 0, 0);
-            }
-        }
-
-        function drawArrow(ctx, fromX, fromY, toX, toY) {
-            const headLength = 15;
-            const angle = Math.atan2(toY - fromY, toX - fromX);
-            
-            // Draw line
-            ctx.beginPath();
-            ctx.moveTo(fromX, fromY);
-            ctx.lineTo(toX, toY);
-            ctx.stroke();
-            
-            // Draw arrow head
-            ctx.beginPath();
-            ctx.moveTo(toX, toY);
-            ctx.lineTo(toX - headLength * Math.cos(angle - Math.PI / 6), 
-                    toY - headLength * Math.sin(angle - Math.PI / 6));
-            ctx.lineTo(toX - headLength * Math.cos(angle + Math.PI / 6), 
-                    toY - headLength * Math.sin(angle + Math.PI / 6));
-            ctx.closePath();
-            ctx.fill();
-        }
-
-        function stopDrawing() {
-            if (isDrawing) {
-                isDrawing = false;
-                
-                // Save state to undo stack
-                if (canvas && ctx) {
-                    const currentState = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    undoStack.push(currentState);
-                    redoStack = [];
-                }
-            }
-        }
-
-        // Add text to canvas
-        function addTextToCanvas() {
-            const textInput = document.getElementById('textInput');
-            const text = textInput.value.trim();
-            
-            if (text && canvas && ctx) {
-                ctx.font = `${parseInt(document.getElementById('lineWidth').value) * 5}px Arial`;
-                ctx.fillStyle = document.getElementById('drawingColor').value;
-                ctx.fillText(text, textPosition.x, textPosition.y);
-                
-                // Save state
-                const currentState = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                undoStack.push(currentState);
-                redoStack = [];
-            }
-            
-            closeTextInput();
-        }
-
-        // Undo last action
-        function undo() {
-            if (undoStack.length > 1) {
-                const lastState = undoStack.pop();
-                redoStack.push(lastState);
-                
-                ctx.putImageData(undoStack[undoStack.length - 1], 0, 0);
-            }
-        }
-
-        // Redo action
-        function redo() {
-            if (redoStack.length > 0) {
-                const state = redoStack.pop();
-                undoStack.push(state);
-                ctx.putImageData(state, 0, 0);
-            }
-        }
-
-        // Clear canvas
-        function clearCanvas() {
-            if (originalImageData && canvas && ctx) {
-                ctx.putImageData(originalImageData, 0, 0);
-                undoStack = [originalImageData];
-                redoStack = [];
-            }
-        }
-
-        // Save annotated image
-        function saveAnnotatedImage() {
-            if (!canvas || currentEditingIndex === -1) return;
-            
-            const annotatedImage = canvas.toDataURL('image/png');
-            
-            // Update the screenshot with annotations
-            if (screenshotImages && screenshotImages[currentEditingIndex]) {
-                screenshotImages[currentEditingIndex].data = annotatedImage;
-                refreshPreviewGrid();
-            }
-            
-            closeDrawingModal();
-            showNotification('Annotations saved successfully!', 'success');
-        }
-
-        // Close drawing modal
-        function closeDrawingModal() {
-            const modal = document.getElementById('drawingModal');
-            if (modal) {
-                modal.classList.remove('active');
-            }
-            
-            // Clean up
-            canvas = null;
-            ctx = null;
-            currentEditingIndex = -1;
-            undoStack = [];
-            redoStack = [];
-        }
-
-        // Close text input modal
-        function closeTextInput() {
-            document.getElementById('textInputModal').classList.remove('active');
-            document.getElementById('textInput').value = '';
-        }
-
-        // Initialize canvas listeners
-        function initCanvasListeners() {
-            const canvas = document.getElementById('drawingCanvas');
-            if (!canvas) return;
-            
-            // Remove existing listeners first (to prevent duplicates)
-            canvas.removeEventListener('mousedown', startDrawing);
-            canvas.removeEventListener('mousemove', draw);
-            canvas.removeEventListener('mouseup', stopDrawing);
-            canvas.removeEventListener('mouseleave', stopDrawing);
-            
-            // Add fresh listeners
-            canvas.addEventListener('mousedown', startDrawing);
-            canvas.addEventListener('mousemove', draw);
-            canvas.addEventListener('mouseup', stopDrawing);
-            canvas.addEventListener('mouseleave', stopDrawing);
-        }
-
-        // Edit image function (called from preview)
-        function editImage(index) {
-            if (screenshotImages && screenshotImages[index]) {
-                initDrawingCanvas(screenshotImages[index].data, index);
-            }
-        }
-
-        // Add this to your DOMContentLoaded event
-        document.addEventListener('DOMContentLoaded', function() {
             // Initialize canvas listeners
             initCanvasListeners();
             
+            // Strategy dropdown
+            const strategySelect = document.getElementById('strategy');
+            if (strategySelect) {
+                strategySelect.addEventListener('change', function() {
+                    const customRow = document.getElementById('customStrategyRow');
+                    customRow.style.display = this.value === 'Other' ? 'block' : 'none';
+                });
+            }
+
+            // P&L calculation
+            const entryPrice = document.getElementById('entryPrice');
+            const exitPrice = document.getElementById('exitPrice');
+            const quantity = document.getElementById('quantity');
+            const direction = document.getElementById('direction');
+            
+            if (entryPrice && exitPrice && quantity && direction) {
+                [entryPrice, exitPrice, quantity].forEach(input => {
+                    input.addEventListener('input', calculatePnL);
+                });
+                direction.addEventListener('change', calculatePnL);
+            }
+
+            // File upload
+            const uploadOption = document.getElementById('uploadOption');
+            const fileInput = document.getElementById('fileInput');
+            
+            if (uploadOption && fileInput) {
+                uploadOption.addEventListener('click', function() {
+                    fileInput.click();
+                });
+
+                fileInput.addEventListener('change', function(e) {
+                    if (e.target.files.length > 0) {
+                        handleFiles(e.target.files);
+                    }
+                });
+            }
+
+            // Paste handling
+            const pasteOption = document.getElementById('pasteOption');
+            const pasteArea = document.getElementById('pasteArea');
+            
+            if (pasteOption && pasteArea) {
+                pasteOption.addEventListener('click', function() {
+                    pasteArea.focus();
+                    pasteArea.select();
+                    showNotification('📋 Press Ctrl+V to paste image', 'info');
+                });
+
+                pasteArea.addEventListener('paste', function(e) {
+                    e.preventDefault();
+                    const items = e.clipboardData.items;
+                    
+                    for (let i = 0; i < items.length; i++) {
+                        if (items[i].type.indexOf('image') !== -1) {
+                            const blob = items[i].getAsFile();
+                            const reader = new FileReader();
+                            
+                            reader.onload = function(event) {
+                                screenshotImages.push({
+                                    data: event.target.result,
+                                    tags: [],
+                                    annotations: []
+                                });
+                                refreshPreviewGrid();
+                            };
+                            
+                            reader.readAsDataURL(blob);
+                            pasteArea.value = '';
+                        }
+                    }
+                });
+            }
+
+            // Camera
+            const cameraOption = document.getElementById('cameraOption');
+            if (cameraOption) {
+                cameraOption.addEventListener('click', function() {
+                    openCameraModal();
+                });
+            }
+
             // Update line width display
             const lineWidthSlider = document.getElementById('lineWidth');
             if (lineWidthSlider) {
@@ -1710,7 +1355,219 @@
                     document.getElementById('lineWidthValue').textContent = this.value + 'px';
                 });
             }
+
+            // Form submission
+            const tradeForm = document.getElementById('tradeForm');
+            if (tradeForm) {
+                tradeForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const saveBtn = document.getElementById('saveTradeBtn');
+                    saveBtn.classList.add('loading');
+                    saveBtn.disabled = true;
+                    
+                    try {
+                        // Get the current date from the span element
+                        const currentDateSpan = document.getElementById('currentDate');
+                        const journalDate = currentDateSpan ? currentDateSpan.textContent : new Date().toISOString().split('T')[0];
+                        
+                        // Get strategy value
+                        let strategy = document.getElementById('strategy').value;
+                        if (strategy === 'Other') {
+                            strategy = document.getElementById('customStrategy').value;
+                        }
+                        
+                        // Calculate P&L if not already calculated
+                        const pnl = parseFloat(document.getElementById('pnl').value) || 0;
+                        
+                        // Create trade data object with defaults to prevent undefined
+                        const tradeData = {
+                            symbol: (document.getElementById('symbol').value || '').toUpperCase(),
+                            direction: document.getElementById('direction').value || 'LONG',
+                            entryPrice: parseFloat(document.getElementById('entryPrice').value) || 0,
+                            exitPrice: parseFloat(document.getElementById('exitPrice').value) || 0,
+                            quantity: parseInt(document.getElementById('quantity').value) || 0,
+                            pnl: pnl,
+                            notes: document.getElementById('notes').value || '',
+                            timestamp: new Date().toISOString()
+                        };
+                        
+                        // Add optional fields only if they have values
+                        const takeProfit = document.getElementById('takeProfit').value;
+                        if (takeProfit && takeProfit.trim() !== '') {
+                            tradeData.takeProfit = parseFloat(takeProfit);
+                        }
+                        
+                        const stopLoss = document.getElementById('stopLoss').value;
+                        if (stopLoss && stopLoss.trim() !== '') {
+                            tradeData.stopLoss = parseFloat(stopLoss);
+                        }
+                        
+                        const entryTime = document.getElementById('entryTime').value;
+                        if (entryTime && entryTime.trim() !== '') {
+                            tradeData.entryTime = entryTime;
+                        }
+                        
+                        const exitTime = document.getElementById('exitTime').value;
+                        if (exitTime && exitTime.trim() !== '') {
+                            tradeData.exitTime = exitTime;
+                        }
+                        
+                        if (strategy && strategy.trim() !== '') {
+                            tradeData.strategy = strategy;
+                        }
+                        
+                        console.log("Saving trade for date:", journalDate);
+                        console.log("Trade data:", tradeData);
+                        console.log("Screenshot images:", screenshotImages.length);
+                        
+                        // Convert screenshot images to files for upload
+                        const screenshotFiles = [];
+                        for (let i = 0; i < screenshotImages.length; i++) {
+                            const img = screenshotImages[i];
+                            if (img && img.data) {
+                                try {
+                                    // Use dataURLToBlob instead of fetch
+                                    const blob = dataURLToBlob(img.data);
+                                    
+                                    // Generate a filename preserving annotation flag
+                                    const baseName = img.name || `trade_${Date.now()}_${i}`;
+                                    const fileName = img.annotated 
+                                        ? baseName.replace(/\.(png|jpg|jpeg)$/i, '_annotated.$1') || `${baseName}_annotated.png`
+                                        : baseName;
+                                    
+                                    const file = new File([blob], fileName, { type: 'image/png' });
+                                    
+                                    // Attach metadata
+                                    file.metadata = {
+                                        annotated: img.annotated === true,
+                                        tags: img.tags || []
+                                    };
+                                    
+                                    screenshotFiles.push(file);
+                                    console.log(`Processed image ${i}:`, img.annotated ? 'ANNOTATED' : 'original', img.tags);
+                                } catch (err) {
+                                    console.error(`Error converting image ${i}:`, err);
+                                    // Optionally show a notification to the user
+                                    showNotification(`Failed to process image ${i+1}`, 'error');
+                                }
+                            } else {
+                                console.warn(`Skipping invalid image at index ${i}`, img);
+                            }
+                        }
+                        
+                        // Use TradeJournal.saveTrade
+                        const success = await TradeJournal.saveTrade(journalDate, tradeData, screenshotFiles);
+                        
+                        if (success) {
+                            showNotification('Trade saved successfully!', 'success');
+                            tradeForm.reset();
+                            screenshotImages = [];
+                            refreshPreviewGrid();
+                            
+                            // Reset custom strategy row
+                            const customRow = document.getElementById('customStrategyRow');
+                            if (customRow) customRow.style.display = 'none';
+                            
+                            // Reload trades
+                            await loadTodaysTrades(journalDate);
+                        } else {
+                            showNotification('Failed to save trade', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error saving trade:', error);
+                        showNotification('Error saving trade: ' + error.message, 'error');
+                    } finally {
+                        saveBtn.classList.remove('loading');
+                        saveBtn.disabled = false;
+                    }
+                });
+            }
         });
+
+        function dataURLToBlob(dataURL) {
+    try {
+        const parts = dataURL.split(';base64,');
+        if (parts.length !== 2) throw new Error('Invalid data URL');
+        
+        const contentType = parts[0].split(':')[1] || 'image/png';
+        const raw = window.atob(parts[1]);
+        const rawLength = raw.length;
+        const uInt8Array = new Uint8Array(rawLength);
+        
+        for (let i = 0; i < rawLength; ++i) {
+            uInt8Array[i] = raw.charCodeAt(i);
+        }
+        return new Blob([uInt8Array], { type: contentType });
+    } catch (e) {
+        console.error('dataURLToBlob error:', e);
+        // Fallback: create a blob via fetch (slower but robust)
+        return fetch(dataURL).then(res => res.blob());
+    }
+}
+
+        // ============== TRADE FUNCTIONS ==============
+        async function loadTodaysTrades(date) {
+            try {
+                const dayData = await TradeJournal.loadDayTrades(date);
+                const tbody = document.getElementById('tradesList');
+                
+                if (!tbody) return;
+                
+                if (dayData.trades && dayData.trades.length > 0) {
+                    let html = '';
+                    dayData.trades.forEach((trade, index) => {
+                        const pnlClass = trade.pnl >= 0 ? 'text-success' : 'text-danger';
+                        const dirIcon = trade.direction === 'LONG' ? '📈' : '📉';
+                        const screenshotCount = trade.screenshots ? trade.screenshots.length : 0;
+                        
+                        html += `
+                            <tr>
+                                <td><strong>${trade.symbol || 'N/A'}</strong></td>
+                                <td>${dirIcon} ${trade.direction || 'LONG'}</td>
+                                <td>$${trade.entryPrice?.toFixed(2) || '0.00'}</td>
+                                <td>$${trade.exitPrice?.toFixed(2) || '0.00'}</td>
+                                <td>${trade.quantity || 0}</td>
+                                <td class="${pnlClass}">$${trade.pnl?.toFixed(2) || '0.00'}</td>
+                                <td>
+                                    <i class="fas fa-image"></i> ${screenshotCount}
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-info" onclick="viewTradeDetail('${date}', ${index})">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteTrade('${date}', ${index})">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    tbody.innerHTML = html;
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="8" class="text-center">No trades for today</td></tr>';
+                }
+            } catch (error) {
+                console.error('Error loading trades:', error);
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Error loading trades</td></tr>';
+            }
+        }
+
+        async function deleteTrade(date, index) {
+            if (confirm('Are you sure you want to delete this trade?')) {
+                const success = await TradeJournal.deleteTrade(date, index);
+                if (success) {
+                    showNotification('Trade deleted successfully', 'success');
+                    loadTodaysTrades(date);
+                } else {
+                    showNotification('Failed to delete trade', 'error');
+                }
+            }
+        }
+
+        function viewTradeDetail(date, index) {
+            window.location.href = `trade-detail.html?date=${date}&index=${index}`;
+        }
 
         // ============== IMAGE FUNCTIONS ==============
         function handleFiles(files) {
@@ -1722,13 +1579,18 @@
                     reader.onload = function(event) {
                         screenshotImages.push({
                             data: event.target.result,
+                            name: file.name, // Store the original filename
                             tags: [],
-                            annotations: []
+                            annotated: false, // Use annotated flag, not annotations array
+                            fileSize: file.size,
+                            fileType: file.type
                         });
                         refreshPreviewGrid();
                     };
                     
                     reader.readAsDataURL(file);
+                } else {
+                    showNotification('Please select an image file', 'error');
                 }
             }
         }
@@ -1736,6 +1598,11 @@
         function refreshPreviewGrid() {
             const preview = document.getElementById('preview');
             if (!preview) return;
+            
+            if (screenshotImages.length === 0) {
+                preview.innerHTML = '';
+                return;
+            }
             
             let html = '';
             
@@ -1805,15 +1672,283 @@
             }
         }
 
+        function deleteImage(index) {
+            screenshotImages.splice(index, 1);
+            refreshPreviewGrid();
+        }
+
+        // ============== DRAWING/CANVAS FUNCTIONS ==============
+        function initCanvasListeners() {
+            const canvas = document.getElementById('drawingCanvas');
+            if (!canvas) return;
+            
+            canvas.removeEventListener('mousedown', startDrawing);
+            canvas.removeEventListener('mousemove', draw);
+            canvas.removeEventListener('mouseup', stopDrawing);
+            canvas.removeEventListener('mouseleave', stopDrawing);
+            
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseleave', stopDrawing);
+        }
+
         function editImage(index) {
-            if (screenshotImages[index]) {
+            if (screenshotImages && screenshotImages[index]) {
                 initDrawingCanvas(screenshotImages[index].data, index);
             }
         }
 
-        function deleteImage(index) {
-            screenshotImages.splice(index, 1);
-            refreshPreviewGrid();
+        function initDrawingCanvas(imageData, index) {
+            currentEditingIndex = index;
+            const modal = document.getElementById('drawingModal');
+            const canvasElement = document.getElementById('drawingCanvas');
+            
+            if (!modal || !canvasElement) return;
+            
+            canvas = canvasElement;
+            ctx = canvas.getContext('2d');
+            isDrawing = false;
+            
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            
+            img.onload = function() {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                undoStack = [originalImageData];
+                redoStack = [];
+                modal.classList.add('active');
+                setTool('pen');
+            };
+            
+            img.onerror = function() {
+                console.error("Failed to load image");
+                showNotification('Failed to load image for editing', 'error');
+            };
+            
+            img.src = imageData;
+        }
+
+        function setTool(tool) {
+            currentTool = tool;
+            
+            document.querySelectorAll('.tool-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            const toolMap = {
+                'pen': 'toolPen',
+                'arrow': 'toolArrow',
+                'rectangle': 'toolRect',
+                'circle': 'toolCircle',
+                'text': 'toolText'
+            };
+            
+            const toolId = toolMap[tool];
+            if (toolId) {
+                const toolBtn = document.getElementById(toolId);
+                if (toolBtn) toolBtn.classList.add('active');
+            }
+        }
+
+        function startDrawing(e) {
+            e.preventDefault();
+            
+            if (!canvas || !ctx) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
+            const mouseX = (e.clientX - rect.left) * scaleX;
+            const mouseY = (e.clientY - rect.top) * scaleY;
+            
+            startX = Math.max(0, Math.min(canvas.width, mouseX));
+            startY = Math.max(0, Math.min(canvas.height, mouseY));
+            lastX = startX;
+            lastY = startY;
+            
+            if (currentTool === 'text') {
+                textPosition = { x: startX, y: startY };
+                document.getElementById('textInputModal').classList.add('active');
+                return;
+            }
+            
+            isDrawing = true;
+            
+            if (currentTool === 'pen') {
+                ctx.beginPath();
+                ctx.moveTo(startX, startY);
+            }
+        }
+
+        function draw(e) {
+            if (!isDrawing || !canvas || !ctx) return;
+            e.preventDefault();
+            
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
+            const currentX = Math.max(0, Math.min(canvas.width, (e.clientX - rect.left) * scaleX));
+            const currentY = Math.max(0, Math.min(canvas.height, (e.clientY - rect.top) * scaleY));
+            
+            ctx.strokeStyle = document.getElementById('drawingColor').value;
+            ctx.fillStyle = document.getElementById('drawingColor').value;
+            ctx.lineWidth = parseInt(document.getElementById('lineWidth').value);
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            
+            if (currentTool === 'pen') {
+                ctx.beginPath();
+                ctx.moveTo(lastX, lastY);
+                ctx.lineTo(currentX, currentY);
+                ctx.stroke();
+                
+                lastX = currentX;
+                lastY = currentY;
+            } else {
+                redrawFromLastState();
+                ctx.beginPath();
+                
+                switch(currentTool) {
+                    case 'arrow':
+                        drawArrow(ctx, startX, startY, currentX, currentY);
+                        break;
+                    case 'rectangle':
+                        ctx.strokeRect(startX, startY, currentX - startX, currentY - startY);
+                        break;
+                    case 'circle':
+                        const radius = Math.sqrt(Math.pow(currentX - startX, 2) + Math.pow(currentY - startY, 2));
+                        ctx.beginPath();
+                        ctx.arc(startX, startY, radius, 0, 2 * Math.PI);
+                        ctx.stroke();
+                        break;
+                }
+            }
+        }
+
+        function drawArrow(ctx, fromX, fromY, toX, toY) {
+            const headLength = 15;
+            const angle = Math.atan2(toY - fromY, toX - fromX);
+            
+            ctx.beginPath();
+            ctx.moveTo(fromX, fromY);
+            ctx.lineTo(toX, toY);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(toX, toY);
+            ctx.lineTo(toX - headLength * Math.cos(angle - Math.PI / 6), 
+                    toY - headLength * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(toX - headLength * Math.cos(angle + Math.PI / 6), 
+                    toY - headLength * Math.sin(angle + Math.PI / 6));
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function redrawFromLastState() {
+            if (undoStack.length > 0) {
+                ctx.putImageData(undoStack[undoStack.length - 1], 0, 0);
+            }
+        }
+
+        function stopDrawing() {
+            if (isDrawing) {
+                isDrawing = false;
+                
+                if (canvas && ctx) {
+                    const currentState = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    undoStack.push(currentState);
+                    redoStack = [];
+                }
+            }
+        }
+
+        function addTextToCanvas() {
+            const textInput = document.getElementById('textInput');
+            const text = textInput.value.trim();
+            
+            if (text && canvas && ctx) {
+                ctx.font = `${parseInt(document.getElementById('lineWidth').value) * 5}px Arial`;
+                ctx.fillStyle = document.getElementById('drawingColor').value;
+                ctx.fillText(text, textPosition.x, textPosition.y);
+                
+                const currentState = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                undoStack.push(currentState);
+                redoStack = [];
+            }
+            
+            closeTextInput();
+        }
+
+        function undo() {
+            if (undoStack.length > 1) {
+                const lastState = undoStack.pop();
+                redoStack.push(lastState);
+                ctx.putImageData(undoStack[undoStack.length - 1], 0, 0);
+            }
+        }
+
+        function redo() {
+            if (redoStack.length > 0) {
+                const state = redoStack.pop();
+                undoStack.push(state);
+                ctx.putImageData(state, 0, 0);
+            }
+        }
+
+        function clearCanvas() {
+            if (originalImageData && canvas && ctx) {
+                ctx.putImageData(originalImageData, 0, 0);
+                undoStack = [originalImageData];
+                redoStack = [];
+            }
+        }
+
+        function saveAnnotatedImage() {
+    if (!canvas || currentEditingIndex === -1) return;
+    
+    const annotatedImage = canvas.toDataURL('image/png');
+    
+    if (screenshotImages && screenshotImages[currentEditingIndex]) {
+        screenshotImages[currentEditingIndex].data = annotatedImage;
+        screenshotImages[currentEditingIndex].annotated = true;  // mark as annotated
+        screenshotImages[currentEditingIndex].modified = Date.now();
+        
+        // Also rename to include '_annotated' for extra safety
+        if (!screenshotImages[currentEditingIndex].name) {
+            screenshotImages[currentEditingIndex].name = `annotated_${Date.now()}.png`;
+        } else if (!screenshotImages[currentEditingIndex].name.includes('_annotated')) {
+            screenshotImages[currentEditingIndex].name = 
+                screenshotImages[currentEditingIndex].name.replace(/\.[^/.]+$/, '_annotated$&');
+        }
+        
+        refreshPreviewGrid();
+        closeDrawingModal();
+        showNotification('Annotations saved!', 'success');
+    }
+}
+
+        function closeDrawingModal() {
+            const modal = document.getElementById('drawingModal');
+            if (modal) {
+                modal.classList.remove('active');
+            }
+            
+            canvas = null;
+            ctx = null;
+            currentEditingIndex = -1;
+            undoStack = [];
+            redoStack = [];
+        }
+
+        function closeTextInput() {
+            document.getElementById('textInputModal').classList.remove('active');
+            document.getElementById('textInput').value = '';
         }
 
         // ============== CAMERA FUNCTIONS ==============
@@ -1869,78 +2004,6 @@
             
             refreshPreviewGrid();
             closeCameraModal();
-        }
-
-        // ============== UTILITY FUNCTIONS ==============
-        function calculatePnL() {
-            const entry = parseFloat(document.getElementById('entryPrice').value);
-            const exit = parseFloat(document.getElementById('exitPrice').value);
-            const quantity = parseInt(document.getElementById('quantity').value);
-            const direction = document.getElementById('direction').value;
-            
-            if (entry && exit && quantity) {
-                let pnl = (exit - entry) * quantity;
-                if (direction === 'SHORT') {
-                    pnl = -pnl;
-                }
-                document.getElementById('pnl').value = pnl.toFixed(2);
-            }
-        }
-
-        async function loadTodaysTrades(date) {
-            const trades = await TradeJournal.getTrades(date);
-            const tbody = document.getElementById('tradesList');
-            
-            if (!tbody) return;
-            
-            if (trades.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" class="text-center">No trades for today</td></tr>';
-                return;
-            }
-            
-            let html = '';
-            trades.forEach(trade => {
-                const pnlClass = trade.pnl >= 0 ? 'text-success' : 'text-danger';
-                html += `
-                    <tr>
-                        <td>${trade.symbol || ''}</td>
-                        <td>${trade.direction || ''}</td>
-                        <td>${trade.entryPrice || 0}</td>
-                        <td>${trade.exitPrice || 0}</td>
-                        <td>${trade.quantity || 0}</td>
-                        <td class="${pnlClass}">${(trade.pnl || 0).toFixed(2)}</td>
-                        <td>${trade.screenshots ? trade.screenshots.length : 0} images</td>
-                        <td>
-                            <button class="btn btn-sm btn-info" onclick="viewTrade('${trade.id}')">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteTrade('${trade.id}')">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            });
-            
-            tbody.innerHTML = html;
-        }
-
-        function showNotification(message, type) {
-            console.log(`${type}: ${message}`);
-            // You can implement a proper notification here
-            alert(message);
-        }
-
-        function scrollToTop() {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function viewTrade(id) {
-            console.log('View trade:', id);
-        }
-
-        function deleteTrade(id) {
-            console.log('Delete trade:', id);
         }
 
         // ============== CONTRACT NOTE FUNCTIONS ==============
@@ -2016,7 +2079,7 @@
             console.log("Parsing contract text...");
             
             const dateMatch = text.match(/Contract Date[:\s]+(\d{2}[-\/]\d{2}[-\/]\d{4})/i) ||
-                             text.match(/(\d{2}[-\/]\d{2}[-\/]\d{4})/);
+                            text.match(/(\d{2}[-\/]\d{2}[-\/]\d{4})/);
             
             if (dateMatch) {
                 contractDate = dateMatch[1].replace(/\//g, '-');
@@ -2171,7 +2234,7 @@
                     symbol: trade.symbol,
                     direction: trade.direction,
                     entryPrice: trade.entryPrice,
-                    exitPrice: trade.entryPrice,
+                    exitPrice: trade.entryPrice, // Same as entry for now
                     quantity: trade.quantity,
                     pnl: trade.netTotal,
                     notes: `Imported from contract note - ${trade.strike} ${trade.optionType} ${trade.expiry}`,
@@ -2179,7 +2242,8 @@
                     strike: trade.strike,
                     optionType: trade.optionType,
                     expiry: trade.expiry,
-                    brokerage: trade.brokerage
+                    brokerage: trade.brokerage,
+                    timestamp: new Date().toISOString()
                 };
                 
                 const success = await TradeJournal.saveTrade(journalDate, tradeData, []);
@@ -2193,6 +2257,45 @@
             } else {
                 showNotification('Failed to import trades', 'error');
             }
+        }
+
+        // ============== UTILITY FUNCTIONS ==============
+        function calculatePnL() {
+            const entry = parseFloat(document.getElementById('entryPrice').value);
+            const exit = parseFloat(document.getElementById('exitPrice').value);
+            const quantity = parseInt(document.getElementById('quantity').value);
+            const direction = document.getElementById('direction').value;
+            
+            if (entry && exit && quantity) {
+                let pnl = (exit - entry) * quantity;
+                if (direction === 'SHORT') {
+                    pnl = -pnl;
+                }
+                document.getElementById('pnl').value = pnl.toFixed(2);
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            // Remove existing notification
+            const existing = document.querySelector('.notification');
+            if (existing) existing.remove();
+            
+            // Create notification
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = message;
+            
+            document.body.appendChild(notification);
+            
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     </script>
 </body>
