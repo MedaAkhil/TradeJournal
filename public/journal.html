@@ -881,7 +881,7 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
         <div class="container-fluid">
-            <a class="navbar-brand fw-bold" href="#">📊 Trade Journal</a>
+            <a class="navbar-brand fw-bold" href="/">📊 Trade Journal</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -1243,6 +1243,9 @@
         let parsedTrades = [];
         let contractDate = null;
 
+        let lastX = 0, lastY = 0;
+        let originalImageData = null;
+
         // ============== TRADE JOURNAL MOCK (Replace with actual from app.js) ==============
         const TradeJournal = {
             saveTrade: async function(date, tradeData, screenshots) {
@@ -1390,24 +1393,47 @@
         }
 
         function initDrawingCanvas(imageData, index) {
-            currentEditingIndex = index;
-            const modal = document.getElementById('drawingModal');
-            const canvas = document.getElementById('drawingCanvas');
-            const ctx = canvas.getContext('2d');
-            
-            // Load image
+    currentEditingIndex = index;
+    const modal = document.getElementById('drawingModal');
+    const canvasElement = document.getElementById('drawingCanvas');
+    
+    if (!modal || !canvasElement) return;
+    
+    // Reset state
+    canvas = canvasElement;
+    ctx = canvas.getContext('2d');
+    isDrawing = false;
+    
+    // Load image
             const img = new Image();
+            img.crossOrigin = "anonymous";
+            
             img.onload = function() {
+                // Set canvas dimensions to match image
                 canvas.width = img.width;
                 canvas.height = img.height;
-                ctx.drawImage(img, 0, 0);
-                originalImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                undoStack = [originalImage];
+                
+                // Draw image
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                
+                // Save original state
+                originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                undoStack = [originalImageData];
                 redoStack = [];
+                
+                // Show modal
+                modal.classList.add('active');
+                
+                // Set default tool
+                setTool('pen');
             };
-            img.src = imageData;
             
-            modal.classList.add('active');
+            img.onerror = function() {
+                console.error("Failed to load image");
+                showNotification('Failed to load image for editing', 'error');
+            };
+            
+            img.src = imageData;
         }
 
         function setTool(tool) {
@@ -1417,75 +1443,115 @@
             document.querySelectorAll('.tool-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
-            const toolId = 'tool' + tool.charAt(0).toUpperCase() + tool.slice(1);
-            const toolBtn = document.getElementById(toolId);
-            if (toolBtn) toolBtn.classList.add('active');
+            
+            const toolMap = {
+                'pen': 'toolPen',
+                'arrow': 'toolArrow',
+                'rectangle': 'toolRect',
+                'circle': 'toolCircle',
+                'text': 'toolText'
+            };
+            
+            const toolId = toolMap[tool];
+            if (toolId) {
+                const toolBtn = document.getElementById(toolId);
+                if (toolBtn) toolBtn.classList.add('active');
+            }
         }
 
         function startDrawing(e) {
-            const canvas = document.getElementById('drawingCanvas');
+            e.preventDefault();
+            
+            if (!canvas || !ctx) return;
+    
             const rect = canvas.getBoundingClientRect();
             const scaleX = canvas.width / rect.width;
             const scaleY = canvas.height / rect.height;
             
-            startX = (e.clientX - rect.left) * scaleX;
-            startY = (e.clientY - rect.top) * scaleY;
+            // Calculate coordinates relative to canvas
+            const mouseX = (e.clientX - rect.left) * scaleX;
+            const mouseY = (e.clientY - rect.top) * scaleY;
+            
+            // Clamp to canvas boundaries
+            startX = Math.max(0, Math.min(canvas.width, mouseX));
+            startY = Math.max(0, Math.min(canvas.height, mouseY));
+            lastX = startX;
+            lastY = startY;
             
             isDrawing = true;
             
+            // Handle text tool
             if (currentTool === 'text') {
                 textPosition = { x: startX, y: startY };
                 document.getElementById('textInputModal').classList.add('active');
                 isDrawing = false;
+                return;
+            }
+            
+            // Start path for pen
+            if (currentTool === 'pen') {
+                ctx.beginPath();
+                ctx.moveTo(startX, startY);
             }
         }
 
         function draw(e) {
-            if (!isDrawing) return;
+            if (!isDrawing || !canvas || !ctx) return;
+            e.preventDefault();
             
-            const canvas = document.getElementById('drawingCanvas');
-            const ctx = canvas.getContext('2d');
             const rect = canvas.getBoundingClientRect();
             const scaleX = canvas.width / rect.width;
             const scaleY = canvas.height / rect.height;
             
-            const currentX = (e.clientX - rect.left) * scaleX;
-            const currentY = (e.clientY - rect.top) * scaleY;
+            // Calculate coordinates
+            const currentX = Math.max(0, Math.min(canvas.width, (e.clientX - rect.left) * scaleX));
+            const currentY = Math.max(0, Math.min(canvas.height, (e.clientY - rect.top) * scaleY));
             
-            // Clear and redraw from last state
+            // Set drawing styles
+            ctx.strokeStyle = document.getElementById('drawingColor').value;
+            ctx.fillStyle = document.getElementById('drawingColor').value;
+            ctx.lineWidth = parseInt(document.getElementById('lineWidth').value);
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            
+            if (currentTool === 'pen') {
+                // Draw line
+                ctx.beginPath();
+                ctx.moveTo(lastX, lastY);
+                ctx.lineTo(currentX, currentY);
+                ctx.stroke();
+                
+                lastX = currentX;
+                lastY = currentY;
+            } else {
+                // For shape tools, we need to redraw from last saved state
+                redrawFromLastState();
+                
+                // Draw current shape preview
+                ctx.beginPath();
+                
+                switch(currentTool) {
+                    case 'arrow':
+                        drawArrow(ctx, startX, startY, currentX, currentY);
+                        break;
+                        
+                    case 'rectangle':
+                        ctx.strokeRect(startX, startY, currentX - startX, currentY - startY);
+                        break;
+                        
+                    case 'circle':
+                        const radius = Math.sqrt(Math.pow(currentX - startX, 2) + Math.pow(currentY - startY, 2));
+                        ctx.beginPath();
+                        ctx.arc(startX, startY, radius, 0, 2 * Math.PI);
+                        ctx.stroke();
+                        break;
+                }
+            }
+        }
+
+        function redrawFromLastState() {
             if (undoStack.length > 0) {
                 ctx.putImageData(undoStack[undoStack.length - 1], 0, 0);
-            }
-            
-            ctx.beginPath();
-            ctx.strokeStyle = document.getElementById('drawingColor').value;
-            ctx.lineWidth = document.getElementById('lineWidth').value;
-            ctx.fillStyle = document.getElementById('drawingColor').value;
-            
-            switch(currentTool) {
-                case 'pen':
-                    ctx.beginPath();
-                    ctx.moveTo(startX, startY);
-                    ctx.lineTo(currentX, currentY);
-                    ctx.stroke();
-                    startX = currentX;
-                    startY = currentY;
-                    break;
-                    
-                case 'arrow':
-                    drawArrow(ctx, startX, startY, currentX, currentY);
-                    break;
-                    
-                case 'rectangle':
-                    ctx.strokeRect(startX, startY, currentX - startX, currentY - startY);
-                    break;
-                    
-                case 'circle':
-                    const radius = Math.sqrt(Math.pow(currentX - startX, 2) + Math.pow(currentY - startY, 2));
-                    ctx.beginPath();
-                    ctx.arc(startX, startY, radius, 0, 2 * Math.PI);
-                    ctx.stroke();
-                    break;
             }
         }
 
@@ -1493,6 +1559,7 @@
             const headLength = 15;
             const angle = Math.atan2(toY - fromY, toX - fromX);
             
+            // Draw line
             ctx.beginPath();
             ctx.moveTo(fromX, fromY);
             ctx.lineTo(toX, toY);
@@ -1501,8 +1568,10 @@
             // Draw arrow head
             ctx.beginPath();
             ctx.moveTo(toX, toY);
-            ctx.lineTo(toX - headLength * Math.cos(angle - Math.PI / 6), toY - headLength * Math.sin(angle - Math.PI / 6));
-            ctx.lineTo(toX - headLength * Math.cos(angle + Math.PI / 6), toY - headLength * Math.sin(angle + Math.PI / 6));
+            ctx.lineTo(toX - headLength * Math.cos(angle - Math.PI / 6), 
+                    toY - headLength * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(toX - headLength * Math.cos(angle + Math.PI / 6), 
+                    toY - headLength * Math.sin(angle + Math.PI / 6));
             ctx.closePath();
             ctx.fill();
         }
@@ -1510,22 +1579,23 @@
         function stopDrawing() {
             if (isDrawing) {
                 isDrawing = false;
+                
                 // Save state to undo stack
-                const canvas = document.getElementById('drawingCanvas');
-                const ctx = canvas.getContext('2d');
-                const currentState = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                undoStack.push(currentState);
-                redoStack = [];
+                if (canvas && ctx) {
+                    const currentState = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    undoStack.push(currentState);
+                    redoStack = [];
+                }
             }
         }
 
+        // Add text to canvas
         function addTextToCanvas() {
-            const text = document.getElementById('textInput').value;
-            if (text) {
-                const canvas = document.getElementById('drawingCanvas');
-                const ctx = canvas.getContext('2d');
-                
-                ctx.font = `${document.getElementById('lineWidth').value * 5}px Arial`;
+            const textInput = document.getElementById('textInput');
+            const text = textInput.value.trim();
+            
+            if (text && canvas && ctx) {
+                ctx.font = `${parseInt(document.getElementById('lineWidth').value) * 5}px Arial`;
                 ctx.fillStyle = document.getElementById('drawingColor').value;
                 ctx.fillText(text, textPosition.x, textPosition.y);
                 
@@ -1534,61 +1604,113 @@
                 undoStack.push(currentState);
                 redoStack = [];
             }
+            
             closeTextInput();
         }
 
+        // Undo last action
         function undo() {
             if (undoStack.length > 1) {
                 const lastState = undoStack.pop();
                 redoStack.push(lastState);
-                const canvas = document.getElementById('drawingCanvas');
-                const ctx = canvas.getContext('2d');
+                
                 ctx.putImageData(undoStack[undoStack.length - 1], 0, 0);
             }
         }
 
+        // Redo action
         function redo() {
             if (redoStack.length > 0) {
                 const state = redoStack.pop();
                 undoStack.push(state);
-                const canvas = document.getElementById('drawingCanvas');
-                const ctx = canvas.getContext('2d');
                 ctx.putImageData(state, 0, 0);
             }
         }
 
+        // Clear canvas
         function clearCanvas() {
-            if (originalImage) {
-                const canvas = document.getElementById('drawingCanvas');
-                const ctx = canvas.getContext('2d');
-                ctx.putImageData(originalImage, 0, 0);
-                undoStack = [originalImage];
+            if (originalImageData && canvas && ctx) {
+                ctx.putImageData(originalImageData, 0, 0);
+                undoStack = [originalImageData];
                 redoStack = [];
             }
         }
 
+        // Save annotated image
         function saveAnnotatedImage() {
-            const canvas = document.getElementById('drawingCanvas');
+            if (!canvas || currentEditingIndex === -1) return;
+            
             const annotatedImage = canvas.toDataURL('image/png');
             
             // Update the screenshot with annotations
-            if (currentEditingIndex !== -1 && screenshotImages[currentEditingIndex]) {
+            if (screenshotImages && screenshotImages[currentEditingIndex]) {
                 screenshotImages[currentEditingIndex].data = annotatedImage;
                 refreshPreviewGrid();
             }
             
             closeDrawingModal();
+            showNotification('Annotations saved successfully!', 'success');
         }
 
+        // Close drawing modal
         function closeDrawingModal() {
-            document.getElementById('drawingModal').classList.remove('active');
+            const modal = document.getElementById('drawingModal');
+            if (modal) {
+                modal.classList.remove('active');
+            }
+            
+            // Clean up
+            canvas = null;
+            ctx = null;
             currentEditingIndex = -1;
+            undoStack = [];
+            redoStack = [];
         }
 
+        // Close text input modal
         function closeTextInput() {
             document.getElementById('textInputModal').classList.remove('active');
             document.getElementById('textInput').value = '';
         }
+
+        // Initialize canvas listeners
+        function initCanvasListeners() {
+            const canvas = document.getElementById('drawingCanvas');
+            if (!canvas) return;
+            
+            // Remove existing listeners first (to prevent duplicates)
+            canvas.removeEventListener('mousedown', startDrawing);
+            canvas.removeEventListener('mousemove', draw);
+            canvas.removeEventListener('mouseup', stopDrawing);
+            canvas.removeEventListener('mouseleave', stopDrawing);
+            
+            // Add fresh listeners
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseleave', stopDrawing);
+        }
+
+        // Edit image function (called from preview)
+        function editImage(index) {
+            if (screenshotImages && screenshotImages[index]) {
+                initDrawingCanvas(screenshotImages[index].data, index);
+            }
+        }
+
+        // Add this to your DOMContentLoaded event
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize canvas listeners
+            initCanvasListeners();
+            
+            // Update line width display
+            const lineWidthSlider = document.getElementById('lineWidth');
+            if (lineWidthSlider) {
+                lineWidthSlider.addEventListener('input', function() {
+                    document.getElementById('lineWidthValue').textContent = this.value + 'px';
+                });
+            }
+        });
 
         // ============== IMAGE FUNCTIONS ==============
         function handleFiles(files) {
