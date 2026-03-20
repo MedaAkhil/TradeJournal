@@ -1,39 +1,765 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Dashboard - Trade Journal</title>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Dashboard - Trade Journal Pro</title>
+    
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts for better typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Chart.js for beautiful charts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+        /* ============== 60-30-10 COLOR SCHEME (Matching index.html) ============== */
+        :root {
+            /* 60% - Primary Background */
+            --bg-primary: #f8fafc;
+            --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            
+            /* 30% - Secondary Surface */
+            --surface-white: #ffffff;
+            --surface-hover: #f1f5f9;
+            --border-light: #e2e8f0;
+            
+            /* 10% - Accent Colors */
+            --accent-primary: #3498db;
+            --accent-hover: #2980b9;
+            --accent-success: #27ae60;
+            --accent-danger: #e74c3c;
+            --accent-warning: #f39c12;
+            
+            /* Text Colors */
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+            
+            /* Border Radius */
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-full: 9999px;
+        }
+
+        /* Dark Mode Support */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-primary: #0f172a;
+                --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+                --surface-white: #1e293b;
+                --surface-hover: #334155;
+                --border-light: #334155;
+                --text-primary: #f1f5f9;
+                --text-secondary: #94a3b8;
+                --text-muted: #64748b;
+            }
+            
+            body {
+                background: var(--bg-gradient);
+            }
+            
+            .stat-card, .stat-card-large, .chart-container, .recent-trades {
+                background: var(--surface-white);
+                border-color: var(--border-light);
+            }
+            
+            .trades-table {
+                background: var(--surface-white);
+            }
+            
+            .trades-table th {
+                background: var(--surface-hover);
+                color: var(--text-secondary);
+            }
+            
+            .trades-table td {
+                border-bottom-color: var(--border-light);
+                color: var(--text-primary);
+            }
+            
+            .trades-table tbody tr:hover {
+                background: var(--surface-hover);
+            }
+            
+            select {
+                background: var(--surface-white);
+                border-color: var(--border-light);
+                color: var(--text-primary);
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-primary);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        /* Modern Navigation - Matching index.html */
+        .navbar {
+            background: #2c3e50 !important;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 0.75rem 1rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #ffffff, #f0f0f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .navbar-brand i {
+            -webkit-text-fill-color: white;
+            color: white;
+        }
+
+        .nav-link {
+            position: relative;
+            padding: 0.5rem 1rem !important;
+            margin: 0 0.25rem;
+            border-radius: var(--radius-md);
+            transition: all 0.2s ease;
+            color: rgba(255,255,255,0.9) !important;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-1px);
+        }
+
+        .nav-link.active {
+            background: var(--accent-primary) !important;
+            color: white !important;
+        }
+
+        .navbar-toggler {
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .navbar-toggler-icon {
+            filter: invert(1);
+        }
+
+        /* Main Container */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* Page Title */
+        .container > h1 {
+            color: var(--text-primary);
+            margin: 2rem 0 1rem 0;
+            font-size: 1.75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .container > h1 i {
+            color: var(--accent-primary);
+            font-size: 1.75rem;
+        }
+
+        /* Date Range Selector */
+        .date-range-selector {
+            margin: 1.5rem 0 2rem 0;
+            text-align: right;
+        }
+
+        .date-range-selector select {
+            padding: 0.6rem 1.5rem;
+            border: 2px solid var(--border-light);
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: var(--surface-white);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+        }
+
+        .date-range-selector select:hover {
+            border-color: var(--accent-primary);
+        }
+
+        .date-range-selector select:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Large Stat Card */
+        .stat-card-large {
+            background: var(--surface-white);
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            border: 1px solid var(--border-light);
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card-large::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-success));
+        }
+
+        .stat-card-large:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-hover));
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .stat-icon i {
+            font-size: 1.75rem;
+            color: white;
+        }
+
+        .stat-details {
+            flex: 1;
+        }
+
+        .stat-details .stat-label {
+            display: block;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-details .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* Small Stat Card */
+        .stat-card {
+            background: var(--surface-white);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            text-align: center;
+            border: 1px solid var(--border-light);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-card .stat-label {
+            display: block;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card .stat-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .stat-card .stat-value.profit {
+            color: var(--accent-success);
+        }
+
+        .stat-card .stat-value.loss {
+            color: var(--accent-danger);
+        }
+
+        /* Charts Grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .chart-container {
+            background: var(--surface-white);
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-light);
+            transition: transform 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-success));
+        }
+
+        .chart-container:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .chart-container h3 {
+            color: var(--text-primary);
+            margin-bottom: 1.25rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .chart-container h3 i {
+            color: var(--accent-primary);
+        }
+
+        canvas {
+            max-height: 250px;
+            width: 100% !important;
+        }
+
+        /* Recent Trades Table */
+        .recent-trades {
+            background: var(--surface-white);
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-light);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .recent-trades::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-success), var(--accent-danger));
+        }
+
+        .recent-trades h3 {
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .recent-trades h3 i {
+            color: var(--accent-primary);
+        }
+
+        .trades-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--surface-white);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+
+        .trades-table th,
+        .trades-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .trades-table th {
+            background: var(--surface-hover);
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .trades-table td {
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        .trades-table tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        .trades-table tbody tr:hover {
+            background: var(--surface-hover);
+        }
+
+        .trades-table .profit {
+            color: var(--accent-success) !important;
+            font-weight: 600;
+        }
+
+        .trades-table .loss {
+            color: var(--accent-danger) !important;
+            font-weight: 600;
+        }
+
+        .trades-table .long {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: rgba(39, 174, 96, 0.1);
+            color: var(--accent-success);
+            border-radius: var(--radius-full);
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid rgba(39, 174, 96, 0.2);
+        }
+
+        .trades-table .short {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: rgba(231, 76, 60, 0.1);
+            color: var(--accent-danger);
+            border-radius: var(--radius-full);
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid rgba(231, 76, 60, 0.2);
+        }
+
+        /* Custom Scrollbar - Matching index.html */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--surface-hover);
+            border-radius: var(--radius-full);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--text-muted);
+            border-radius: var(--radius-full);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+
+        /* ============== RESPONSIVE DESIGN ============== */
+        
+        /* Mobile devices (up to 768px) */
+        @media screen and (max-width: 768px) {
+            .container {
+                padding: 0 0.75rem;
+            }
+
+            .container > h1 {
+                font-size: 1.5rem;
+                margin-top: 1rem;
+            }
+
+            .date-range-selector {
+                text-align: center;
+                margin: 1rem 0;
+            }
+
+            .date-range-selector select {
+                width: 100%;
+                padding: 0.6rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .stat-card-large {
+                padding: 1rem;
+            }
+
+            .stat-icon {
+                width: 50px;
+                height: 50px;
+            }
+
+            .stat-icon i {
+                font-size: 1.5rem;
+            }
+
+            .stat-details .stat-value {
+                font-size: 1.5rem;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .chart-container {
+                padding: 1rem;
+            }
+
+            .chart-container h3 {
+                font-size: 1rem;
+            }
+
+            .recent-trades {
+                padding: 1rem;
+                overflow-x: auto;
+            }
+
+            .trades-table {
+                min-width: 600px;
+            }
+
+            .trades-table th,
+            .trades-table td {
+                padding: 0.75rem;
+                font-size: 0.85rem;
+            }
+        }
+
+        /* Small phones (up to 480px) */
+        @media screen and (max-width: 480px) {
+            .stat-details .stat-value {
+                font-size: 1.25rem;
+            }
+
+            .stat-card .stat-value {
+                font-size: 1rem;
+            }
+
+            .trades-table {
+                min-width: 500px;
+                font-size: 0.8rem;
+            }
+
+            .trades-table th,
+            .trades-table td {
+                padding: 0.6rem 0.4rem;
+            }
+        }
+
+        /* Tablets (769px - 1024px) */
+        @media screen and (min-width: 769px) and (max-width: 1024px) {
+            .container {
+                max-width: 95%;
+                padding: 0 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .charts-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+        }
+
+        /* Landscape Mobile Optimization */
+        @media screen and (max-height: 480px) and (orientation: landscape) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .charts-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .chart-container canvas {
+                max-height: 180px;
+            }
+        }
+
+        /* Accessibility - Reduced Motion */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+
+        /* Focus States */
+        button:focus-visible,
+        select:focus-visible,
+        .stat-card:focus-visible {
+            outline: 3px solid var(--accent-primary);
+            outline-offset: 2px;
+        }
+
+        /* Touch Target Sizes for Mobile */
+        @media (hover: none) and (pointer: coarse) {
+            button,
+            select,
+            .nav-link,
+            .stat-card {
+                min-height: 44px;
+            }
+            
+            .stat-card {
+                padding: 0.75rem;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .navbar,
+            .date-range-selector,
+            button {
+                display: none !important;
+            }
+            
+            .stat-card-large,
+            .stat-card,
+            .chart-container,
+            .recent-trades {
+                box-shadow: none;
+                border: 1px solid #ddd;
+                break-inside: avoid;
+            }
+            
+            body {
+                background: white;
+            }
+        }
+
+        /* Profit/Loss text colors */
+        .profit {
+            color: var(--accent-success) !important;
+            font-weight: bold;
+        }
+        
+        .loss {
+            color: var(--accent-danger) !important;
+            font-weight: bold;
+        }
+        
+        .text-success {
+            color: var(--accent-success) !important;
+        }
+        
+        .text-danger {
+            color: var(--accent-danger) !important;
+        }
+        
+        .text-primary {
+            color: var(--accent-primary) !important;
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
         <div class="container-fluid">
-            <a class="navbar-brand fw-bold" href="index.html">Trade Journal</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <a class="navbar-brand fw-bold" href="index.html">
+                <i class="fas fa-chart-line me-2"></i>Trade Journal
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="index.html">Journal</a></li>
-                    <li class="nav-item"><a class="nav-link" href="calendar.html">Calendar</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="dashboard.html">Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link" href="export.html">Backup</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">
+                            <i class="fas fa-book me-1"></i>Journal
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="calendar.html">
+                            <i class="fas fa-calendar me-1"></i>Calendar
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="dashboard.html">
+                            <i class="fas fa-chart-pie me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="export.html">
+                            <i class="fas fa-download me-1"></i>Backup
+                        </a>
+                    </li>
                 </ul>
             </div>
         </div>
     </nav>
 
     <div class="container">
-        <h1><i class="fas fa-chart-line"></i> Trading Dashboard</h1>
+        <h1>
+            <i class="fas fa-chart-line"></i> 
+            Trading Dashboard
+        </h1>
         
         <!-- Date Range Selector -->
         <div class="date-range-selector">
@@ -49,10 +775,10 @@
         <!-- Summary Cards -->
         <div class="stats-grid">
             <div class="stat-card-large">
-                <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
+                <div class="stat-icon"><i class="fas fa-rupee-sign"></i></div>
                 <div class="stat-details">
                     <span class="stat-label">Total P&L</span>
-                    <span class="stat-value" id="totalPnL">$0.00</span>
+                    <span class="stat-value" id="totalPnL">₹0.00</span>
                 </div>
             </div>
             
@@ -72,15 +798,14 @@
                 </div>
             </div>
 
-            <!-- Add to dashboard.html summary cards -->
             <div class="stat-card">
                 <span class="stat-label">Total Tax Paid</span>
-                <span class="stat-value" id="totalTax">$0.00</span>
+                <span class="stat-value" id="totalTax">₹0.00</span>
             </div>
 
             <div class="stat-card">
                 <span class="stat-label">Net P&L (After Tax)</span>
-                <span class="stat-value" id="netPnL">$0.00</span>
+                <span class="stat-value" id="netPnL">₹0.00</span>
             </div>
 
             <div class="stat-card">
@@ -101,22 +826,22 @@
         <div class="stats-grid">
             <div class="stat-card">
                 <span class="stat-label">Average Win</span>
-                <span class="stat-value profit" id="avgWin">$0.00</span>
+                <span class="stat-value profit" id="avgWin">₹0.00</span>
             </div>
             
             <div class="stat-card">
                 <span class="stat-label">Average Loss</span>
-                <span class="stat-value loss" id="avgLoss">$0.00</span>
+                <span class="stat-value loss" id="avgLoss">₹0.00</span>
             </div>
             
             <div class="stat-card">
                 <span class="stat-label">Largest Win</span>
-                <span class="stat-value profit" id="largestWin">$0.00</span>
+                <span class="stat-value profit" id="largestWin">₹0.00</span>
             </div>
             
             <div class="stat-card">
                 <span class="stat-label">Largest Loss</span>
-                <span class="stat-value loss" id="largestLoss">$0.00</span>
+                <span class="stat-value loss" id="largestLoss">₹0.00</span>
             </div>
             
             <div class="stat-card">
@@ -134,53 +859,59 @@
         <div class="charts-grid">
             <!-- Equity Curve Chart -->
             <div class="chart-container">
-                <h3>Equity Curve</h3>
+                <h3><i class="fas fa-chart-line"></i> Equity Curve</h3>
                 <canvas id="equityChart"></canvas>
             </div>
             
             <!-- Daily P&L Chart -->
             <div class="chart-container">
-                <h3>Daily P&L</h3>
+                <h3><i class="fas fa-chart-bar"></i> Daily P&L</h3>
                 <canvas id="dailyPnLChart"></canvas>
             </div>
             
             <!-- Win/Loss Distribution -->
             <div class="chart-container">
-                <h3>Win/Loss Distribution</h3>
+                <h3><i class="fas fa-chart-pie"></i> Win/Loss Distribution</h3>
                 <canvas id="winLossChart"></canvas>
             </div>
             
             <!-- Performance by Symbol -->
             <div class="chart-container">
-                <h3>Performance by Symbol</h3>
+                <h3><i class="fas fa-chart-simple"></i> Performance by Symbol</h3>
                 <canvas id="symbolChart"></canvas>
             </div>
         </div>
 
         <!-- Recent Trades Table -->
         <div class="recent-trades">
-            <h3>Recent Trades</h3>
-            <table class="trades-table">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Symbol</th>
-                        <th>Direction</th>
-                        <th>Entry</th>
-                        <th>Exit</th>
-                        <th>Qty</th>
-                        <th>P&L</th>
-                    </tr>
-                </thead>
-                <tbody id="recentTradesList">
-                    <tr>
-                        <td colspan="7" style="text-align: center;">Loading trades...</td>
-                    </tr>
-                </tbody>
-            </table>
+            <h3><i class="fas fa-clock"></i> Recent Trades</h3>
+            <div class="table-responsive">
+                <table class="trades-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Symbol</th>
+                            <th>Direction</th>
+                            <th>Entry</th>
+                            <th>Exit</th>
+                            <th>Qty</th>
+                            <th>P&L</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentTradesList">
+                        <tr>
+                            <td colspan="7" style="text-align: center;">
+                                <i class="fas fa-spinner fa-spin me-2"></i>
+                                Loading trades...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
+    <!-- Keep all original script references -->
     <script src="app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
