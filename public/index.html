@@ -965,7 +965,7 @@
         <button class="floating-btn btn-dhan" onclick="document.getElementById('pdfInput').click()" title="Import Dhan PDF">
             <i class="fas fa-file-invoice"></i>
         </button>
-        <button class="floating-btn btn-manual" onclick="location.href='journal.html'" title="Add Manual Trade">
+        <button class="floating-btn btn-manual" onclick="location.href='journal.html?date=' + document.getElementById('datePicker').value" title="Add Manual Trade">
             <i class="fas fa-plus"></i>
         </button>
     </div>
@@ -1069,7 +1069,7 @@
             const tbody = document.getElementById('parsedTradesTable');
             tbody.innerHTML = trades.map((t, i) => `
                 <tr>
-                    <td><input type="checkbox" class="trade-check" data-index="${i}" checked></td>
+                    <td class="ps-3"><input type="checkbox" class="trade-check" data-index="${i}" checked></td>
                     <td><small>${t.symbol}</small></td>
                     <td>${t.quantity}</td>
                     <td>₹${t.entryPrice} <i class="fas fa-arrow-right"></i> ₹${t.exitPrice}</td>
