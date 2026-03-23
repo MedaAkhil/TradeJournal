@@ -5,14 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Journal - Trade Journal Pro</title>
     
-    <!-- Original Bootstrap & Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
-    <!-- Google Fonts for better typography -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Original Firebase Scripts -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
@@ -21,39 +18,26 @@
     <style>
         /* ============== 60-30-10 COLOR SCHEME ============== */
         :root {
-            /* 60% - Primary Background */
             --bg-primary: #f8fafc;
             --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            
-            /* 30% - Secondary Surface */
             --surface-white: #ffffff;
             --surface-hover: #f1f5f9;
             --border-light: #e2e8f0;
-            
-            /* 10% - Accent Colors */
             --accent-primary: #3498db;
             --accent-hover: #2980b9;
             --accent-success: #27ae60;
             --accent-danger: #e74c3c;
             --accent-warning: #f39c12;
-            
-            /* Text Colors */
             --text-primary: #1e293b;
             --text-secondary: #64748b;
             --text-muted: #94a3b8;
-            
-            /* Shadows */
             --shadow-sm: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
             --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
             --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
-            
-            /* Spacing */
             --space-xs: 0.5rem;
             --space-sm: 1rem;
             --space-md: 1.5rem;
             --space-lg: 2rem;
-            
-            /* Border Radius */
             --radius-sm: 6px;
             --radius-md: 8px;
             --radius-lg: 12px;
@@ -72,141 +56,36 @@
                 --text-secondary: #94a3b8;
                 --text-muted: #64748b;
             }
-            
-            body {
-                background: var(--bg-gradient);
-            }
-            
-            .navbar {
-                background: rgba(15, 23, 42, 0.95) !important;
-            }
-            
-            .daily-summary-card {
-                background: var(--surface-white);
-                border-color: var(--border-light);
-            }
-            
-            .summary-item:not(:last-child)::after {
-                background: linear-gradient(to bottom, transparent, var(--border-light), transparent);
-            }
-            
-            .trades-table {
-                background: var(--surface-white);
-                border-color: var(--border-light);
-            }
-            
-            .trades-table th {
-                background: var(--surface-hover);
-                color: var(--text-secondary);
-                border-bottom-color: var(--border-light);
-            }
-            
-            .trades-table td {
-                border-bottom-color: var(--border-light);
-                color: var(--text-primary);
-            }
-            
-            .trades-table tbody tr:hover {
-                background: var(--surface-hover);
-            }
-            
-            .text-muted {
-                color: var(--text-secondary) !important;
-            }
-            
-            .btn-outline-primary {
-                border-color: var(--accent-primary);
-                color: var(--accent-primary);
-            }
-            
-            .btn-outline-primary:hover {
-                background: var(--accent-primary);
-                color: white;
-            }
-            
-            .form-control {
-                background: var(--surface-white);
-                border-color: var(--border-light);
-                color: var(--text-primary);
-            }
-            
-            .form-control:focus {
-                background: var(--surface-white);
-                border-color: var(--accent-primary);
-                color: var(--text-primary);
-            }
-            
-            .modal-content {
-                background: var(--surface-white);
-                border-color: var(--border-light);
-            }
-            
-            .table {
-                color: var(--text-primary);
-            }
-            
-            .table-light {
-                background: var(--surface-hover);
-                color: var(--text-secondary);
-            }
-            
-            .table-light th {
-                background: var(--surface-hover);
-                color: var(--text-secondary);
-                border-color: var(--border-light);
-            }
-            
-            .table td, .table th {
-                border-color: var(--border-light);
-            }
-            
-            .table-hover tbody tr:hover {
-                background: var(--surface-hover);
-                color: var(--text-primary);
-            }
-            
-            .bg-light {
-                background: var(--surface-hover) !important;
-            }
-            
-            .border-start {
-                border-left-color: var(--border-light) !important;
-            }
-            
-            .btn-secondary {
-                background: var(--text-muted);
-                border-color: var(--text-muted);
-            }
-            
-            .btn-secondary:hover {
-                background: var(--text-secondary);
-                border-color: var(--text-secondary);
-            }
-            
-            .text-dark {
-                color: var(--text-primary) !important;
-            }
-            
-            .badge.bg-light {
-                background: var(--surface-hover) !important;
-                color: var(--text-primary) !important;
-                border-color: var(--border-light) !important;
-            }
-            
-            .btn-close {
-                filter: invert(1) grayscale(100%) brightness(200%);
-            }
-            
-            .text-success {
-                color: #2ecc71 !important;
-            }
-            
-            .text-danger {
-                color: #e74c3c !important;
-            }
+            body { background: var(--bg-gradient); }
+            .navbar { background: rgba(15, 23, 42, 0.95) !important; }
+            .daily-summary-card, .timeline-item { background: var(--surface-white); border-color: var(--border-light); }
+            .summary-item:not(:last-child)::after { background: linear-gradient(to bottom, transparent, var(--border-light), transparent); }
+            .trades-table { background: var(--surface-white); border-color: var(--border-light); }
+            .trades-table th { background: var(--surface-hover); color: var(--text-secondary); border-bottom-color: var(--border-light); }
+            .trades-table td { border-bottom-color: var(--border-light); color: var(--text-primary); }
+            .trades-table tbody tr:hover { background: var(--surface-hover); }
+            .text-muted { color: var(--text-secondary) !important; }
+            .btn-outline-primary { border-color: var(--accent-primary); color: var(--accent-primary); }
+            .btn-outline-primary:hover { background: var(--accent-primary); color: white; }
+            .form-control { background: var(--surface-white); border-color: var(--border-light); color: var(--text-primary); }
+            .form-control:focus { background: var(--surface-white); border-color: var(--accent-primary); color: var(--text-primary); }
+            .modal-content { background: var(--surface-white); border-color: var(--border-light); }
+            .table { color: var(--text-primary); }
+            .table-light { background: var(--surface-hover); color: var(--text-secondary); }
+            .table-light th { background: var(--surface-hover); color: var(--text-secondary); border-color: var(--border-light); }
+            .table td, .table th { border-color: var(--border-light); }
+            .table-hover tbody tr:hover { background: var(--surface-hover); color: var(--text-primary); }
+            .bg-light { background: var(--surface-hover) !important; }
+            .border-start { border-left-color: var(--border-light) !important; }
+            .btn-secondary { background: var(--text-muted); border-color: var(--text-muted); }
+            .btn-secondary:hover { background: var(--text-secondary); border-color: var(--text-secondary); }
+            .text-dark { color: var(--text-primary) !important; }
+            .badge.bg-light { background: var(--surface-hover) !important; color: var(--text-primary) !important; border-color: var(--border-light) !important; }
+            .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
+            .text-success { color: #2ecc71 !important; }
+            .text-danger { color: #e74c3c !important; }
         }
 
-        /* Base Styles */
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: var(--bg-gradient);
@@ -216,7 +95,6 @@
             transition: background-color 0.3s ease;
         }
 
-        /* Modern Navigation - Enhanced but preserving original structure */
         .navbar {
             background: #2c3e50 !important;
             backdrop-filter: blur(10px);
@@ -245,17 +123,9 @@
             font-weight: 500;
         }
 
-        .nav-link:hover {
-            background: rgba(255,255,255,0.1);
-            transform: translateY(-1px);
-        }
+        .nav-link:hover { background: rgba(255,255,255,0.1); transform: translateY(-1px); }
+        .nav-link.active { background: var(--accent-primary) !important; color: white !important; }
 
-        .nav-link.active {
-            background: var(--accent-primary) !important;
-            color: white !important;
-        }
-
-        /* Enhanced Date Navigation */
         .date-navigation {
             background: var(--surface-white);
             padding: 1rem 1.5rem;
@@ -286,15 +156,8 @@
             box-shadow: var(--shadow-sm);
         }
 
-        .date-navigation button:hover {
-            background: var(--accent-hover);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .date-navigation button:active {
-            transform: translateY(0);
-        }
+        .date-navigation button:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .date-navigation button:active { transform: translateY(0); }
 
         .date-navigation input[type="date"] {
             padding: 0.6rem 1rem;
@@ -308,13 +171,8 @@
             min-width: 200px;
         }
 
-        .date-navigation input[type="date"]:focus {
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-            outline: none;
-        }
+        .date-navigation input[type="date"]:focus { border-color: var(--accent-primary); box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1); outline: none; }
 
-        /* Enhanced Daily Summary Card */
         .daily-summary-card {
             background: var(--surface-white);
             padding: 1.5rem;
@@ -329,47 +187,20 @@
         .daily-summary-card::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
+            top: 0; left: 0; right: 0;
             height: 4px;
             background: linear-gradient(90deg, var(--accent-primary), var(--accent-success), var(--accent-danger));
         }
 
-        .summary-item {
-            text-align: center;
-            padding: 0.5rem 1rem;
-            position: relative;
-        }
-
+        .summary-item { text-align: center; padding: 0.5rem 1rem; position: relative; }
         .summary-item:not(:last-child)::after {
-            content: '';
-            position: absolute;
-            right: 0;
-            top: 20%;
-            height: 60%;
-            width: 1px;
+            content: ''; position: absolute; right: 0; top: 20%; height: 60%; width: 1px;
             background: linear-gradient(to bottom, transparent, var(--border-light), transparent);
         }
 
-        .summary-item small {
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 0.25rem;
-            display: block;
-        }
+        .summary-item small { color: var(--text-secondary); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.25rem; display: block; }
+        .summary-item .h4 { color: var(--text-primary); font-size: 1.75rem; font-weight: 700; line-height: 1.2; margin: 0; }
 
-        .summary-item .h4 {
-            color: var(--text-primary);
-            font-size: 1.75rem;
-            font-weight: 700;
-            line-height: 1.2;
-            margin: 0;
-        }
-
-        /* Enhanced Trades Container */
         .trades-container {
             background: var(--surface-white);
             border-radius: var(--radius-lg);
@@ -379,509 +210,187 @@
             margin-top: 1.5rem;
         }
 
-        .trades-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
+        .trades-table { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--surface-white); margin-bottom: 0; }
+        .trades-table th { background: #f8fafc; color: var(--text-secondary); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; padding: 1rem; border-bottom: 2px solid var(--border-light); white-space: nowrap; }
+        .trades-table td { padding: 1rem; color: var(--text-primary); border-bottom: 1px solid var(--border-light); font-size: 0.95rem; vertical-align: middle; }
+        .trades-table tbody tr { transition: all 0.2s ease; cursor: pointer; }
+        .trades-table tbody tr:hover { background: var(--surface-hover); transform: scale(1.01); box-shadow: var(--shadow-sm); }
+
+        .trades-table .long, .trades-table td:contains("📈") {
+            display: inline-block; padding: 0.25rem 0.75rem; background: rgba(39, 174, 96, 0.1); color: var(--accent-success) !important; border-radius: var(--radius-full); font-size: 0.85rem; font-weight: 600; border: 1px solid rgba(39, 174, 96, 0.2);
+        }
+
+        .trades-table .short, .trades-table td:contains("📉") {
+            display: inline-block; padding: 0.25rem 0.75rem; background: rgba(231, 76, 60, 0.1); color: var(--accent-danger) !important; border-radius: var(--radius-full); font-size: 0.85rem; font-weight: 600; border: 1px solid rgba(231, 76, 60, 0.2);
+        }
+
+        .trades-table .profit { color: var(--accent-success) !important; font-weight: 700; }
+        .trades-table .loss { color: var(--accent-danger) !important; font-weight: 700; }
+
+        .btn-sm.btn-danger { background: rgba(231, 76, 60, 0.1); border: 1px solid rgba(231, 76, 60, 0.2); color: var(--accent-danger); padding: 0.4rem 0.8rem; border-radius: var(--radius-md); font-size: 0.85rem; transition: all 0.2s ease; }
+        .btn-sm.btn-danger:hover { background: var(--accent-danger); color: white; transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+
+        .empty-state { text-align: center; padding: 4rem 2rem; background: var(--surface-white); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); border: 1px solid var(--border-light); }
+        .empty-state p { color: var(--text-secondary); margin: 0; font-size: 1rem; }
+
+        .fab-container { position: fixed; bottom: 30px; right: 30px; display: flex; flex-direction: column; gap: 15px; z-index: 9999; }
+        .floating-btn { width: 60px; height: 60px; border-radius: var(--radius-full); display: flex; align-items: center; justify-content: center; font-size: 24px; color: white; border: none; box-shadow: var(--shadow-lg); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; text-decoration: none; }
+        .floating-btn:hover { transform: translateY(-5px) scale(1.1); box-shadow: 0 15px 30px rgba(0,0,0,0.3); color: white; }
+        .btn-manual { background: linear-gradient(135deg, #27ae60, #2ecc71); }
+        .btn-dhan { background: linear-gradient(135deg, #6a11cb, #2575fc); }
+
+        .modal-content { border: none; border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-lg); background: var(--surface-white); }
+        .modal-header { background: var(--accent-primary) !important; border-bottom: 1px solid rgba(255,255,255,0.1); padding: 1.25rem 1.5rem; }
+        .modal-header .modal-title { color: white; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
+        .modal-header .btn-close-white { filter: brightness(0) invert(1); }
+        .modal-body { padding: 0; max-height: 60vh; overflow-y: auto; }
+        .modal-footer { background: var(--surface-hover); border-top: 1px solid var(--border-light); padding: 1rem 1.5rem; }
+
+        .table { color: var(--text-primary); margin-bottom: 0; }
+        .table thead th { background: var(--surface-hover); color: var(--text-secondary); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid var(--border-light); padding: 1rem; }
+        .table tbody td { padding: 1rem; vertical-align: middle; border-bottom: 1px solid var(--border-light); }
+        .table tbody tr:hover { background: var(--surface-hover); }
+        .badge { padding: 0.35rem 0.65rem; font-weight: 500; border-radius: var(--radius-full); }
+        .badge.bg-light { background: var(--surface-hover) !important; color: var(--text-primary) !important; border: 1px solid var(--border-light); }
+
+        .btn-primary { background: var(--accent-primary); border: none; padding: 0.6rem 1.5rem; font-weight: 500; transition: all 0.2s ease; border-radius: var(--radius-md); }
+        .btn-primary:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .btn-secondary { background: var(--text-muted); border: none; padding: 0.6rem 1.5rem; font-weight: 500; transition: all 0.2s ease; border-radius: var(--radius-md); }
+        .btn-secondary:hover { background: var(--text-secondary); transform: translateY(-2px); }
+        .btn-outline-primary { border: 2px solid var(--accent-primary); color: var(--accent-primary); background: transparent; padding: 0.6rem 1.2rem; font-weight: 500; transition: all 0.2s ease; border-radius: var(--radius-md); }
+        .btn-outline-primary:hover { background: var(--accent-primary); color: white; transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--surface-hover); border-radius: var(--radius-full); }
+        ::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: var(--radius-full); }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
+
+        /* ================= TIMELINE STYLES ================= */
+        .timeline-container { 
+            margin-top: 3rem; 
+            margin-bottom: 5rem;
+            display: none; 
+        }
+        
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0.5rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border-light);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 1.5rem;
             background: var(--surface-white);
-            margin-bottom: 0;
-        }
-
-        .trades-table th {
-            background: #f8fafc;
-            color: var(--text-secondary);
-            font-weight: 600;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            padding: 1rem;
-            border-bottom: 2px solid var(--border-light);
-            white-space: nowrap;
-        }
-
-        .trades-table td {
-            padding: 1rem;
-            color: var(--text-primary);
-            border-bottom: 1px solid var(--border-light);
-            font-size: 0.95rem;
-            vertical-align: middle;
-        }
-
-        .trades-table tbody tr {
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
-
-        .trades-table tbody tr:hover {
-            background: var(--surface-hover);
-            transform: scale(1.01);
-            box-shadow: var(--shadow-sm);
-        }
-
-        /* Direction Badges */
-        .trades-table .long, 
-        .trades-table td:contains("📈") {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            background: rgba(39, 174, 96, 0.1);
-            color: var(--accent-success) !important;
-            border-radius: var(--radius-full);
-            font-size: 0.85rem;
-            font-weight: 600;
-            border: 1px solid rgba(39, 174, 96, 0.2);
-        }
-
-        .trades-table .short,
-        .trades-table td:contains("📉") {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            background: rgba(231, 76, 60, 0.1);
-            color: var(--accent-danger) !important;
-            border-radius: var(--radius-full);
-            font-size: 0.85rem;
-            font-weight: 600;
-            border: 1px solid rgba(231, 76, 60, 0.2);
-        }
-
-        /* P&L Styling */
-        .trades-table .profit {
-            color: var(--accent-success) !important;
-            font-weight: 700;
-        }
-
-        .trades-table .loss {
-            color: var(--accent-danger) !important;
-            font-weight: 700;
-        }
-
-        /* Delete Button */
-        .btn-sm.btn-danger {
-            background: rgba(231, 76, 60, 0.1);
-            border: 1px solid rgba(231, 76, 60, 0.2);
-            color: var(--accent-danger);
-            padding: 0.4rem 0.8rem;
+            border: 1px solid var(--border-light);
             border-radius: var(--radius-md);
-            font-size: 0.85rem;
-            transition: all 0.2s ease;
-        }
-
-        .btn-sm.btn-danger:hover {
-            background: var(--accent-danger);
-            color: white;
-            transform: translateY(-2px);
+            padding: 1.25rem;
             box-shadow: var(--shadow-sm);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 4rem 2rem;
-            background: var(--surface-white);
-            border-radius: var(--radius-lg);
+        .timeline-item:hover {
+            transform: translateY(-2px);
             box-shadow: var(--shadow-md);
-            border: 1px solid var(--border-light);
         }
 
-        .empty-state p {
-            color: var(--text-secondary);
-            margin: 0;
-            font-size: 1rem;
-        }
-
-        /* FAB Container - Preserved original but enhanced */
-        .fab-container {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            z-index: 9999;
-        }
-
-        .floating-btn {
-            width: 60px;
-            height: 60px;
-            border-radius: var(--radius-full);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            color: white;
-            border: none;
-            box-shadow: var(--shadow-lg);
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            cursor: pointer;
-            text-decoration: none;
-        }
-
-        .floating-btn:hover {
-            transform: translateY(-5px) scale(1.1);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
-            color: white;
-        }
-
-        .btn-manual { 
-            background: linear-gradient(135deg, #27ae60, #2ecc71);
-        }
-
-        .btn-dhan { 
-            background: linear-gradient(135deg, #6a11cb, #2575fc);
-        }
-
-        /* Enhanced Modal */
-        .modal-content {
-            border: none;
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-            box-shadow: var(--shadow-lg);
-            background: var(--surface-white);
-        }
-
-        .modal-header {
-            background: var(--accent-primary) !important;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding: 1.25rem 1.5rem;
-        }
-
-        .modal-header .modal-title {
-            color: white;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .modal-header .btn-close-white {
-            filter: brightness(0) invert(1);
-        }
-
-        .modal-body {
-            padding: 0;
-            max-height: 60vh;
-            overflow-y: auto;
-        }
-
-        .modal-footer {
-            background: var(--surface-hover);
-            border-top: 1px solid var(--border-light);
-            padding: 1rem 1.5rem;
-        }
-
-        /* Table Enhancements */
-        .table {
-            color: var(--text-primary);
-            margin-bottom: 0;
-        }
-
-        .table thead th {
-            background: var(--surface-hover);
-            color: var(--text-secondary);
-            font-weight: 600;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-bottom: 2px solid var(--border-light);
-            padding: 1rem;
-        }
-
-        .table tbody td {
-            padding: 1rem;
-            vertical-align: middle;
-            border-bottom: 1px solid var(--border-light);
-        }
-
-        .table tbody tr:hover {
-            background: var(--surface-hover);
-        }
-
-        .badge {
-            padding: 0.35rem 0.65rem;
-            font-weight: 500;
-            border-radius: var(--radius-full);
-        }
-
-        .badge.bg-light {
-            background: var(--surface-hover) !important;
-            color: var(--text-primary) !important;
-            border: 1px solid var(--border-light);
-        }
-
-        /* Button Enhancements */
-        .btn-primary {
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2.15rem;
+            top: 1.5rem;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
             background: var(--accent-primary);
-            border: none;
-            padding: 0.6rem 1.5rem;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            border-radius: var(--radius-md);
+            border: 3px solid var(--surface-white);
+            box-shadow: 0 0 0 2px var(--accent-primary);
         }
 
-        .btn-primary:hover {
-            background: var(--accent-hover);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .btn-secondary {
-            background: var(--text-muted);
-            border: none;
-            padding: 0.6rem 1.5rem;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            border-radius: var(--radius-md);
-        }
-
-        .btn-secondary:hover {
-            background: var(--text-secondary);
-            transform: translateY(-2px);
-        }
-
-        .btn-outline-primary {
-            border: 2px solid var(--accent-primary);
+        .timeline-time {
+            font-weight: 700;
             color: var(--accent-primary);
-            background: transparent;
-            padding: 0.6rem 1.2rem;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            border-radius: var(--radius-md);
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .btn-outline-primary:hover {
-            background: var(--accent-primary);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
+        .timeline-content p { 
+            margin-bottom: 0; 
+            color: var(--text-primary); 
+            line-height: 1.6;
         }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
+        .timeline-img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: var(--radius-sm);
+            margin-top: 1rem;
+            border: 1px solid var(--border-light);
+            cursor: pointer;
+            object-fit: contain;
         }
 
-        ::-webkit-scrollbar-track {
-            background: var(--surface-hover);
-            border-radius: var(--radius-full);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--text-muted);
-            border-radius: var(--radius-full);
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--text-secondary);
-        }
-
-        /* ============== RESPONSIVE BREAKPOINTS ============== */
-
-        /* Mobile Devices (up to 768px) */
         @media screen and (max-width: 768px) {
-            .container {
-                padding: 0 1rem;
-                margin: 1rem auto;
-            }
-            
-            .date-navigation {
-                flex-direction: column;
-                gap: 0.75rem;
-                padding: 1rem;
-            }
-            
-            .date-navigation button {
-                width: 100%;
-                justify-content: center;
-                padding: 0.75rem;
-            }
-            
-            .date-navigation input[type="date"] {
-                width: 100%;
-                min-width: auto;
-            }
-            
-            .daily-summary-card {
-                flex-direction: column !important;
-                gap: 1rem;
-                padding: 1rem;
-            }
-            
-            .summary-item {
-                width: 100%;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 0.5rem 0;
-            }
-            
-            .summary-item:not(:last-child)::after {
-                display: none;
-            }
-            
-            .summary-item small {
-                margin-bottom: 0;
-                display: inline-block;
-            }
-            
-            .summary-item .h4 {
-                font-size: 1.25rem;
-                display: inline-block;
-            }
-            
-            .trades-container {
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-            }
-            
-            .trades-table {
-                min-width: 700px;
-            }
-            
-            .trades-table th,
-            .trades-table td {
-                padding: 0.75rem;
-                font-size: 0.9rem;
-            }
-            
-            .fab-container {
-                bottom: 20px;
-                right: 20px;
-                gap: 10px;
-            }
-            
-            .floating-btn {
-                width: 50px;
-                height: 50px;
-                font-size: 20px;
-            }
-            
-            .modal-dialog {
-                margin: 0.5rem;
-            }
-            
-            .navbar-brand {
-                font-size: 1.1rem;
-            }
-            
-            .nav-link {
-                padding: 0.4rem 0.8rem !important;
-                font-size: 0.9rem;
-            }
+            .container { padding: 0 1rem; margin: 1rem auto; }
+            .date-navigation { flex-direction: column; gap: 0.75rem; padding: 1rem; }
+            .date-navigation button { width: 100%; justify-content: center; padding: 0.75rem; }
+            .date-navigation input[type="date"] { width: 100%; min-width: auto; }
+            .daily-summary-card { flex-direction: column !important; gap: 1rem; padding: 1rem; }
+            .summary-item { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; }
+            .summary-item:not(:last-child)::after { display: none; }
+            .summary-item small { margin-bottom: 0; display: inline-block; }
+            .summary-item .h4 { font-size: 1.25rem; display: inline-block; }
+            .trades-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            .trades-table { min-width: 700px; }
+            .trades-table th, .trades-table td { padding: 0.75rem; font-size: 0.9rem; }
+            .fab-container { bottom: 20px; right: 20px; gap: 10px; }
+            .floating-btn { width: 50px; height: 50px; font-size: 20px; }
+            .modal-dialog { margin: 0.5rem; }
+            .navbar-brand { font-size: 1.1rem; }
+            .nav-link { padding: 0.4rem 0.8rem !important; font-size: 0.9rem; }
         }
 
-        /* Small phones (up to 480px) */
         @media screen and (max-width: 480px) {
-            .summary-item .h4 {
-                font-size: 1.1rem;
-            }
-            
-            .trades-table {
-                min-width: 600px;
-                font-size: 0.85rem;
-            }
-            
-            .trades-table th,
-            .trades-table td {
-                padding: 0.6rem 0.4rem;
-            }
-            
-            .floating-btn {
-                width: 45px;
-                height: 45px;
-                font-size: 18px;
-            }
-            
-            .btn-sm.btn-danger {
-                padding: 0.25rem 0.5rem;
-                font-size: 0.75rem;
-            }
+            .summary-item .h4 { font-size: 1.1rem; }
+            .trades-table { min-width: 600px; font-size: 0.85rem; }
+            .trades-table th, .trades-table td { padding: 0.6rem 0.4rem; }
+            .floating-btn { width: 45px; height: 45px; font-size: 18px; }
+            .btn-sm.btn-danger { padding: 0.25rem 0.5rem; font-size: 0.75rem; }
         }
 
-        /* Tablets (769px - 1024px) */
         @media screen and (min-width: 769px) and (max-width: 1024px) {
-            .container {
-                max-width: 95%;
-                padding: 0 1rem;
-            }
-            
-            .date-navigation {
-                flex-wrap: nowrap;
-            }
-            
-            .trades-table th,
-            .trades-table td {
-                padding: 0.75rem;
-            }
+            .container { max-width: 95%; padding: 0 1rem; }
+            .date-navigation { flex-wrap: nowrap; }
+            .trades-table th, .trades-table td { padding: 0.75rem; }
         }
 
-        /* Landscape Mobile Optimization */
-        @media screen and (max-height: 480px) and (orientation: landscape) {
-            .date-navigation {
-                margin-bottom: 1rem;
-            }
-            
-            .daily-summary-card {
-                margin-bottom: 1rem;
-            }
-            
-            .fab-container {
-                bottom: 10px;
-                right: 10px;
-                flex-direction: row;
-                gap: 10px;
-            }
-            
-            .floating-btn {
-                width: 40px;
-                height: 40px;
-                font-size: 16px;
-            }
-        }
-
-        /* Accessibility - Reduced Motion */
         @media (prefers-reduced-motion: reduce) {
-            *,
-            *::before,
-            *::after {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-                scroll-behavior: auto !important;
-            }
+            *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
         }
 
-        /* Focus States */
-        button:focus-visible,
-        a:focus-visible,
-        input:focus-visible {
-            outline: 3px solid var(--accent-primary);
-            outline-offset: 2px;
-        }
+        button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid var(--accent-primary); outline-offset: 2px; }
 
-        /* Touch Target Sizes for Mobile */
         @media (hover: none) and (pointer: coarse) {
-            button,
-            .nav-link,
-            .floating-btn,
-            .btn-sm.btn-danger {
-                min-height: 44px;
-                min-width: 44px;
-            }
-            
-            .trades-table td {
-                padding: 1rem 0.75rem;
-            }
-            
-            .date-navigation button {
-                min-height: 48px;
-            }
+            button, .nav-link, .floating-btn, .btn-sm.btn-danger { min-height: 44px; min-width: 44px; }
+            .trades-table td { padding: 1rem 0.75rem; }
+            .date-navigation button { min-height: 48px; }
         }
 
-        /* Keep original color classes */
         .profit { color: #2ecc71 !important; font-weight: bold; }
         .loss { color: #e74c3c !important; font-weight: bold; }
-        
-        /* Ensure text colors in tables */
         .trades-table .profit { color: #2ecc71 !important; }
         .trades-table .loss { color: #e74c3c !important; }
         .trades-table .long { color: #27ae60 !important; }
@@ -889,19 +398,14 @@
     </style>
 </head>
 <body>
-    <!-- Original Navigation - Enhanced but same structure -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
         <div class="container-fluid">
             <a class="navbar-brand fw-bold" href="index.html">
                 <i class="fas fa-chart-line me-2"></i>Trade Journal
             </a>
-            
-            <!-- Hamburger Toggle Button -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
-                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
@@ -912,6 +416,10 @@
                     <li class="nav-item">
                         <a class="nav-link" href="calendar.html">
                             <i class="fas fa-calendar me-1"></i>Calendar
+                        </a>
+                    </li><li class="nav-item">
+                        <a class="nav-link" href="notes.html">
+                            <i class="fas fa-note-sticky me-1"></i>Notes/Manifesto
                         </a>
                     </li>
                     <li class="nav-item">
@@ -929,9 +437,7 @@
         </div>
     </nav>
 
-    <!-- Main Container - Original structure preserved -->
     <div class="container mt-4">
-        <!-- Date Navigation - Enhanced but same functionality -->
         <div class="date-navigation">
             <button class="btn btn-outline-primary" onclick="changeDateBy(-1)">
                 <i class="fas fa-chevron-left"></i> <span class="d-none d-sm-inline">Previous</span>
@@ -942,7 +448,6 @@
             </button>
         </div>
 
-        <!-- Daily Summary Card - Enhanced design, same data -->
         <div class="daily-summary-card">
             <div class="summary-item">
                 <small>Gross P&L</small>
@@ -954,13 +459,24 @@
             </div>
         </div>
 
-        <!-- Journal Content - Same functionality, enhanced styling -->
         <div id="journalContent">
             <div class="text-center p-5 text-muted">Loading trades...</div>
         </div>
+
+        <div class="timeline-container" id="timelineContainer">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 style="color: var(--text-primary); margin: 0; font-weight: 600;">
+                    <i class="fas fa-stream me-2 text-primary"></i> Daily Timeline
+                </h4>
+                <button class="btn btn-outline-primary btn-sm" onclick="openTimelineModal()">
+                    <i class="fas fa-plus"></i> Add Event
+                </button>
+            </div>
+            <div class="timeline" id="timelineContent">
+                </div>
+        </div>
     </div>
 
-    <!-- FAB Container - Completely preserved -->
     <div class="fab-container">
         <button class="floating-btn btn-dhan" onclick="document.getElementById('pdfInput').click()" title="Import Dhan PDF">
             <i class="fas fa-file-invoice"></i>
@@ -970,7 +486,6 @@
         </button>
     </div>
 
-    <!-- Import Modal - Preserved with enhanced styling -->
     <div class="modal fade" id="importModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content border-0 shadow">
@@ -991,8 +506,7 @@
                                 </tr>
                             </thead>
                             <tbody id="parsedTradesTable">
-                                <!-- Dynamic content -->
-                            </tbody>
+                                </tbody>
                         </table>
                     </div>
                 </div>
@@ -1006,15 +520,44 @@
         </div>
     </div>
 
-    <!-- Hidden File Input - Preserved -->
+    <div class="modal fade" id="timelineModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title"><i class="fas fa-clock me-2"></i> Add Timeline Event</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold" style="color: var(--text-primary)">Time</label>
+                        <input type="time" id="timelineTime" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold" style="color: var(--text-primary)">Notes / Description</label>
+                        <textarea id="timelineNotes" class="form-control" rows="3" placeholder="What happened in the market right now?"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold" style="color: var(--text-primary)">Attachment (Optional)</label>
+                        <input type="file" id="timelineFile" class="form-control" accept="image/*">
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary px-4" id="saveTimelineBtn" onclick="saveTimelineEvent()">
+                        <i class="fas fa-save me-2"></i>Save Event
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <input type="file" id="pdfInput" accept=".pdf" style="display: none;" onchange="processDhanPDF(this)">
 
-    <!-- Original Scripts - Completely preserved -->
     <script src="app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- Original JavaScript functions - 100% preserved -->
     <script>
+        // ORIGINAL IMPORT LOGIC PRESERVED
         function handlePasteImport(rawText) {
             if (!rawText || rawText.length < 20) return;
 
@@ -1028,9 +571,7 @@
 
             extractedTrades = [];
             const tradesMap = {};
-            
             const regex = /(OPTIDX|OPTSTK|EQ)\s+([A-Z0-9\s]+NSE)\s+([BS])\s+(\d+)\s+(\d+\.\d+)/g;
-            
             let match;
             const cleanText = rawText.replace(/\n/g, ' ');
 
@@ -1065,37 +606,24 @@
             }
         }
 
-        function displayTradesForSelection(trades) {
-            const tbody = document.getElementById('parsedTradesTable');
-            tbody.innerHTML = trades.map((t, i) => `
-                <tr>
-                    <td class="ps-3"><input type="checkbox" class="trade-check" data-index="${i}" checked></td>
-                    <td><small>${t.symbol}</small></td>
-                    <td>${t.quantity}</td>
-                    <td>₹${t.entryPrice} <i class="fas fa-arrow-right"></i> ₹${t.exitPrice}</td>
-                    <td class="${t.pnl >= 0 ? 'text-success' : 'text-danger'} fw-bold">₹${t.pnl}</td>
-                </tr>
-            `).join('');
-        }
-
         async function importSelectedTrades() {
             const selectedIdx = Array.from(document.querySelectorAll('.trade-check:checked')).map(cb => cb.dataset.index);
-            const date = document.getElementById('datePicker').value;
+            if (selectedIdx.length === 0) return alert("Select at least one position to import.");
 
+            const date = document.getElementById('datePicker').value;
+            
             for (let idx of selectedIdx) {
                 const trade = extractedTrades[idx];
                 await TradeJournal.saveTrade(date, {
                     ...trade,
-                    strategy: "Quick Paste Import",
-                    notes: "Imported via Dhan Table Paste"
+                    strategy: "Imported",
+                    notes: "Position auto-extracted."
                 }, []);
             }
 
-            const modal = bootstrap.Modal.getInstance(document.getElementById('importModal'));
-            modal.hide();
-            document.getElementById('pasteArea').value = '';
+            importModal.hide();
             renderJournal(date);
-            alert("Import Complete!");
+            alert(`Success! ${selectedIdx.length} positions imported.`);
         }
 
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
@@ -1203,9 +731,7 @@
             return Array.from(new Map(finalTrades.map(t => [t.symbol + t.pnl, t])).values());
         }
 
-        // Override displayTradesForSelection to match original
-        const originalDisplayTradesForSelection = displayTradesForSelection;
-        displayTradesForSelection = function(trades) {
+        function displayTradesForSelection(trades) {
             const tbody = document.getElementById('parsedTradesTable');
             tbody.innerHTML = trades.map((t, i) => `
                 <tr class="align-middle">
@@ -1240,26 +766,6 @@
             updateSelectedCount();
         }
 
-        async function importSelectedTrades() {
-            const selectedIdx = Array.from(document.querySelectorAll('.trade-check:checked')).map(cb => cb.dataset.index);
-            if (selectedIdx.length === 0) return alert("Select at least one position to import.");
-
-            const date = document.getElementById('datePicker').value;
-            
-            for (let idx of selectedIdx) {
-                const trade = extractedTrades[idx];
-                await TradeJournal.saveTrade(date, {
-                    ...trade,
-                    strategy: "Dhan PDF Import",
-                    notes: "Position auto-extracted from Contact Note."
-                }, []);
-            }
-
-            importModal.hide();
-            renderJournal(date);
-            alert(`Success! ${selectedIdx.length} positions imported.`);
-        }
-
         function changeDateBy(days) {
             const picker = document.getElementById('datePicker');
             let current = new Date(picker.value);
@@ -1267,6 +773,162 @@
             const newDateStr = current.toISOString().split('T')[0];
             picker.value = newDateStr;
             renderJournal(newDateStr);
+        }
+
+        /* ================= NEW TIMELINE LOGIC ================= */
+        
+        let timelineModalInstance = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const tModalEl = document.getElementById('timelineModal');
+            if (tModalEl) timelineModalInstance = new bootstrap.Modal(tModalEl);
+
+            // Initial Timeline Load (Delayed slightly for DB readiness)
+            setTimeout(() => {
+                const datePicker = document.getElementById('datePicker');
+                if (datePicker && datePicker.value) {
+                    loadTimeline(datePicker.value);
+                }
+            }, 800);
+        });
+
+        // Intercept Journal Renders to strictly refresh Timeline whenever Journal updates
+        if (typeof window.renderJournal === 'function') {
+            const originalRenderJournal = window.renderJournal;
+            window.renderJournal = async function(date) {
+                await originalRenderJournal(date);
+                loadTimeline(date);
+            };
+        }
+
+        function openTimelineModal() {
+            document.getElementById('timelineTime').value = '';
+            document.getElementById('timelineNotes').value = '';
+            document.getElementById('timelineFile').value = '';
+            timelineModalInstance.show();
+        }
+
+        async function saveTimelineEvent() {
+            const date = document.getElementById('datePicker').value;
+            const timeRaw = document.getElementById('timelineTime').value; // Captures 24hr string like "15:10"
+            const notes = document.getElementById('timelineNotes').value.trim();
+            const fileInput = document.getElementById('timelineFile');
+
+            if (!timeRaw || !notes) return alert("Both Time and Notes are required.");
+
+            const btn = document.getElementById('saveTimelineBtn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            btn.disabled = true;
+
+            try {
+                // Convert to 12-hour AM/PM for display
+                let [hours, minutes] = timeRaw.split(':');
+                let h = parseInt(hours, 10);
+                let ampm = h >= 12 ? 'PM' : 'AM';
+                
+                h = h % 12;
+                h = h ? h : 12; // Convert 0 to 12 for midnight
+                
+                let displayTime = `${h}:${minutes} ${ampm}`;
+                let finalSortTime = timeRaw; // 24-hour string sorts perfectly chronologically
+
+                let imageUrl = null;
+                if (fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    const ref = storage.ref(`timeline/${date}/${Date.now()}_${file.name}`);
+                    await ref.put(file);
+                    imageUrl = await ref.getDownloadURL();
+                }
+
+                const newEvent = {
+                    id: Date.now().toString(),
+                    time: displayTime,
+                    sortTime: finalSortTime,
+                    notes: notes,
+                    image: imageUrl,
+                    timestamp: Date.now()
+                };
+
+                const dayRef = db.collection('trades').doc(date);
+                const doc = await dayRef.get();
+                let dayData = doc.exists ? doc.data() : { trades: [], totalPnL: 0, notes: '', timeline: [] };
+                
+                if (!dayData.timeline) dayData.timeline = [];
+                
+                dayData.timeline.push(newEvent);
+                await dayRef.set(dayData, { merge: true });
+                
+                timelineModalInstance.hide();
+                loadTimeline(date);
+            } catch (err) {
+                console.error("Timeline save error: ", err);
+                alert("Failed to save the timeline event.");
+            } finally {
+                btn.innerHTML = '<i class="fas fa-save me-2"></i>Save Event';
+                btn.disabled = false;
+            }
+        }
+
+        async function loadTimeline(date) {
+            document.getElementById('timelineContainer').style.display = 'block';
+            const container = document.getElementById('timelineContent');
+            container.innerHTML = '<div class="text-center text-muted py-4"><i class="fas fa-spinner fa-spin me-2"></i> Loading timeline events...</div>';
+
+            try {
+                const doc = await db.collection('trades').doc(date).get();
+                const data = doc.exists ? doc.data() : null;
+                const events = data && data.timeline ? data.timeline : [];
+
+                if (events.length === 0) {
+                    container.innerHTML = '<div class="text-muted fst-italic py-3">No events logged for this day yet. Click "Add Event" to begin tracking your market timeline.</div>';
+                    return;
+                }
+
+                events.sort((a, b) => {
+                    if (a.sortTime && b.sortTime) {
+                        return a.sortTime.localeCompare(b.sortTime);
+                    }
+                    return (a.timestamp || 0) - (b.timestamp || 0);
+                });
+
+                container.innerHTML = events.map((ev, index) => `
+                    <div class="timeline-item">
+                        <div class="timeline-time">
+                            <span><i class="far fa-clock me-2"></i>${ev.time}</span>
+                            <button class="btn btn-link text-danger p-0" onclick="deleteTimelineEvent('${date}', ${index})" title="Delete Event">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                        <div class="timeline-content">
+                            <p>${ev.notes}</p>
+                            ${ev.image ? `<img src="${ev.image}" class="timeline-img shadow-sm" onclick="window.open('${ev.image}', '_blank')">` : ''}
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (e) {
+                console.error("Timeline load error: ", e);
+                container.innerHTML = '<div class="text-danger py-3"><i class="fas fa-exclamation-triangle me-2"></i>Failed to load the timeline.</div>';
+            }
+        }
+
+        async function deleteTimelineEvent(date, index) {
+            if (!confirm("Are you sure you want to delete this timeline event?")) return;
+            try {
+                const dayRef = db.collection('trades').doc(date);
+                const doc = await dayRef.get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    if (data.timeline) {
+                        data.timeline.splice(index, 1);
+                        await dayRef.update({ timeline: data.timeline });
+                        loadTimeline(date);
+                    }
+                }
+            } catch (e) {
+                console.error("Timeline delete error: ", e);
+                alert("Failed to delete timeline event.");
+            }
         }
     </script>
 </body>
