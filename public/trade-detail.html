@@ -1095,12 +1095,21 @@
         }
         
         // Edit and Delete functions (should be in your app.js)
-        function editTrade() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const date = urlParams.get('date');
-            const index = urlParams.get('index');
-            window.location.href = `journal.html?edit=true&date=${date}&index=${index}`;
-        }
+function editTrade() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const date = urlParams.get('date');
+    const index = urlParams.get('index');
+    
+    console.log("Edit Trade - Date:", date, "Index:", index);
+    
+    if (date && index !== null && !isNaN(parseInt(index))) {
+        // Pass the actual numeric index
+        window.location.href = `edit-trade.html?date=${date}&index=${parseInt(index)}`;
+    } else {
+        console.error("Missing or invalid date/index for edit", {date, index});
+        alert("Cannot edit trade: Invalid trade reference");
+    }
+}
         
         async function deleteTradeFromDetail() {
             if (!confirm('Are you sure you want to delete this trade? This action cannot be undone.')) return;

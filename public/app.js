@@ -18,7 +18,7 @@ if (!firebase.apps.length) {
 }
 const db = firebase.firestore();
 const storage = firebase.storage();
-
+let activeCharts = {};
 // --- 2. THE CALCULATION ENGINE (NSE/DHAN RULES) ---
 const Calc = {
     tradeTaxes: function(trade) {
@@ -54,8 +54,16 @@ const Calc = {
     formatDate: (str) => new Date(str + 'T12:00:00').toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
 };
 
+
+function isOnPage(pageName) {
+    return window.location.pathname.includes(pageName);
+}
+
 // --- 3. DATA PERSISTENCE ---
 const TradeJournal = {
+    loadDayTrades: async function(date) {
+    return await this.loadDay(date);
+},
     async loadDay(date) {
         const doc = await db.collection('trades').doc(date).get();
         return doc.exists ? doc.data() : { trades: [], totalPnL: 0, notes: '' };
@@ -130,6 +138,67 @@ const TradeJournal = {
         dayData.totalPnL = dayData.trades.reduce((sum, t) => sum + Calc.tradeTaxes(t).grossPnL, 0);
         await db.collection('trades').doc(date).set(dayData);
         return true;
+    },
+
+    updateTrade: async function(date, tradeIndex, tradeData, screenshotFiles = []) {
+        try {
+            const screenshotUrls = [];
+            for (let file of screenshotFiles) {
+                const ref = storage.ref(`screenshots/${date}/${Date.now()}_${file.name}`);
+                const meta = {
+                    customMetadata: {
+                        'annotated': String(file.metadata?.annotated || false),
+                        'tags': JSON.stringify(file.metadata?.tags || [])
+                    }
+                };
+                await ref.put(file, meta);
+                const url = await ref.getDownloadURL();
+                screenshotUrls.push({
+                    url,
+                    annotated: file.metadata?.annotated ?? false,
+                    tags: file.metadata?.tags ?? []
+                });
+            }
+
+            const dayData = await this.loadDay(date);
+            if (!dayData.trades || !dayData.trades[tradeIndex]) {
+                console.error("Trade not found for update");
+                return false;
+            }
+
+            // Preserve existing screenshots, append any new ones
+            const existingScreenshots = dayData.trades[tradeIndex].screenshots || [];
+            const allScreenshots = [...existingScreenshots, ...screenshotUrls];
+
+            // Build clean updated trade, preserving original id
+            const updatedTrade = {
+                symbol: tradeData.symbol || "Unknown",
+                direction: tradeData.direction || "LONG",
+                entryPrice: Number(tradeData.entryPrice) || 0,
+                exitPrice: Number(tradeData.exitPrice) || 0,
+                takeProfit: Number(tradeData.takeProfit) || 0,
+                stopLoss: Number(tradeData.stopLoss) || 0,
+                quantity: Number(tradeData.quantity) || 0,
+                entryTime: tradeData.entryTime || "",
+                exitTime: tradeData.exitTime || "",
+                strategy: tradeData.strategy || "Other",
+                notes: tradeData.notes || "",
+                screenshots: allScreenshots,
+                id: dayData.trades[tradeIndex].id  // preserve original id
+            };
+
+            dayData.trades[tradeIndex] = updatedTrade;
+
+            // Recalculate totals
+            dayData.totalPnL = dayData.trades.reduce((sum, t) => sum + Calc.tradeTaxes(t).grossPnL, 0);
+            dayData.totalNetPnL = dayData.trades.reduce((sum, t) => sum + Calc.tradeTaxes(t).netPnL, 0);
+
+            await db.collection('trades').doc(date).set(dayData);
+            return true;
+        } catch (error) {
+            console.error("Error updating trade:", error);
+            return false;
+        }
     }
 };
 
@@ -168,9 +237,27 @@ async function renderJournal(date) {
     container.innerHTML = html;
 }
 
+async function deleteTradeFromList(date, index) {
+    if (!confirm('Are you sure you want to delete this trade? This action cannot be undone.')) return;
+    
+    try {
+        await TradeJournal.deleteTrade(date, index);
+        // Refresh the journal view
+        if (typeof renderJournal === 'function') {
+            renderJournal(date);
+        } else {
+            location.reload();
+        }
+        showNotification('Trade deleted successfully', 'success');
+    } catch (error) {
+        console.error('Delete error:', error);
+        alert('Failed to delete trade. Please try again.');
+    }
+}
+
 // B. DASHBOARD PAGE (Charts)
 async function initDashboard() {
-    const range = document.getElementById('timeRange').value;
+    const range = document.getElementById('timeRange')?.value;
     const snapshot = await db.collection('trades').get();
     let allTrades = [];
     snapshot.forEach(doc => {
@@ -427,7 +514,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // --- 2. THE MAIN DATA ENGINE ---
 async function loadDashboardData() {
-    const range = document.getElementById('timeRange').value;
+    if (!window.location.pathname.includes('dashboard.html')) {
+        console.log("Not on dashboard page, skipping loadDashboardData");
+        return;
+    }
+    
+    const rangeSelect = document.getElementById('timeRange');
+    if (!rangeSelect) return;
+    
+    const range = rangeSelect.value;
     const snapshot = await db.collection('trades').get();
     let allTrades = [];
     
@@ -500,7 +595,7 @@ function calculateAndDisplayMetrics(trades) {
     document.getElementById('largestLoss').innerText = `₹${Calc.format(stats.maxLoss)}`;
     document.getElementById('profitFactor').innerText = (stats.winSum / (stats.lossSum || 1)).toFixed(2);
 }
-let activeCharts = {};
+// let activeCharts = {};
 // --- 4. CHART RENDERING ---
 function renderDashboardCharts(trades) {
     // 1. Data Preparation: Grouping and sorting
@@ -637,3 +732,4 @@ function renderRecentTradesTable(trades) {
         `;
     }).join('');
 }
+

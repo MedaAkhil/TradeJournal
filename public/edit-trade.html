@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Edit Trade - Trade Journal Pro</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+    
+    <style>
+        :root {
+            --bg-primary: #f8fafc;
+            --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            --surface-white: #ffffff;
+            --surface-hover: #f1f5f9;
+            --border-light: #e2e8f0;
+            --accent-primary: #3498db;
+            --accent-success: #27ae60;
+            --accent-danger: #e74c3c;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --radius-md: 8px;
+            --radius-lg: 12px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-primary: #0f172a;
+                --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+                --surface-white: #1e293b;
+                --surface-hover: #334155;
+                --border-light: #334155;
+                --text-primary: #f1f5f9;
+                --text-secondary: #94a3b8;
+            }
+            body { background: var(--bg-gradient); }
+            .form-control, .form-select { background: var(--surface-white); border-color: var(--border-light); color: var(--text-primary); }
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: #2c3e50 !important;
+            padding: 0.75rem 1rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff, #f0f0f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-link {
+            color: rgba(255,255,255,0.9) !important;
+            font-weight: 500;
+            border-radius: var(--radius-md);
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover { background: rgba(255,255,255,0.1); }
+        .nav-link.active { background: var(--accent-primary) !important; }
+
+        .container { max-width: 900px; margin: 0 auto; padding: 0 1rem; }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 1.5rem 0;
+        }
+
+        .page-header h1 { font-size: 1.5rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
+
+        .edit-form {
+            background: var(--surface-white);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-light);
+        }
+
+        .form-label {
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control, .form-select {
+            border: 2px solid var(--border-light);
+            border-radius: var(--radius-md);
+            padding: 0.6rem 1rem;
+            background: var(--surface-white);
+            color: var(--text-primary);
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(52,152,219,0.1);
+            outline: none;
+        }
+
+        .screenshot-section {
+            background: var(--surface-hover);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            margin-top: 1rem;
+            border: 1px solid var(--border-light);
+        }
+
+        .preview-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .preview-item {
+            position: relative;
+            width: 120px;
+            background: var(--surface-white);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            padding: 0.5rem;
+            text-align: center;
+        }
+
+        .preview-item img {
+            width: 100%;
+            height: 80px;
+            object-fit: cover;
+            border-radius: var(--radius-md);
+        }
+
+        .preview-remove {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--accent-danger);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .annotated-badge {
+            font-size: 10px;
+            color: var(--accent-success);
+            margin-top: 4px;
+        }
+
+        .btn-update {
+            background: linear-gradient(135deg, var(--accent-primary), #2980b9);
+            border: none;
+            padding: 0.75rem;
+            font-weight: 600;
+            width: 100%;
+            color: white;
+        }
+
+        .btn-cancel {
+            background: var(--text-secondary);
+            border: none;
+            padding: 0.6rem 1.5rem;
+            font-weight: 500;
+            color: white;
+        }
+
+        .loading-spinner { text-align: center; padding: 3rem; color: var(--accent-primary); }
+
+        /* Drawing Modal */
+        .drawing-tools {
+            background: #2c3e50;
+            padding: 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .drawing-tools .btn {
+            background: #34495e;
+            color: white;
+            border: none;
+        }
+
+        .drawing-tools .btn.active {
+            background: var(--accent-primary);
+        }
+
+        .drawing-tools .btn:hover { background: var(--accent-primary); }
+
+        #drawingCanvas {
+            cursor: crosshair;
+            max-width: 100%;
+            background: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .modal-xl { max-width: 90%; }
+        
+        @media (max-width: 768px) {
+            .page-header { flex-direction: column; gap: 1rem; align-items: flex-start; }
+            .preview-item { width: 100px; }
+            .drawing-tools .btn { padding: 0.25rem 0.5rem; font-size: 0.75rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="index.html"><i class="fas fa-chart-line me-2"></i>Trade Journal</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Journal</a></li>
+                    <li class="nav-item"><a class="nav-link" href="calendar.html">Calendar</a></li>
+                    <li class="nav-item"><a class="nav-link" href="dashboard.html">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="export.html">Backup</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-3">
+        <div class="page-header">
+            <h1><i class="fas fa-edit text-primary"></i> Edit Trade</h1>
+            <button class="btn btn-cancel" onclick="window.location.href='index.html'"><i class="fas fa-times me-1"></i> Cancel</button>
+        </div>
+
+        <div id="loadingState" class="loading-spinner">
+            <i class="fas fa-spinner fa-spin fa-2x mb-2"></i>
+            <p>Loading trade data...</p>
+        </div>
+
+        <div id="editFormContainer" style="display: none;">
+            <div class="edit-form">
+                <form id="tradeEditForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Symbol</label>
+                            <input type="text" id="symbol" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Direction</label>
+                            <select id="direction" class="form-select">
+                                <option value="LONG">📈 LONG (Buy)</option>
+                                <option value="SHORT">📉 SHORT (Sell)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Entry Price</label>
+                            <input type="number" id="entryPrice" class="form-control" step="0.01" required>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Exit Price</label>
+                            <input type="number" id="exitPrice" class="form-control" step="0.01" required>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Take Profit</label>
+                            <input type="number" id="takeProfit" class="form-control" step="0.01" placeholder="Optional">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Stop Loss</label>
+                            <input type="number" id="stopLoss" class="form-control" step="0.01" placeholder="Optional">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Quantity</label>
+                            <input type="number" id="quantity" class="form-control" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Entry Time</label>
+                            <input type="time" id="entryTime" class="form-control">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Exit Time</label>
+                            <input type="time" id="exitTime" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Strategy</label>
+                            <select id="strategy" class="form-select">
+                                <option value="">Select Strategy</option>
+                                <option value="Breakout">Breakout</option>
+                                <option value="Pullback">Pullback</option>
+                                <option value="Reversal">Reversal</option>
+                                <option value="Trend Following">Trend Following</option>
+                                <option value="Range Trading">Range Trading</option>
+                                <option value="Scalping">Scalping</option>
+                                <option value="Swing Trading">Swing Trading</option>
+                                <option value="News Trading">News Trading</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Calculated P&L</label>
+                            <input type="text" id="pnl" class="form-control" readonly style="font-weight: 700;">
+                        </div>
+                    </div>
+
+                    <div class="screenshot-section">
+                        <label class="form-label"><i class="fas fa-camera me-1"></i> Screenshots</label>
+                        <div class="d-flex gap-2 mb-2 flex-wrap">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('fileInput').click()">
+                                <i class="fas fa-folder-open"></i> Browse
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="pasteBtn">
+                                <i class="fas fa-paste"></i> Paste (Ctrl+V)
+                            </button>
+                            <input type="file" id="fileInput" multiple accept="image/*" style="display: none;">
+                        </div>
+                        <div id="previewGrid" class="preview-grid"></div>
+                    </div>
+
+                    <div class="mb-3 mt-3">
+                        <label class="form-label">Trade Notes</label>
+                        <textarea id="notes" class="form-control" rows="3"></textarea>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" id="updateBtn" class="btn btn-update">
+                            <i class="fas fa-save me-2"></i> Update Trade
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Drawing Modal -->
+    <div id="drawingModal" class="modal fade" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-edit"></i> Annotate Screenshot</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="drawing-tools">
+                        <button type="button" class="btn btn-sm" data-tool="pen" title="Pen"><i class="fas fa-pen"></i> Pen</button>
+                        <button type="button" class="btn btn-sm" data-tool="arrow" title="Arrow"><i class="fas fa-long-arrow-alt-right"></i> Arrow</button>
+                        <button type="button" class="btn btn-sm" data-tool="rect" title="Rectangle"><i class="far fa-square"></i> Rect</button>
+                        <button type="button" class="btn btn-sm" data-tool="circle" title="Circle"><i class="far fa-circle"></i> Circle</button>
+                        <button type="button" class="btn btn-sm" data-tool="text" title="Text"><i class="fas fa-font"></i> Text</button>
+                        <input type="color" id="drawColor" value="#ff0000" class="form-control form-control-color" style="width: 40px;">
+                        <input type="range" id="lineWidth" min="1" max="10" value="3" style="width: 80px;">
+                        <button type="button" class="btn btn-sm btn-danger" id="clearCanvasBtn"><i class="fas fa-trash"></i> Clear</button>
+                    </div>
+                    <div class="text-center p-3" style="background: #2d2d2d; min-height: 500px; display: flex; justify-content: center; align-items: center;">
+                        <canvas id="drawingCanvas" style="max-width: 100%; max-height: 70vh;"></canvas>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveAnnotationBtn">Save Annotation</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="app.js"></script>
+    
+    <script>
+        // ============== EDIT PAGE LOGIC ==============
+        const urlParams = new URLSearchParams(window.location.search);
+        const editDate = urlParams.get('date');
+        let editIndex = urlParams.get('index');
+        
+        if (editIndex !== null && !isNaN(parseInt(editIndex))) {
+            editIndex = parseInt(editIndex);
+        } else {
+            editIndex = null;
+        }
+
+        let originalTrade = null;
+        let screenshotImages = [];
+        let activeImageIndex = -1;
+        
+        // Drawing variables
+        let canvas, ctx;
+        let isDrawing = false;
+        let currentTool = 'pen';
+        let startX, startY;
+        let currentImageData = null;
+        let drawingModal;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            drawingModal = new bootstrap.Modal(document.getElementById('drawingModal'));
+            
+            if (!editDate || editIndex === null) {
+                showError('No trade specified for editing.');
+                return;
+            }
+            
+            await loadTradeForEdit(editDate, editIndex);
+            setupEventListeners();
+            setupDrawingTools();
+        });
+
+        function setupEventListeners() {
+            const inputs = ['entryPrice', 'exitPrice', 'quantity', 'direction'];
+            inputs.forEach(id => {
+                document.getElementById(id).addEventListener('input', calculatePnL);
+            });
+
+            document.getElementById('fileInput').addEventListener('change', (e) => {
+                Array.from(e.target.files).forEach(processNewFile);
+            });
+
+            document.addEventListener('paste', async (e) => {
+                const items = e.clipboardData.items;
+                for (let item of items) {
+                    if (item.type.indexOf('image') !== -1) {
+                        const blob = item.getAsFile();
+                        processNewFile(blob);
+                    }
+                }
+            });
+        }
+
+        function processNewFile(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                screenshotImages.push({
+                    data: e.target.result,
+                    name: file.name || `img_${Date.now()}.png`,
+                    annotated: false,
+                    isNew: true
+                });
+                renderPreview();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function renderPreview() {
+            const grid = document.getElementById('previewGrid');
+            if (!grid) return;
+            
+            if (screenshotImages.length === 0) {
+                grid.innerHTML = '<div class="text-muted small">No screenshots added. Upload or paste images.</div>';
+                return;
+            }
+            
+            grid.innerHTML = screenshotImages.map((img, i) => `
+                <div class="preview-item">
+                    <img src="${img.data}" class="img-fluid rounded">
+                    <button type="button" class="preview-remove" onclick="removeImage(${i})">&times;</button>
+                    <button type="button" class="btn btn-sm btn-primary w-100 mt-1" onclick="openAnnotation(${i})">
+                        <i class="fas fa-edit"></i> Annotate
+                    </button>
+                    ${img.annotated ? '<div class="annotated-badge"><i class="fas fa-check-circle"></i> Annotated</div>' : ''}
+                </div>
+            `).join('');
+        }
+
+        function removeImage(idx) {
+            screenshotImages.splice(idx, 1);
+            renderPreview();
+        }
+
+        async function loadTradeForEdit(date, index) {
+            try {
+                const dayData = await TradeJournal.loadDayTrades(date);
+                
+                if (!dayData.trades || !dayData.trades[index]) {
+                    showError('Trade not found.');
+                    return;
+                }
+                
+                originalTrade = dayData.trades[index];
+                
+                document.getElementById('symbol').value = originalTrade.symbol || '';
+                document.getElementById('direction').value = originalTrade.direction || 'LONG';
+                document.getElementById('entryPrice').value = originalTrade.entryPrice || '';
+                document.getElementById('exitPrice').value = originalTrade.exitPrice || '';
+                document.getElementById('takeProfit').value = originalTrade.takeProfit || '';
+                document.getElementById('stopLoss').value = originalTrade.stopLoss || '';
+                document.getElementById('quantity').value = originalTrade.quantity || '';
+                
+                if (originalTrade.entryTime) {
+                    const entryTimeStr = originalTrade.entryTime.split('T')[1]?.slice(0,5) || '';
+                    document.getElementById('entryTime').value = entryTimeStr;
+                }
+                if (originalTrade.exitTime) {
+                    const exitTimeStr = originalTrade.exitTime.split('T')[1]?.slice(0,5) || '';
+                    document.getElementById('exitTime').value = exitTimeStr;
+                }
+                
+                document.getElementById('strategy').value = originalTrade.strategy || '';
+                document.getElementById('notes').value = originalTrade.notes || '';
+                
+                if (originalTrade.screenshots && originalTrade.screenshots.length > 0) {
+                    screenshotImages = originalTrade.screenshots.map((s, i) => ({
+                        data: typeof s === 'string' ? s : s.url,
+                        name: `screenshot_${i}.png`,
+                        annotated: typeof s === 'object' ? s.annotated || false : false,
+                        isExisting: true
+                    }));
+                    renderPreview();
+                }
+                
+                calculatePnL();
+                
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('editFormContainer').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error loading trade:', error);
+                showError('Failed to load trade data.');
+            }
+        }
+
+        function calculatePnL() {
+            const entry = parseFloat(document.getElementById('entryPrice').value) || 0;
+            const exit = parseFloat(document.getElementById('exitPrice').value) || 0;
+            const qty = parseInt(document.getElementById('quantity').value) || 0;
+            const dir = document.getElementById('direction').value;
+            
+            let pnl = dir === 'LONG' ? (exit - entry) * qty : (entry - exit) * qty;
+            document.getElementById('pnl').value = pnl.toFixed(2);
+        }
+
+        // ============== ANNOTATION FUNCTIONS ==============
+        
+        function setupDrawingTools() {
+            canvas = document.getElementById('drawingCanvas');
+            ctx = canvas.getContext('2d');
+            
+            // Tool buttons
+            document.querySelectorAll('[data-tool]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('[data-tool]').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentTool = btn.dataset.tool;
+                });
+            });
+            
+            document.getElementById('clearCanvasBtn').addEventListener('click', clearCanvas);
+            document.getElementById('saveAnnotationBtn').addEventListener('click', saveAnnotation);
+            
+            // Mouse events
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+        }
+
+        function openAnnotation(index) {
+            activeImageIndex = index;
+            const img = new Image();
+            img.onload = () => {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                currentImageData = img;
+                drawingModal.show();
+                
+                // Reset tool highlight
+                document.querySelectorAll('[data-tool]').forEach(btn => btn.classList.remove('active'));
+                document.querySelector('[data-tool="pen"]').classList.add('active');
+                currentTool = 'pen';
+            };
+            img.src = screenshotImages[index].data;
+        }
+
+        function startDrawing(e) {
+            isDrawing = true;
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            startX = (e.clientX - rect.left) * scaleX;
+            startY = (e.clientY - rect.top) * scaleY;
+            
+            ctx.beginPath();
+            ctx.strokeStyle = document.getElementById('drawColor').value;
+            ctx.fillStyle = document.getElementById('drawColor').value;
+            ctx.lineWidth = document.getElementById('lineWidth').value;
+            ctx.lineCap = 'round';
+            
+            if (currentTool === 'pen') {
+                ctx.moveTo(startX, startY);
+            }
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const currentX = (e.clientX - rect.left) * scaleX;
+            const currentY = (e.clientY - rect.top) * scaleY;
+            
+            ctx.strokeStyle = document.getElementById('drawColor').value;
+            ctx.fillStyle = document.getElementById('drawColor').value;
+            ctx.lineWidth = document.getElementById('lineWidth').value;
+            
+            if (currentTool === 'pen') {
+                ctx.lineTo(currentX, currentY);
+                ctx.stroke();
+            }
+        }
+
+        function stopDrawing(e) {
+            if (!isDrawing) return;
+            
+            if (currentTool !== 'pen') {
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                const endX = (e.clientX - rect.left) * scaleX;
+                const endY = (e.clientY - rect.top) * scaleY;
+                
+                ctx.strokeStyle = document.getElementById('drawColor').value;
+                ctx.fillStyle = document.getElementById('drawColor').value;
+                ctx.lineWidth = document.getElementById('lineWidth').value;
+                
+                switch(currentTool) {
+                    case 'arrow':
+                        drawArrow(startX, startY, endX, endY);
+                        break;
+                    case 'rect':
+                        ctx.strokeRect(startX, startY, endX - startX, endY - startY);
+                        break;
+                    case 'circle':
+                        const radius = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
+                        ctx.beginPath();
+                        ctx.arc(startX, startY, radius, 0, 2 * Math.PI);
+                        ctx.stroke();
+                        break;
+                    case 'text':
+                        const text = prompt("Enter text label:");
+                        if (text) {
+                            ctx.font = `${ctx.lineWidth * 5}px Arial`;
+                            ctx.fillText(text, endX, endY);
+                        }
+                        break;
+                }
+            }
+            isDrawing = false;
+        }
+
+        function drawArrow(x1, y1, x2, y2) {
+            const headlen = 15;
+            const angle = Math.atan2(y2 - y1, x2 - x1);
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - headlen * Math.cos(angle - Math.PI / 6), y2 - headlen * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(x2 - headlen * Math.cos(angle + Math.PI / 6), y2 - headlen * Math.sin(angle + Math.PI / 6));
+            ctx.fill();
+        }
+
+        function clearCanvas() {
+            if (currentImageData) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(currentImageData, 0, 0);
+            }
+        }
+
+        function saveAnnotation() {
+            if (activeImageIndex !== -1) {
+                screenshotImages[activeImageIndex].data = canvas.toDataURL();
+                screenshotImages[activeImageIndex].annotated = true;
+                drawingModal.hide();
+                renderPreview();
+            }
+        }
+
+        // ============== FORM SUBMISSION ==============
+        
+        document.getElementById('tradeEditForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const updateBtn = document.getElementById('updateBtn');
+            updateBtn.disabled = true;
+            updateBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Updating...';
+            
+            try {
+                // Prepare new images for upload
+                const newImages = screenshotImages.filter(img => img.isNew);
+                const filesToUpload = await Promise.all(newImages.map(async img => {
+                    const res = await fetch(img.data);
+                    const blob = await res.blob();
+                    const file = new File([blob], img.name, { type: 'image/png' });
+                    file.metadata = { annotated: img.annotated, tags: [] };
+                    return file;
+                }));
+                
+                // Keep existing screenshot URLs
+                const existingUrls = screenshotImages.filter(img => !img.isNew).map(img => img.data);
+                
+                const updatedTrade = {
+                    symbol: document.getElementById('symbol').value,
+                    direction: document.getElementById('direction').value,
+                    entryPrice: parseFloat(document.getElementById('entryPrice').value) || 0,
+                    exitPrice: parseFloat(document.getElementById('exitPrice').value) || 0,
+                    takeProfit: parseFloat(document.getElementById('takeProfit').value) || 0,
+                    stopLoss: parseFloat(document.getElementById('stopLoss').value) || 0,
+                    quantity: parseInt(document.getElementById('quantity').value) || 0,
+                    entryTime: document.getElementById('entryTime').value || "",
+                    exitTime: document.getElementById('exitTime').value || "",
+                    strategy: document.getElementById('strategy').value || "Other",
+                    notes: document.getElementById('notes').value || "",
+                    pnl: parseFloat(document.getElementById('pnl').value) || 0,
+                    existingScreenshots: existingUrls
+                };
+                
+                const success = await TradeJournal.updateTrade(editDate, editIndex, updatedTrade, filesToUpload);
+                
+                if (success) {
+                    alert('Trade updated successfully!');
+                    window.location.href = `trade-detail.html?date=${editDate}&index=${editIndex}`;
+                } else {
+                    throw new Error('Update failed');
+                }
+                
+            } catch (error) {
+                console.error('Update error:', error);
+                alert('Error updating trade. Please try again.');
+                updateBtn.disabled = false;
+                updateBtn.innerHTML = '<i class="fas fa-save me-2"></i> Update Trade';
+            }
+        });
+        
+        function showError(message) {
+            document.getElementById('loadingState').innerHTML = `
+                <div class="alert alert-danger text-center">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    ${message}
+                    <br><br>
+                    <button class="btn btn-primary" onclick="window.location.href='index.html'">
+                        Go Back to Journal
+                    </button>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

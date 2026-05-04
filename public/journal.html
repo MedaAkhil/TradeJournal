@@ -990,8 +990,119 @@
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('displayDate').innerText = currentDate;
             setupEventListeners();
+            loadEditMode();
         });
 
+        // Check if we're in edit mode and load trade data
+        function loadEditMode() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const editParam = urlParams.get('edit');
+    const editDate = urlParams.get('date');
+    
+    console.log("Edit mode check - edit param:", editParam, "date:", editDate);
+    
+    // Check if editParam is a valid number (not "true")
+    if (editParam !== null && editDate && !isNaN(parseInt(editParam))) {
+        const editIndex = parseInt(editParam);
+        console.log("Edit mode: Loading trade", editIndex, "from date", editDate);
+        
+        // Set the date display
+        document.getElementById('displayDate').innerText = editDate;
+        currentDate = editDate;
+        
+        // Load the specific trade
+        loadTradeForEditing(editDate, editIndex);
+    } else {
+        // Normal mode - set today's date
+        const date = urlParams.get('date') || new Date().toISOString().split('T')[0];
+        document.getElementById('displayDate').innerText = date;
+        currentDate = date;
+    }
+}
+
+        async function loadTradeForEditing(date, index) {
+    try {
+        // Use the correct function name: loadDayTrades (not loadDay)
+        const dayData = await TradeJournal.loadDayTrades(date);
+        
+        if (!dayData.trades || !dayData.trades[index]) {
+            console.error("Trade not found");
+            showNotification('Trade not found for editing', 'error');
+            return;
+        }
+        
+        const trade = dayData.trades[index];
+        
+        console.log("Loading trade for edit:", trade); // Debug log
+        
+        // Populate the form with trade data
+        document.getElementById('symbol').value = trade.symbol || '';
+        document.getElementById('direction').value = trade.direction || 'LONG';
+        document.getElementById('entryPrice').value = trade.entryPrice || '';
+        document.getElementById('exitPrice').value = trade.exitPrice || '';
+        document.getElementById('takeProfit').value = trade.takeProfit || '';
+        document.getElementById('stopLoss').value = trade.stopLoss || '';
+        document.getElementById('quantity').value = trade.quantity || '';
+        document.getElementById('entryTime').value = trade.entryTime ? trade.entryTime.split('T')[1]?.slice(0,5) || '' : '';
+        document.getElementById('exitTime').value = trade.exitTime ? trade.exitTime.split('T')[1]?.slice(0,5) || '' : '';
+        document.getElementById('strategy').value = trade.strategy || '';
+        document.getElementById('notes').value = trade.notes || '';
+        
+        // Calculate P&L
+        calculatePnL();
+        
+        // Load existing screenshots if any
+        if (trade.screenshots && trade.screenshots.length > 0) {
+            screenshotImages = trade.screenshots.map((screenshot, i) => {
+                if (typeof screenshot === 'string') {
+                    return { data: screenshot, name: `screenshot_${i}.png`, annotated: false, tags: [] };
+                } else {
+                    return { data: screenshot.url, name: `screenshot_${i}.png`, annotated: screenshot.annotated || false, tags: screenshot.tags || [] };
+                }
+            });
+            renderPreview();
+        }
+        
+        // Store the edit index for update instead of create
+        window.editModeIndex = index;
+        window.editModeDate = date;
+        
+        // Change button text to "Update Trade"
+        const saveBtn = document.getElementById('saveTradeBtn');
+        saveBtn.innerHTML = '<i class="fas fa-edit me-2"></i> UPDATE TRADE';
+        
+        // Show notification
+        showNotification('Edit mode loaded. Make your changes and click Update.', 'info');
+        
+    } catch (error) {
+        console.error("Error loading trade for edit:", error);
+        showNotification('Failed to load trade for editing', 'error');
+    }
+}
+
+        function showNotification(message, type = 'info') {
+    // Remove existing notification
+    const existing = document.querySelector('.notification-toast');
+    if (existing) existing.remove();
+    
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification-toast alert alert-${type === 'error' ? 'danger' : 'success'} position-fixed top-0 start-50 translate-middle-x mt-3 shadow`;
+    notification.style.zIndex = '9999';
+    notification.style.minWidth = '300px';
+    notification.style.textAlign = 'center';
+    notification.innerHTML = `
+        <i class="fas ${type === 'error' ? 'fa-exclamation-triangle' : 'fa-check-circle'} me-2"></i>
+        ${message}
+    `;
+    document.body.appendChild(notification);
+    
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
         // --- 2. FORM & UI HELPERS ---
         function setupEventListeners() {
             // Auto-calculate P&L
@@ -1215,46 +1326,64 @@
 
         // --- 4. FIREBASE DATA FLOW ---
         async function handleFormSubmit(e) {
-            e.preventDefault();
-            const btn = document.getElementById('saveTradeBtn');
-            btn.disabled = true;
+        e.preventDefault();
+        const btn = document.getElementById('saveTradeBtn');
+        btn.disabled = true;
 
-            const tradeData = {
-                symbol: document.getElementById('symbol').value,
-                direction: document.getElementById('direction').value,
-                entryPrice: parseFloat(document.getElementById('entryPrice').value) || 0,
-                exitPrice: parseFloat(document.getElementById('exitPrice').value) || 0,
-                takeProfit: parseFloat(document.getElementById('takeProfit').value) || 0,
-                stopLoss: parseFloat(document.getElementById('stopLoss').value) || 0,
-                quantity: parseInt(document.getElementById('quantity').value) || 0,
-                entryTime: document.getElementById('entryTime').value || "",
-                exitTime: document.getElementById('exitTime').value || "",
-                strategy: document.getElementById('strategy').value || "Other",
-                notes: document.getElementById('notes').value || ""
-            };
+        const tradeData = {
+            symbol: document.getElementById('symbol').value,
+            direction: document.getElementById('direction').value,
+            entryPrice: parseFloat(document.getElementById('entryPrice').value) || 0,
+            exitPrice: parseFloat(document.getElementById('exitPrice').value) || 0,
+            takeProfit: parseFloat(document.getElementById('takeProfit').value) || 0,
+            stopLoss: parseFloat(document.getElementById('stopLoss').value) || 0,
+            quantity: parseInt(document.getElementById('quantity').value) || 0,
+            entryTime: document.getElementById('entryTime').value || "",
+            exitTime: document.getElementById('exitTime').value || "",
+            strategy: document.getElementById('strategy').value || "Other",
+            notes: document.getElementById('notes').value || "",
+            pnl: parseFloat(document.getElementById('pnl').value) || 0
+        };
 
-            try {
-                // Convert Base64 data to Files for Storage
-                const filesToUpload = await Promise.all(screenshotImages.map(async img => {
-                    const res = await fetch(img.data);
-                    const blob = await res.blob();
-                    const file = new File([blob], img.name, { type: "image/png" });
-                    file.metadata = { annotated: img.annotated, tags: img.tags };
-                    return file;
-                }));
+        try {
+            // Convert Base64 data to Files for Storage
+            const filesToUpload = await Promise.all(screenshotImages.map(async img => {
+                const res = await fetch(img.data);
+                const blob = await res.blob();
+                const file = new File([blob], img.name, { type: "image/png" });
+                file.metadata = { annotated: img.annotated, tags: img.tags };
+                return file;
+            }));
 
-                const success = await TradeJournal.saveTrade(currentDate, tradeData, filesToUpload);
+            let success = false;
+            
+            // Check if we're in edit mode
+            if (window.editModeIndex !== undefined && window.editModeDate) {
+                // UPDATE existing trade
+                success = await TradeJournal.updateTrade(window.editModeDate, window.editModeIndex, tradeData, filesToUpload);
+                if (success) {
+                    alert("Trade Updated Successfully!");
+                    window.location.href = `trade-detail.html?date=${window.editModeDate}&index=${window.editModeIndex}`;
+                }
+            } else {
+                // CREATE new trade
+                success = await TradeJournal.saveTrade(currentDate, tradeData, filesToUpload);
                 if (success) {
                     alert("Trade Saved Successfully!");
                     window.location.href = 'index.html';
                 }
-            } catch (err) {
-                console.error(err);
-                alert("Error saving trade. Check console.");
-            } finally {
-                btn.disabled = false;
             }
+            
+            if (!success) {
+                alert("Error saving trade. Check console.");
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Error saving trade. Check console.");
+        } finally {
+            btn.disabled = false;
         }
+    }
 
         function openCameraModal() {
             alert("Camera requires HTTPS. Please use Browse or Paste (Ctrl+V) for now.");
