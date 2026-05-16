@@ -4,434 +4,912 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Journal - Trade Journal Pro</title>
-    
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 
     <style>
-        /* ============== 60-30-10 COLOR SCHEME ============== */
+        /* ============ TERMINAL TRADING PALETTE ============ */
         :root {
-            --bg-primary: #f8fafc;
-            --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            --surface-white: #ffffff;
-            --surface-hover: #f1f5f9;
-            --border-light: #e2e8f0;
-            --accent-primary: #3498db;
-            --accent-hover: #2980b9;
-            --accent-success: #27ae60;
-            --accent-danger: #e74c3c;
-            --accent-warning: #f39c12;
-            --text-primary: #1e293b;
-            --text-secondary: #64748b;
-            --text-muted: #94a3b8;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
-            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
-            --space-xs: 0.5rem;
-            --space-sm: 1rem;
-            --space-md: 1.5rem;
-            --space-lg: 2rem;
-            --radius-sm: 6px;
-            --radius-md: 8px;
-            --radius-lg: 12px;
-            --radius-full: 9999px;
+            --bg-base:        #080d14;
+            --bg-panel:       #0d1420;
+            --bg-elevated:    #111c2d;
+            --bg-hover:       #162033;
+            --border:         #1e2d45;
+            --border-bright:  #2a3f5f;
+
+            --bull:           #00d97e;
+            --bull-dim:       rgba(0,217,126,0.12);
+            --bull-border:    rgba(0,217,126,0.25);
+            --bear:           #ff4560;
+            --bear-dim:       rgba(255,69,96,0.12);
+            --bear-border:    rgba(255,69,96,0.25);
+            --accent:         #3d8ef8;
+            --accent-dim:     rgba(61,142,248,0.15);
+            --accent-border:  rgba(61,142,248,0.3);
+            --gold:           #f5a623;
+            --gold-dim:       rgba(245,166,35,0.12);
+
+            --text-bright:    #e8f0fe;
+            --text-primary:   #a8bacf;
+            --text-secondary: #5a7494;
+            --text-dim:       #354860;
+
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-display: 'Syne', sans-serif;
+
+            --r-sm: 4px;
+            --r-md: 6px;
+            --r-lg: 10px;
+
+            --glow-bull: 0 0 20px rgba(0,217,126,0.2);
+            --glow-bear: 0 0 20px rgba(255,69,96,0.2);
+            --glow-accent: 0 0 20px rgba(61,142,248,0.2);
         }
 
-        /* Dark Mode Support */
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg-primary: #0f172a;
-                --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-                --surface-white: #1e293b;
-                --surface-hover: #334155;
-                --border-light: #334155;
-                --text-primary: #f1f5f9;
-                --text-secondary: #94a3b8;
-                --text-muted: #64748b;
-            }
-            body { background: var(--bg-gradient); }
-            .navbar { background: rgba(15, 23, 42, 0.95) !important; }
-            .daily-summary-card, .timeline-item { background: var(--surface-white); border-color: var(--border-light); }
-            .summary-item:not(:last-child)::after { background: linear-gradient(to bottom, transparent, var(--border-light), transparent); }
-            .trades-table { background: var(--surface-white); border-color: var(--border-light); }
-            .trades-table th { background: var(--surface-hover); color: var(--text-secondary); border-bottom-color: var(--border-light); }
-            .trades-table td { border-bottom-color: var(--border-light); color: var(--text-primary); }
-            .trades-table tbody tr:hover { background: var(--surface-hover); }
-            .text-muted { color: var(--text-secondary) !important; }
-            .btn-outline-primary { border-color: var(--accent-primary); color: var(--accent-primary); }
-            .btn-outline-primary:hover { background: var(--accent-primary); color: white; }
-            .form-control { background: var(--surface-white); border-color: var(--border-light); color: var(--text-primary); }
-            .form-control:focus { background: var(--surface-white); border-color: var(--accent-primary); color: var(--text-primary); }
-            .modal-content { background: var(--surface-white); border-color: var(--border-light); }
-            .table { color: var(--text-primary); }
-            .table-light { background: var(--surface-hover); color: var(--text-secondary); }
-            .table-light th { background: var(--surface-hover); color: var(--text-secondary); border-color: var(--border-light); }
-            .table td, .table th { border-color: var(--border-light); }
-            .table-hover tbody tr:hover { background: var(--surface-hover); color: var(--text-primary); }
-            .bg-light { background: var(--surface-hover) !important; }
-            .border-start { border-left-color: var(--border-light) !important; }
-            .btn-secondary { background: var(--text-muted); border-color: var(--text-muted); }
-            .btn-secondary:hover { background: var(--text-secondary); border-color: var(--text-secondary); }
-            .text-dark { color: var(--text-primary) !important; }
-            .badge.bg-light { background: var(--surface-hover) !important; color: var(--text-primary) !important; border-color: var(--border-light) !important; }
-            .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
-            .text-success { color: #2ecc71 !important; }
-            .text-danger { color: #e74c3c !important; }
-        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg-gradient);
+            font-family: var(--font-mono);
+            background: var(--bg-base);
             color: var(--text-primary);
             line-height: 1.5;
             min-height: 100vh;
-            transition: background-color 0.3s ease;
+            overflow-x: hidden;
         }
 
+        /* Subtle grid background */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(61,142,248,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(61,142,248,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ==================== NAVBAR ==================== */
         .navbar {
-            background: #2c3e50 !important;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding: 0.75rem 1rem;
-            box-shadow: var(--shadow-md);
+            background: rgba(8,13,20,0.96) !important;
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(20px);
+            padding: 0 1.5rem;
+            height: 56px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
         .navbar-brand {
-            font-weight: 700;
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 1.15rem;
             letter-spacing: -0.02em;
-            background: linear-gradient(135deg, #ffffff, #f0f0f0);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: var(--text-bright) !important;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
         }
+
+        .brand-icon {
+            width: 30px; height: 30px;
+            background: linear-gradient(135deg, var(--bull), var(--accent));
+            border-radius: var(--r-sm);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.75rem;
+            color: #000;
+        }
+
+        .brand-badge {
+            font-size: 0.55rem;
+            font-family: var(--font-mono);
+            font-weight: 600;
+            color: var(--bull);
+            background: var(--bull-dim);
+            border: 1px solid var(--bull-border);
+            padding: 1px 6px;
+            border-radius: 3px;
+            letter-spacing: 0.08em;
+            vertical-align: middle;
+        }
+
+        .navbar-nav { gap: 0.25rem; }
 
         .nav-link {
-            position: relative;
-            padding: 0.5rem 1rem !important;
-            margin: 0 0.25rem;
-            border-radius: var(--radius-md);
-            transition: all 0.2s ease;
-            color: rgba(255,255,255,0.9) !important;
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
             font-weight: 500;
+            letter-spacing: 0.04em;
+            color: var(--text-secondary) !important;
+            padding: 0.35rem 0.85rem !important;
+            border-radius: var(--r-sm);
+            border: 1px solid transparent;
+            transition: all 0.15s ease;
+            display: flex !important;
+            align-items: center;
+            gap: 0.4rem;
+            text-transform: uppercase;
         }
 
-        .nav-link:hover { background: rgba(255,255,255,0.1); transform: translateY(-1px); }
-        .nav-link.active { background: var(--accent-primary) !important; color: white !important; }
+        .nav-link i { font-size: 0.7rem; }
+        .nav-link:hover { color: var(--text-bright) !important; background: var(--bg-elevated); border-color: var(--border); }
+        .nav-link.active { color: var(--accent) !important; background: var(--accent-dim); border-color: var(--accent-border); }
 
-        .date-navigation {
-            background: var(--surface-white);
-            padding: 1rem 1.5rem;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-md);
-            margin-bottom: var(--space-lg);
+        /* Ticker tape */
+        .ticker-bar {
+            background: var(--bg-panel);
+            border-bottom: 1px solid var(--border);
+            padding: 0;
+            overflow: hidden;
+            height: 32px;
             display: flex;
-            justify-content: center;
             align-items: center;
-            gap: 1rem;
+        }
+
+        .ticker-label {
+            background: var(--accent);
+            color: #000;
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            padding: 0 12px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .ticker-scroll { overflow: hidden; flex: 1; }
+        .ticker-track {
+            display: flex;
+            gap: 2.5rem;
+            animation: ticker 30s linear infinite;
+            white-space: nowrap;
+        }
+
+        @keyframes ticker {
+            0%   { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .ticker-item {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .ticker-item .sym { color: var(--text-bright); font-weight: 600; }
+        .ticker-item .up  { color: var(--bull); }
+        .ticker-item .dn  { color: var(--bear); }
+
+        /* ==================== MAIN LAYOUT ==================== */
+        .main-wrap {
+            position: relative;
+            z-index: 1;
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 1.5rem 1.5rem 6rem;
+        }
+
+        /* ==================== PAGE HEADER ==================== */
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.25rem;
             flex-wrap: wrap;
-            border: 1px solid var(--border-light);
+            gap: 1rem;
+        }
+
+        .page-title {
+            font-family: var(--font-display);
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .page-title::before {
+            content: '';
+            width: 6px; height: 6px;
+            background: var(--bull);
+            border-radius: 50%;
+            box-shadow: var(--glow-bull);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* ==================== DATE NAV ==================== */
+        .date-navigation {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: var(--r-lg);
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
         }
 
         .date-navigation button {
-            padding: 0.6rem 1.2rem;
-            background: var(--accent-primary);
-            color: white;
-            border: none;
-            border-radius: var(--radius-md);
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 0.45rem 1rem;
+            border-radius: var(--r-sm);
             cursor: pointer;
-            font-size: 0.95rem;
-            font-weight: 500;
-            transition: all 0.2s ease;
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            font-weight: 600;
+            transition: all 0.15s ease;
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            box-shadow: var(--shadow-sm);
         }
 
-        .date-navigation button:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: var(--shadow-md); }
-        .date-navigation button:active { transform: translateY(0); }
+        .date-navigation button:hover {
+            background: var(--accent-dim);
+            border-color: var(--accent-border);
+            color: var(--accent);
+        }
 
         .date-navigation input[type="date"] {
-            padding: 0.6rem 1rem;
-            border: 2px solid var(--border-light);
-            border-radius: var(--radius-md);
-            font-size: 0.95rem;
-            transition: all 0.2s ease;
-            color: var(--text-primary);
-            background: var(--surface-white);
-            font-family: 'Inter', sans-serif;
-            min-width: 200px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--r-sm);
+            color: var(--text-bright);
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 0.45rem 0.85rem;
+            min-width: 175px;
+            outline: none;
+            transition: all 0.15s ease;
+            color-scheme: dark;
         }
 
-        .date-navigation input[type="date"]:focus { border-color: var(--accent-primary); box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1); outline: none; }
+        .date-navigation input[type="date"]:focus {
+            border-color: var(--accent-border);
+            box-shadow: 0 0 0 3px var(--accent-dim);
+        }
 
-        .daily-summary-card {
-            background: var(--surface-white);
-            padding: 1.5rem;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-md);
-            margin-bottom: 2rem;
-            border: 1px solid var(--border-light);
-            position: relative;
+        .date-today-label {
+            margin-left: auto;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        /* ==================== PNL SUMMARY STRIP ==================== */
+        .pnl-strip {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            border-radius: var(--r-lg);
             overflow: hidden;
+            margin-bottom: 1.25rem;
         }
 
-        .daily-summary-card::before {
+        .pnl-cell {
+            background: var(--bg-panel);
+            padding: 1rem 1.25rem;
+            position: relative;
+            transition: background 0.15s;
+        }
+
+        .pnl-cell:hover { background: var(--bg-elevated); }
+
+        .pnl-cell-label {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            margin-bottom: 0.4rem;
+        }
+
+        .pnl-cell-value {
+            font-family: var(--font-mono);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-bright);
+            line-height: 1;
+        }
+
+        .pnl-cell-value.bull { color: var(--bull); text-shadow: var(--glow-bull); }
+        .pnl-cell-value.bear { color: var(--bear); text-shadow: var(--glow-bear); }
+
+        .pnl-cell-sub {
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            margin-top: 0.3rem;
+            font-family: var(--font-mono);
+        }
+
+        .pnl-cell::after {
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--accent-primary), var(--accent-success), var(--accent-danger));
+            height: 2px;
         }
 
-        .summary-item { text-align: center; padding: 0.5rem 1rem; position: relative; }
-        .summary-item:not(:last-child)::after {
-            content: ''; position: absolute; right: 0; top: 20%; height: 60%; width: 1px;
-            background: linear-gradient(to bottom, transparent, var(--border-light), transparent);
+        .pnl-cell:nth-child(1)::after { background: var(--bull); }
+        .pnl-cell:nth-child(2)::after { background: var(--accent); }
+        .pnl-cell:nth-child(3)::after { background: var(--gold); }
+        .pnl-cell:nth-child(4)::after { background: var(--bear); }
+
+        /* ==================== SECTION LABEL ==================== */
+        .section-label {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 0.75rem;
         }
 
-        .summary-item small { color: var(--text-secondary); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.25rem; display: block; }
-        .summary-item .h4 { color: var(--text-primary); font-size: 1.75rem; font-weight: 700; line-height: 1.2; margin: 0; }
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
 
+        /* ==================== TRADES TABLE ==================== */
         .trades-container {
-            background: var(--surface-white);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-md);
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: var(--r-lg);
             overflow: hidden;
-            border: 1px solid var(--border-light);
-            margin-top: 1.5rem;
         }
 
-        .trades-table { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--surface-white); margin-bottom: 0; }
-        .trades-table th { background: #f8fafc; color: var(--text-secondary); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; padding: 1rem; border-bottom: 2px solid var(--border-light); white-space: nowrap; }
-        .trades-table td { padding: 1rem; color: var(--text-primary); border-bottom: 1px solid var(--border-light); font-size: 0.95rem; vertical-align: middle; }
-        .trades-table tbody tr { transition: all 0.2s ease; cursor: pointer; }
-        .trades-table tbody tr:hover { background: var(--surface-hover); transform: scale(1.01); box-shadow: var(--shadow-sm); }
-
-        .trades-table .long, .trades-table td:contains("📈") {
-            display: inline-block; padding: 0.25rem 0.75rem; background: rgba(39, 174, 96, 0.1); color: var(--accent-success) !important; border-radius: var(--radius-full); font-size: 0.85rem; font-weight: 600; border: 1px solid rgba(39, 174, 96, 0.2);
+        .trades-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: transparent;
         }
 
-        .trades-table .short, .trades-table td:contains("📉") {
-            display: inline-block; padding: 0.25rem 0.75rem; background: rgba(231, 76, 60, 0.1); color: var(--accent-danger) !important; border-radius: var(--radius-full); font-size: 0.85rem; font-weight: 600; border: 1px solid rgba(231, 76, 60, 0.2);
+        .trades-table thead tr {
+            background: var(--bg-base);
+            border-bottom: 1px solid var(--border);
         }
 
-        .trades-table .profit { color: var(--accent-success) !important; font-weight: 700; }
-        .trades-table .loss { color: var(--accent-danger) !important; font-weight: 700; }
-
-        .btn-sm.btn-danger { background: rgba(231, 76, 60, 0.1); border: 1px solid rgba(231, 76, 60, 0.2); color: var(--accent-danger); padding: 0.4rem 0.8rem; border-radius: var(--radius-md); font-size: 0.85rem; transition: all 0.2s ease; }
-        .btn-sm.btn-danger:hover { background: var(--accent-danger); color: white; transform: translateY(-2px); box-shadow: var(--shadow-sm); }
-
-        .empty-state { text-align: center; padding: 4rem 2rem; background: var(--surface-white); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); border: 1px solid var(--border-light); }
-        .empty-state p { color: var(--text-secondary); margin: 0; font-size: 1rem; }
-
-        .fab-container { position: fixed; bottom: 30px; right: 30px; display: flex; flex-direction: column; gap: 15px; z-index: 9999; }
-        .floating-btn { width: 60px; height: 60px; border-radius: var(--radius-full); display: flex; align-items: center; justify-content: center; font-size: 24px; color: white; border: none; box-shadow: var(--shadow-lg); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; text-decoration: none; }
-        .floating-btn:hover { transform: translateY(-5px) scale(1.1); box-shadow: 0 15px 30px rgba(0,0,0,0.3); color: white; }
-        .btn-manual { background: linear-gradient(135deg, #27ae60, #2ecc71); }
-        .btn-dhan { background: linear-gradient(135deg, #6a11cb, #2575fc); }
-
-        .modal-content { border: none; border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-lg); background: var(--surface-white); }
-        .modal-header { background: var(--accent-primary) !important; border-bottom: 1px solid rgba(255,255,255,0.1); padding: 1.25rem 1.5rem; }
-        .modal-header .modal-title { color: white; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
-        .modal-header .btn-close-white { filter: brightness(0) invert(1); }
-        .modal-body { padding: 0; max-height: 60vh; overflow-y: auto; }
-        .modal-footer { background: var(--surface-hover); border-top: 1px solid var(--border-light); padding: 1rem 1.5rem; }
-
-        .table { color: var(--text-primary); margin-bottom: 0; }
-        .table thead th { background: var(--surface-hover); color: var(--text-secondary); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid var(--border-light); padding: 1rem; }
-        .table tbody td { padding: 1rem; vertical-align: middle; border-bottom: 1px solid var(--border-light); }
-        .table tbody tr:hover { background: var(--surface-hover); }
-        .badge { padding: 0.35rem 0.65rem; font-weight: 500; border-radius: var(--radius-full); }
-        .badge.bg-light { background: var(--surface-hover) !important; color: var(--text-primary) !important; border: 1px solid var(--border-light); }
-
-        .btn-primary { background: var(--accent-primary); border: none; padding: 0.6rem 1.5rem; font-weight: 500; transition: all 0.2s ease; border-radius: var(--radius-md); }
-        .btn-primary:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: var(--shadow-md); }
-        .btn-secondary { background: var(--text-muted); border: none; padding: 0.6rem 1.5rem; font-weight: 500; transition: all 0.2s ease; border-radius: var(--radius-md); }
-        .btn-secondary:hover { background: var(--text-secondary); transform: translateY(-2px); }
-        .btn-outline-primary { border: 2px solid var(--accent-primary); color: var(--accent-primary); background: transparent; padding: 0.6rem 1.2rem; font-weight: 500; transition: all 0.2s ease; border-radius: var(--radius-md); }
-        .btn-outline-primary:hover { background: var(--accent-primary); color: white; transform: translateY(-2px); box-shadow: var(--shadow-md); }
-
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: var(--surface-hover); border-radius: var(--radius-full); }
-        ::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: var(--radius-full); }
-        ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
-
-        /* ================= TIMELINE STYLES ================= */
-        .timeline-container { 
-            margin-top: 3rem; 
-            margin-bottom: 5rem;
-            display: none; 
+        .trades-table th {
+            font-family: var(--font-mono);
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border: none;
+            white-space: nowrap;
         }
-        
-        .timeline {
-            position: relative;
-            padding-left: 2rem;
-            margin-top: 1.5rem;
+
+        .trades-table th:first-child { padding-left: 1.25rem; }
+        .trades-table th:last-child  { text-align: right; padding-right: 1.25rem; }
+
+        .trades-table tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: background 0.12s;
+            cursor: pointer;
         }
+
+        .trades-table tbody tr:last-child { border-bottom: none; }
+        .trades-table tbody tr:hover { background: var(--bg-hover); }
+
+        .trades-table td {
+            padding: 0.85rem 1rem;
+            font-family: var(--font-mono);
+            font-size: 0.82rem;
+            color: var(--text-primary);
+            border: none;
+            vertical-align: middle;
+        }
+
+        .trades-table td:first-child { padding-left: 1.25rem; }
+        .trades-table td:last-child  { text-align: right; padding-right: 1.25rem; }
+
+        /* Symbol column */
+        .sym-col .sym-name {
+            font-weight: 700;
+            color: var(--text-bright);
+            font-size: 0.85rem;
+        }
+
+        .sym-col .sym-type {
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            margin-top: 0.15rem;
+        }
+
+        /* Direction badge */
+        .dir-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.22rem 0.65rem;
+            border-radius: 3px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+        }
+
+        .dir-badge.long {
+            background: var(--bull-dim);
+            color: var(--bull);
+            border: 1px solid var(--bull-border);
+        }
+
+        .dir-badge.short {
+            background: var(--bear-dim);
+            color: var(--bear);
+            border: 1px solid var(--bear-border);
+        }
+
+        /* Price cells */
+        .price-val { color: var(--text-primary); font-weight: 500; }
+        .arrow-sep { color: var(--text-dim); margin: 0 0.3rem; }
+
+        /* PnL cell */
+        .pnl-val { font-weight: 700; font-size: 0.88rem; }
+        .pnl-val.profit { color: var(--bull); }
+        .pnl-val.loss   { color: var(--bear); }
+
+        /* Action */
+        .btn-del {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 0.3rem 0.6rem;
+            border-radius: var(--r-sm);
+            font-size: 0.72rem;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-family: var(--font-mono);
+        }
+
+        .btn-del:hover {
+            background: var(--bear-dim);
+            border-color: var(--bear-border);
+            color: var(--bear);
+        }
+
+        /* Row number */
+        .row-num {
+            color: var(--text-dim);
+            font-size: 0.65rem;
+            font-weight: 600;
+            width: 24px;
+            text-align: right;
+        }
+
+        /* ==================== EMPTY STATE ==================== */
+        .empty-state {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: var(--r-lg);
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+
+        .empty-icon {
+            width: 60px; height: 60px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--r-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--text-dim);
+            margin: 0 auto 1rem;
+        }
+
+        .empty-state p {
+            font-family: var(--font-mono);
+            font-size: 0.82rem;
+            color: var(--text-dim);
+        }
+
+        /* ==================== TIMELINE ==================== */
+        .timeline-container {
+            margin-top: 2rem;
+            display: none;
+        }
+
+        .timeline { position: relative; padding-left: 2rem; margin-top: 1rem; }
 
         .timeline::before {
             content: '';
             position: absolute;
-            left: 0.5rem;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: var(--border-light);
+            left: 6px;
+            top: 0; bottom: 0;
+            width: 1px;
+            background: linear-gradient(to bottom, var(--border) 0%, var(--border-bright) 50%, var(--border) 100%);
         }
 
         .timeline-item {
             position: relative;
-            margin-bottom: 1.5rem;
-            background: var(--surface-white);
-            border: 1px solid var(--border-light);
-            border-radius: var(--radius-md);
-            padding: 1.25rem;
-            box-shadow: var(--shadow-sm);
-            transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 1rem;
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: var(--r-md);
+            padding: 1rem 1.25rem;
+            transition: border-color 0.15s, box-shadow 0.15s;
         }
 
         .timeline-item:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
+            border-color: var(--border-bright);
+            box-shadow: 0 0 0 1px var(--border-bright);
         }
 
         .timeline-item::before {
             content: '';
             position: absolute;
-            left: -2.15rem;
-            top: 1.5rem;
-            width: 14px;
-            height: 14px;
+            left: -2.1rem;
+            top: 1.1rem;
+            width: 10px; height: 10px;
             border-radius: 50%;
-            background: var(--accent-primary);
-            border: 3px solid var(--surface-white);
-            box-shadow: 0 0 0 2px var(--accent-primary);
+            background: var(--accent);
+            border: 2px solid var(--bg-base);
+            box-shadow: var(--glow-accent);
         }
 
         .timeline-time {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
             font-weight: 700;
-            color: var(--accent-primary);
-            margin-bottom: 0.5rem;
-            font-size: 1rem;
+            color: var(--accent);
+            letter-spacing: 0.06em;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 0.5rem;
         }
 
-        .timeline-content p { 
-            margin-bottom: 0; 
-            color: var(--text-primary); 
+        .timeline-content p {
+            font-family: var(--font-mono);
+            font-size: 0.82rem;
+            color: var(--text-primary);
             line-height: 1.6;
         }
 
         .timeline-img {
             max-width: 100%;
-            max-height: 300px;
-            border-radius: var(--radius-sm);
-            margin-top: 1rem;
-            border: 1px solid var(--border-light);
+            max-height: 280px;
+            border-radius: var(--r-sm);
+            margin-top: 0.75rem;
+            border: 1px solid var(--border);
             cursor: pointer;
             object-fit: contain;
         }
 
-        @media screen and (max-width: 768px) {
-            .container { padding: 0 1rem; margin: 1rem auto; }
-            .date-navigation { flex-direction: column; gap: 0.75rem; padding: 1rem; }
-            .date-navigation button { width: 100%; justify-content: center; padding: 0.75rem; }
-            .date-navigation input[type="date"] { width: 100%; min-width: auto; }
-            .daily-summary-card { flex-direction: column !important; gap: 1rem; padding: 1rem; }
-            .summary-item { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; }
-            .summary-item:not(:last-child)::after { display: none; }
-            .summary-item small { margin-bottom: 0; display: inline-block; }
-            .summary-item .h4 { font-size: 1.25rem; display: inline-block; }
-            .trades-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-            .trades-table { min-width: 700px; }
-            .trades-table th, .trades-table td { padding: 0.75rem; font-size: 0.9rem; }
-            .fab-container { bottom: 20px; right: 20px; gap: 10px; }
-            .floating-btn { width: 50px; height: 50px; font-size: 20px; }
-            .modal-dialog { margin: 0.5rem; }
-            .navbar-brand { font-size: 1.1rem; }
-            .nav-link { padding: 0.4rem 0.8rem !important; font-size: 0.9rem; }
+        /* ==================== FAB ==================== */
+        .fab-container {
+            position: fixed;
+            bottom: 28px; right: 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 9999;
         }
 
-        @media screen and (max-width: 480px) {
-            .summary-item .h4 { font-size: 1.1rem; }
-            .trades-table { min-width: 600px; font-size: 0.85rem; }
-            .trades-table th, .trades-table td { padding: 0.6rem 0.4rem; }
-            .floating-btn { width: 45px; height: 45px; font-size: 18px; }
-            .btn-sm.btn-danger { padding: 0.25rem 0.5rem; font-size: 0.75rem; }
+        .floating-btn {
+            width: 52px; height: 52px;
+            border-radius: var(--r-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: #000;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
         }
 
-        @media screen and (min-width: 769px) and (max-width: 1024px) {
-            .container { max-width: 95%; padding: 0 1rem; }
-            .date-navigation { flex-wrap: nowrap; }
-            .trades-table th, .trades-table td { padding: 0.75rem; }
+        .floating-btn::after {
+            content: attr(title);
+            position: absolute;
+            right: calc(100% + 10px);
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            padding: 0.3rem 0.65rem;
+            border-radius: var(--r-sm);
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s;
         }
 
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+        .floating-btn:hover::after { opacity: 1; }
+        .floating-btn:hover { transform: translateY(-3px) scale(1.05); }
+
+        .btn-manual {
+            background: linear-gradient(135deg, var(--bull), #00b368);
+            box-shadow: 0 4px 20px rgba(0,217,126,0.3);
         }
 
-        button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid var(--accent-primary); outline-offset: 2px; }
-
-        @media (hover: none) and (pointer: coarse) {
-            button, .nav-link, .floating-btn, .btn-sm.btn-danger { min-height: 44px; min-width: 44px; }
-            .trades-table td { padding: 1rem 0.75rem; }
-            .date-navigation button { min-height: 48px; }
+        .btn-dhan {
+            background: linear-gradient(135deg, var(--accent), #2060d0);
+            box-shadow: 0 4px 20px rgba(61,142,248,0.3);
         }
 
-        .profit { color: #2ecc71 !important; font-weight: bold; }
-        .loss { color: #e74c3c !important; font-weight: bold; }
-        .trades-table .profit { color: #2ecc71 !important; }
-        .trades-table .loss { color: #e74c3c !important; }
-        .trades-table .long { color: #27ae60 !important; }
-        .trades-table .short { color: #e74c3c !important; }
+        /* ==================== MODALS ==================== */
+        .modal-content {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: var(--r-lg);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            background: var(--bg-base) !important;
+            border-bottom: 1px solid var(--border) !important;
+            padding: 1rem 1.25rem;
+        }
+
+        .modal-header .modal-title {
+            color: var(--text-bright) !important;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .modal-body { padding: 0; max-height: 62vh; overflow-y: auto; }
+        .modal-footer {
+            background: var(--bg-base) !important;
+            border-top: 1px solid var(--border) !important;
+            padding: 0.85rem 1.25rem;
+        }
+
+        /* Modal table */
+        .modal .table { color: var(--text-primary); margin-bottom: 0; }
+        .modal .table thead th {
+            background: var(--bg-elevated) !important;
+            color: var(--text-dim);
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border) !important;
+            padding: 0.75rem 1rem;
+        }
+
+        .modal .table tbody td {
+            border-bottom: 1px solid var(--border) !important;
+            padding: 0.85rem 1rem;
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            font-size: 0.82rem;
+        }
+
+        .modal .table tbody tr:hover { background: var(--bg-hover) !important; }
+
+        /* Form controls */
+        .form-control, .form-select {
+            background: var(--bg-elevated) !important;
+            border: 1px solid var(--border) !important;
+            border-radius: var(--r-sm) !important;
+            color: var(--text-bright) !important;
+            font-family: var(--font-mono) !important;
+            font-size: 0.85rem !important;
+            padding: 0.55rem 0.85rem !important;
+            outline: none !important;
+            transition: border-color 0.15s, box-shadow 0.15s !important;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--accent-border) !important;
+            box-shadow: 0 0 0 3px var(--accent-dim) !important;
+            background: var(--bg-panel) !important;
+        }
+
+        .form-label {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 0.4rem;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: var(--accent) !important;
+            border: none !important;
+            color: #fff !important;
+            font-family: var(--font-mono) !important;
+            font-size: 0.78rem !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.06em !important;
+            padding: 0.55rem 1.5rem !important;
+            border-radius: var(--r-sm) !important;
+            transition: all 0.15s !important;
+        }
+
+        .btn-primary:hover { background: #2d7ee8 !important; transform: translateY(-1px); }
+
+        .btn-secondary {
+            background: var(--bg-elevated) !important;
+            border: 1px solid var(--border) !important;
+            color: var(--text-secondary) !important;
+            font-family: var(--font-mono) !important;
+            font-size: 0.78rem !important;
+            font-weight: 600 !important;
+            padding: 0.55rem 1.25rem !important;
+            border-radius: var(--r-sm) !important;
+            transition: all 0.15s !important;
+        }
+
+        .btn-secondary:hover { border-color: var(--border-bright) !important; color: var(--text-bright) !important; }
+
+        .btn-outline-primary {
+            border: 1px solid var(--accent-border) !important;
+            color: var(--accent) !important;
+            background: transparent !important;
+            font-family: var(--font-mono) !important;
+            font-size: 0.72rem !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.06em !important;
+            padding: 0.38rem 0.9rem !important;
+            border-radius: var(--r-sm) !important;
+            transition: all 0.15s !important;
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--accent-dim) !important;
+            color: var(--accent) !important;
+        }
+
+        .btn-close { filter: invert(1) brightness(0.6); }
+
+        /* Badge */
+        .badge.bg-light {
+            background: var(--bg-elevated) !important;
+            color: var(--text-primary) !important;
+            border: 1px solid var(--border) !important;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .text-success { color: var(--bull) !important; font-weight: 700; }
+        .text-danger  { color: var(--bear) !important; font-weight: 700; }
+        .text-muted   { color: var(--text-dim) !important; }
+
+        /* Timeline modal body padding */
+        #timelineModal .modal-body { padding: 1.25rem; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-base); }
+        ::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 900px) {
+            .pnl-strip { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 640px) {
+            .main-wrap { padding: 1rem 1rem 5rem; }
+            .pnl-strip { grid-template-columns: 1fr 1fr; }
+            .date-navigation { gap: 0.5rem; }
+            .date-navigation input[type="date"] { min-width: auto; flex: 1; }
+            .trades-container { overflow-x: auto; }
+            .trades-table { min-width: 650px; }
+            .fab-container { bottom: 18px; right: 18px; gap: 10px; }
+            .floating-btn { width: 46px; height: 46px; font-size: 1rem; }
+            .ticker-bar { display: none; }
+        }
+
+        @media (max-width: 400px) {
+            .pnl-strip { grid-template-columns: 1fr; }
+            .pnl-cell-value { font-size: 1.2rem; }
+        }
+
+        /* ==================== Journal content wrapper ==================== */
+        #journalContent .text-center {
+            font-family: var(--font-mono);
+            font-size: 0.82rem;
+            color: var(--text-dim);
+            padding: 3rem;
+        }
+
+        /* Profit / Loss colors for trades table compat */
+        .profit { color: var(--bull) !important; font-weight: 700; }
+        .loss   { color: var(--bear) !important; font-weight: 700; }
+        .long   { color: var(--bull) !important; }
+        .short  { color: var(--bear) !important; }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+
+    <!-- ========== NAVBAR ========== -->
+    <nav class="navbar navbar-expand-lg navbar-dark shadow-sm">
         <div class="container-fluid">
             <a class="navbar-brand fw-bold" href="index.html">
-                <i class="fas fa-chart-line me-2"></i>Trade Journal
+                <div class="brand-icon"><i class="fas fa-chart-line"></i></div>
+                TradeJournal <span class="brand-badge">PRO</span>
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
                         <a class="nav-link active" href="index.html">
-                            <i class="fas fa-book me-1"></i>Journal
+                            <i class="fas fa-book"></i>Journal
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="calendar.html">
-                            <i class="fas fa-calendar me-1"></i>Calendar
+                            <i class="fas fa-calendar"></i>Calendar
                         </a>
                     </li>
-                    <li class="nav-item"><a class="nav-link" href="history.html"><i class="fas fa-history me-1"></i>History</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="history.html">
+                            <i class="fas fa-history"></i>History
+                        </a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="notes.html">
-                            <i class="fas fa-note-sticky me-1"></i>Notes/Manifesto
+                            <i class="fas fa-note-sticky"></i>Notes
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="dashboard.html">
-                            <i class="fas fa-chart-pie me-1"></i>Dashboard
+                            <i class="fas fa-chart-pie"></i>Dashboard
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="export.html">
-                            <i class="fas fa-download me-1"></i>Backup
+                            <i class="fas fa-download"></i>Backup
                         </a>
                     </li>
                 </ul>
@@ -439,46 +917,108 @@
         </div>
     </nav>
 
-    <div class="container mt-4">
-        <div class="date-navigation">
-            <button class="btn btn-outline-primary" onclick="changeDateBy(-1)">
-                <i class="fas fa-chevron-left"></i> <span class="d-none d-sm-inline">Previous</span>
-            </button>
-            <input type="date" id="datePicker" class="form-control" onchange="renderJournal(this.value)">
-            <button class="btn btn-outline-primary" onclick="changeDateBy(1)">
-                <span class="d-none d-sm-inline">Next</span> <i class="fas fa-chevron-right"></i>
-            </button>
-        </div>
-
-        <div class="daily-summary-card">
-            <div class="summary-item">
-                <small>Gross P&L</small>
-                <span class="h4 fw-bold" id="dayPnL">₹0.00</span>
+    <!-- ========== TICKER BAR ========== -->
+    <div class="ticker-bar">
+        <div class="ticker-label">LIVE</div>
+        <div class="ticker-scroll">
+            <div class="ticker-track" id="tickerTrack">
+                <!-- duplicated for seamless loop -->
+                <span class="ticker-item"><span class="sym">NIFTY</span><span class="up">▲ 24,850.65</span><span class="up">+0.42%</span></span>
+                <span class="ticker-item"><span class="sym">BANKNIFTY</span><span class="dn">▼ 53,120.30</span><span class="dn">-0.18%</span></span>
+                <span class="ticker-item"><span class="sym">SENSEX</span><span class="up">▲ 81,530.20</span><span class="up">+0.35%</span></span>
+                <span class="ticker-item"><span class="sym">FINNIFTY</span><span class="up">▲ 23,410.80</span><span class="up">+0.22%</span></span>
+                <span class="ticker-item"><span class="sym">RELIANCE</span><span class="dn">▼ 2,910.50</span><span class="dn">-0.55%</span></span>
+                <span class="ticker-item"><span class="sym">TCS</span><span class="up">▲ 3,855.00</span><span class="up">+1.10%</span></span>
+                <span class="ticker-item"><span class="sym">INFY</span><span class="up">▲ 1,560.75</span><span class="up">+0.78%</span></span>
+                <span class="ticker-item"><span class="sym">HDFC</span><span class="dn">▼ 1,720.20</span><span class="dn">-0.33%</span></span>
+                <span class="ticker-item"><span class="sym">ICICIBANK</span><span class="up">▲ 1,245.60</span><span class="up">+0.62%</span></span>
+                <span class="ticker-item"><span class="sym">VIX</span><span class="dn">▼ 13.85</span><span class="dn">-2.10%</span></span>
+                <!-- duplicate for seamless loop -->
+                <span class="ticker-item"><span class="sym">NIFTY</span><span class="up">▲ 24,850.65</span><span class="up">+0.42%</span></span>
+                <span class="ticker-item"><span class="sym">BANKNIFTY</span><span class="dn">▼ 53,120.30</span><span class="dn">-0.18%</span></span>
+                <span class="ticker-item"><span class="sym">SENSEX</span><span class="up">▲ 81,530.20</span><span class="up">+0.35%</span></span>
+                <span class="ticker-item"><span class="sym">FINNIFTY</span><span class="up">▲ 23,410.80</span><span class="up">+0.22%</span></span>
+                <span class="ticker-item"><span class="sym">RELIANCE</span><span class="dn">▼ 2,910.50</span><span class="dn">-0.55%</span></span>
+                <span class="ticker-item"><span class="sym">TCS</span><span class="up">▲ 3,855.00</span><span class="up">+1.10%</span></span>
+                <span class="ticker-item"><span class="sym">INFY</span><span class="up">▲ 1,560.75</span><span class="up">+0.78%</span></span>
+                <span class="ticker-item"><span class="sym">HDFC</span><span class="dn">▼ 1,720.20</span><span class="dn">-0.33%</span></span>
+                <span class="ticker-item"><span class="sym">ICICIBANK</span><span class="up">▲ 1,245.60</span><span class="up">+0.62%</span></span>
+                <span class="ticker-item"><span class="sym">VIX</span><span class="dn">▼ 13.85</span><span class="dn">-2.10%</span></span>
             </div>
-            <div class="summary-item">
-                <small>Net P&L (After Tax)</small>
-                <span class="h4 fw-bold" id="netPnL">₹0.00</span>
-            </div>
-        </div>
-
-        <div id="journalContent">
-            <div class="text-center p-5 text-muted">Loading trades...</div>
-        </div>
-
-        <div class="timeline-container" id="timelineContainer">
-            <div class="d-flex justify-content-between align-items-center">
-                <h4 style="color: var(--text-primary); margin: 0; font-weight: 600;">
-                    <i class="fas fa-stream me-2 text-primary"></i> Daily Timeline
-                </h4>
-                <button class="btn btn-outline-primary btn-sm" onclick="openTimelineModal()">
-                    <i class="fas fa-plus"></i> Add Event
-                </button>
-            </div>
-            <div class="timeline" id="timelineContent">
-                </div>
         </div>
     </div>
 
+    <!-- ========== MAIN ========== -->
+    <div class="main-wrap">
+
+        <!-- Page header -->
+        <div class="page-header">
+            <div class="page-title">Daily Trade Journal</div>
+        </div>
+
+        <!-- Date navigation -->
+        <div class="date-navigation mb-3">
+            <button onclick="changeDateBy(-1)">
+                <i class="fas fa-chevron-left"></i>
+                <span class="d-none d-sm-inline">Prev</span>
+            </button>
+            <input type="date" id="datePicker" onchange="renderJournal(this.value)">
+            <button onclick="changeDateBy(1)">
+                <span class="d-none d-sm-inline">Next</span>
+                <i class="fas fa-chevron-right"></i>
+            </button>
+            <div class="date-today-label d-none d-md-block">
+                <i class="fas fa-clock me-1"></i> NSE · IST
+            </div>
+        </div>
+
+        <!-- PnL Strip -->
+        <div class="pnl-strip">
+            <div class="pnl-cell">
+                <div class="pnl-cell-label">Gross P&amp;L</div>
+                <div class="pnl-cell-value" id="dayPnL">₹0.00</div>
+                <div class="pnl-cell-sub">Before charges</div>
+            </div>
+            <div class="pnl-cell">
+                <div class="pnl-cell-label">Net P&amp;L</div>
+                <div class="pnl-cell-value" id="netPnL">₹0.00</div>
+                <div class="pnl-cell-sub">After tax &amp; charges</div>
+            </div>
+            <div class="pnl-cell">
+                <div class="pnl-cell-label">Total Trades</div>
+                <div class="pnl-cell-value" id="totalTrades">0</div>
+                <div class="pnl-cell-sub">Executed today</div>
+            </div>
+            <div class="pnl-cell">
+                <div class="pnl-cell-label">Win Rate</div>
+                <div class="pnl-cell-value" id="winRate">—</div>
+                <div class="pnl-cell-sub">W / L ratio</div>
+            </div>
+        </div>
+
+        <!-- Trades section -->
+        <div class="section-label">Trades</div>
+
+        <div id="journalContent">
+            <div class="text-center p-5 text-muted">
+                <i class="fas fa-spinner fa-spin me-2"></i> Loading trades...
+            </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="timeline-container" id="timelineContainer">
+            <div class="section-label">
+                Market Timeline
+                <button class="btn btn-outline-primary ms-auto" onclick="openTimelineModal()">
+                    <i class="fas fa-plus me-1"></i> Log Event
+                </button>
+            </div>
+            <div class="timeline" id="timelineContent"></div>
+        </div>
+
+    </div><!-- /main-wrap -->
+
+    <!-- ========== FABs ========== -->
     <div class="fab-container">
         <button class="floating-btn btn-dhan" onclick="document.getElementById('pdfInput').click()" title="Import Dhan PDF">
             <i class="fas fa-file-invoice"></i>
@@ -488,12 +1028,13 @@
         </button>
     </div>
 
+    <!-- ========== IMPORT MODAL ========== -->
     <div class="modal fade" id="importModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title"><i class="fas fa-list-check me-2"></i> Select Positions to Import</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-0">
                     <div class="table-responsive">
@@ -507,8 +1048,7 @@
                                     <th>Gross P&L</th>
                                 </tr>
                             </thead>
-                            <tbody id="parsedTradesTable">
-                                </tbody>
+                            <tbody id="parsedTradesTable"></tbody>
                         </table>
                     </div>
                 </div>
@@ -522,24 +1062,25 @@
         </div>
     </div>
 
+    <!-- ========== TIMELINE MODAL ========== -->
     <div class="modal fade" id="timelineModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title"><i class="fas fa-clock me-2"></i> Add Timeline Event</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-4">
                     <div class="mb-3">
-                        <label class="form-label fw-bold" style="color: var(--text-primary)">Time</label>
+                        <label class="form-label">Time</label>
                         <input type="time" id="timelineTime" class="form-control" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold" style="color: var(--text-primary)">Notes / Description</label>
+                        <label class="form-label">Notes / Description</label>
                         <textarea id="timelineNotes" class="form-control" rows="3" placeholder="What happened in the market right now?"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold" style="color: var(--text-primary)">Attachment (Optional)</label>
+                        <label class="form-label">Attachment (Optional)</label>
                         <input type="file" id="timelineFile" class="form-control" accept="image/*">
                     </div>
                 </div>
@@ -557,12 +1098,12 @@
 
     <script src="app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <script>
-        // ORIGINAL IMPORT LOGIC PRESERVED
+        /* ===== ALL ORIGINAL LOGIC PRESERVED BELOW ===== */
+
         function handlePasteImport(rawText) {
             if (!rawText || rawText.length < 20) return;
-
             const dateMatch = rawText.match(/(\d{2}-\d{2}-\d{4})/);
             if (dateMatch) {
                 const [dd, mm, yyyy] = dateMatch[1].split('-');
@@ -570,59 +1111,37 @@
                 document.getElementById('datePicker').value = formattedDate;
                 document.getElementById('targetDateLabel').innerText = formattedDate;
             }
-
             extractedTrades = [];
             const tradesMap = {};
             const regex = /(OPTIDX|OPTSTK|EQ)\s+([A-Z0-9\s]+NSE)\s+([BS])\s+(\d+)\s+(\d+\.\d+)/g;
             let match;
             const cleanText = rawText.replace(/\n/g, ' ');
-
             while ((match = regex.exec(cleanText)) !== null) {
                 const symbol = match[1] + " " + match[2].replace(' NSE', '').trim();
                 const side = match[3] === 'B' ? 'BUY' : 'SELL';
                 const qty = parseInt(match[4]);
                 const price = parseFloat(match[5]);
-
                 if (!tradesMap[symbol]) tradesMap[symbol] = { BUY: null, SELL: null };
                 tradesMap[symbol][side] = { qty, price };
             }
-
             for (const symbol in tradesMap) {
                 const leg = tradesMap[symbol];
                 if (leg.BUY && leg.SELL) {
                     const pnl = (leg.SELL.price - leg.BUY.price) * leg.BUY.qty;
-                    extractedTrades.push({
-                        symbol: symbol,
-                        direction: "LONG",
-                        quantity: leg.BUY.qty,
-                        entryPrice: leg.BUY.price,
-                        exitPrice: leg.SELL.price,
-                        pnl: pnl.toFixed(2)
-                    });
+                    extractedTrades.push({ symbol, direction: "LONG", quantity: leg.BUY.qty, entryPrice: leg.BUY.price, exitPrice: leg.SELL.price, pnl: pnl.toFixed(2) });
                 }
             }
-
-            if (extractedTrades.length > 0) {
-                displayTradesForSelection(extractedTrades);
-                document.getElementById('selectionSection').style.display = 'block';
-            }
+            if (extractedTrades.length > 0) { displayTradesForSelection(extractedTrades); document.getElementById('selectionSection').style.display = 'block'; }
         }
 
         async function importSelectedTrades() {
             const selectedIdx = Array.from(document.querySelectorAll('.trade-check:checked')).map(cb => cb.dataset.index);
             if (selectedIdx.length === 0) return alert("Select at least one position to import.");
-
             const date = document.getElementById('datePicker').value;
-            
             for (let idx of selectedIdx) {
                 const trade = extractedTrades[idx];
-                await TradeJournal.saveTrade(date, {
-                    ...trade,
-                    strategy: "Imported",
-                    notes: "Position auto-extracted."
-                }, []);
+                await TradeJournal.saveTrade(date, { ...trade, strategy: "Imported", notes: "Position auto-extracted." }, []);
             }
-
             importModal.hide();
             renderJournal(date);
             alert(`Success! ${selectedIdx.length} positions imported.`);
@@ -639,95 +1158,62 @@
         async function processDhanPDF(input) {
             const file = input.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = async function() {
                 try {
                     const typedarray = new Uint8Array(this.result);
-                    
-                    const loadingTask = pdfjsLib.getDocument({
-                        data: typedarray,
-                        password: 'INEPM0439N',
-                        cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.16.105/cmaps/',
-                        cMapPacked: true,
-                    });
-
+                    const loadingTask = pdfjsLib.getDocument({ data: typedarray, password: 'INEPM0439N', cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.16.105/cmaps/', cMapPacked: true });
                     const pdf = await loadingTask.promise;
                     let fullText = "";
-
                     for (let i = 1; i <= pdf.numPages; i++) {
                         const page = await pdf.getPage(i);
                         const content = await page.getTextContent();
                         fullText += content.items.map(item => item.str).join(" ") + " \n";
                     }
-
                     const dateMatch = fullText.match(/Trade Date:\s*(\d{2}-\d{2}-\d{4})/);
                     if (dateMatch) {
                         const [dd, mm, yyyy] = dateMatch[1].split('-');
                         document.getElementById('datePicker').value = `${yyyy}-${mm}-${dd}`;
                     }
-
                     extractedTrades = parseDhanTrades(fullText);
-                    
-                    if (extractedTrades.length > 0) {
-                        displayTradesForSelection(extractedTrades);
-                    } else {
-                        alert("Decrypted, but no matching trade rows found. Check your Dhan PDF format.");
-                    }
-
+                    if (extractedTrades.length > 0) { displayTradesForSelection(extractedTrades); }
+                    else { alert("Decrypted, but no matching trade rows found. Check your Dhan PDF format."); }
                 } catch (err) {
                     console.error("PDF Engine Error:", err);
                     alert(err.name === 'PasswordException' ? "Decryption failed. Check password." : "Error reading PDF.");
-                } finally {
-                    input.value = "";
-                }
+                } finally { input.value = ""; }
             };
             reader.readAsArrayBuffer(file);
         }
 
         function parseDhanTrades(text) {
-            const tradesMap = {}; 
+            const tradesMap = {};
             const finalTrades = [];
             const cleanText = text.replace(/\s+/g, ' ');
-
             const regex = /(OPTIDX|OPTSTK|EQ)\s+(.*?)\s+(?:-\s+NSE|NSE|BSE)?\s+(B|S-?)\s+(\d+)\s+(\d+\.\d+)/g;
-            
             let match;
             while ((match = regex.exec(cleanText)) !== null) {
                 const type = match[1];
                 let details = match[2].split(" ").slice(0, 5).join(" ").trim();
                 const fullSymbol = `${type} ${details}`.replace(/- NSE|NSE|BSE/g, '').trim();
-                
                 const sideRaw = match[3];
                 const qty = parseInt(match[4]);
                 const price = parseFloat(match[5]);
                 const side = sideRaw.startsWith('B') ? "BUY" : "SELL";
-
                 if (!tradesMap[fullSymbol]) tradesMap[fullSymbol] = { BUY: [], SELL: [] };
                 tradesMap[fullSymbol][side].push({ qty, price });
             }
-
             for (const sym in tradesMap) {
                 const buys = tradesMap[sym].BUY;
                 const sells = tradesMap[sym].SELL;
-                
                 if (buys.length > 0 && sells.length > 0) {
                     const totalBuyQty = buys.reduce((s, b) => s + b.qty, 0);
                     const avgBuyPrice = buys.reduce((s, b) => s + (b.price * b.qty), 0) / totalBuyQty;
                     const totalSellQty = sells.reduce((s, b) => s + b.qty, 0);
                     const avgSellPrice = sells.reduce((s, b) => s + (b.price * b.qty), 0) / totalSellQty;
-
                     const tradeQty = Math.min(totalBuyQty, totalSellQty);
                     const pnl = (avgSellPrice - avgBuyPrice) * tradeQty;
-
-                    finalTrades.push({
-                        symbol: sym,
-                        direction: "LONG", 
-                        quantity: tradeQty,
-                        entryPrice: avgBuyPrice.toFixed(2),
-                        exitPrice: avgSellPrice.toFixed(2),
-                        pnl: pnl.toFixed(2)
-                    });
+                    finalTrades.push({ symbol: sym, direction: "LONG", quantity: tradeQty, entryPrice: avgBuyPrice.toFixed(2), exitPrice: avgSellPrice.toFixed(2), pnl: pnl.toFixed(2) });
                 }
             }
             return Array.from(new Map(finalTrades.map(t => [t.symbol + t.pnl, t])).values());
@@ -739,28 +1225,26 @@
                 <tr class="align-middle">
                     <td class="ps-3"><input type="checkbox" class="trade-check" data-index="${i}" onchange="updateSelectedCount()" checked></td>
                     <td>
-                        <div class="fw-bold text-dark" style="font-size: 0.9rem;">${t.symbol}</div>
-                        <small class="text-muted">Imported Trade</small>
+                        <div class="fw-bold" style="color:var(--text-bright);font-size:0.85rem;">${t.symbol}</div>
+                        <small style="color:var(--text-dim);">Imported Trade</small>
                     </td>
-                    <td><span class="badge bg-light text-dark border">${t.quantity}</span></td>
+                    <td><span class="badge bg-light">${t.quantity}</span></td>
                     <td>
-                        <span class="text-muted small">₹${t.entryPrice}</span> 
-                        <i class="fas fa-arrow-right mx-1 text-primary small"></i> 
-                        <span class="text-muted small">₹${t.exitPrice}</span>
+                        <span style="color:var(--text-secondary);font-size:0.8rem;">₹${t.entryPrice}</span>
+                        <i class="fas fa-arrow-right mx-1" style="color:var(--accent);font-size:0.65rem;"></i>
+                        <span style="color:var(--text-secondary);font-size:0.8rem;">₹${t.exitPrice}</span>
                     </td>
                     <td class="${t.pnl >= 0 ? 'text-success' : 'text-danger'} fw-bold">
                         ${t.pnl >= 0 ? '+' : ''}₹${t.pnl}
                     </td>
                 </tr>
             `).join('');
-            
             updateSelectedCount();
             importModal.show();
-        };
+        }
 
         function updateSelectedCount() {
-            const count = document.querySelectorAll('.trade-check:checked').length;
-            document.getElementById('selectedCount').innerText = count;
+            document.getElementById('selectedCount').innerText = document.querySelectorAll('.trade-check:checked').length;
         }
 
         function toggleAllTrades(source) {
@@ -777,24 +1261,18 @@
             renderJournal(newDateStr);
         }
 
-        /* ================= NEW TIMELINE LOGIC ================= */
-        
+        /* ===== TIMELINE LOGIC ===== */
         let timelineModalInstance = null;
 
         document.addEventListener('DOMContentLoaded', () => {
             const tModalEl = document.getElementById('timelineModal');
             if (tModalEl) timelineModalInstance = new bootstrap.Modal(tModalEl);
-
-            // Initial Timeline Load (Delayed slightly for DB readiness)
             setTimeout(() => {
                 const datePicker = document.getElementById('datePicker');
-                if (datePicker && datePicker.value) {
-                    loadTimeline(datePicker.value);
-                }
+                if (datePicker && datePicker.value) loadTimeline(datePicker.value);
             }, 800);
         });
 
-        // Intercept Journal Renders to strictly refresh Timeline whenever Journal updates
         if (typeof window.renderJournal === 'function') {
             const originalRenderJournal = window.renderJournal;
             window.renderJournal = async function(date) {
@@ -812,28 +1290,20 @@
 
         async function saveTimelineEvent() {
             const date = document.getElementById('datePicker').value;
-            const timeRaw = document.getElementById('timelineTime').value; // Captures 24hr string like "15:10"
+            const timeRaw = document.getElementById('timelineTime').value;
             const notes = document.getElementById('timelineNotes').value.trim();
             const fileInput = document.getElementById('timelineFile');
-
             if (!timeRaw || !notes) return alert("Both Time and Notes are required.");
-
             const btn = document.getElementById('saveTimelineBtn');
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
             btn.disabled = true;
-
             try {
-                // Convert to 12-hour AM/PM for display
                 let [hours, minutes] = timeRaw.split(':');
                 let h = parseInt(hours, 10);
                 let ampm = h >= 12 ? 'PM' : 'AM';
-                
-                h = h % 12;
-                h = h ? h : 12; // Convert 0 to 12 for midnight
-                
+                h = h % 12; h = h ? h : 12;
                 let displayTime = `${h}:${minutes} ${ampm}`;
-                let finalSortTime = timeRaw; // 24-hour string sorts perfectly chronologically
-
+                let finalSortTime = timeRaw;
                 let imageUrl = null;
                 if (fileInput.files.length > 0) {
                     const file = fileInput.files[0];
@@ -841,25 +1311,13 @@
                     await ref.put(file);
                     imageUrl = await ref.getDownloadURL();
                 }
-
-                const newEvent = {
-                    id: Date.now().toString(),
-                    time: displayTime,
-                    sortTime: finalSortTime,
-                    notes: notes,
-                    image: imageUrl,
-                    timestamp: Date.now()
-                };
-
+                const newEvent = { id: Date.now().toString(), time: displayTime, sortTime: finalSortTime, notes, image: imageUrl, timestamp: Date.now() };
                 const dayRef = db.collection('trades').doc(date);
                 const doc = await dayRef.get();
                 let dayData = doc.exists ? doc.data() : { trades: [], totalPnL: 0, notes: '', timeline: [] };
-                
                 if (!dayData.timeline) dayData.timeline = [];
-                
                 dayData.timeline.push(newEvent);
                 await dayRef.set(dayData, { merge: true });
-                
                 timelineModalInstance.hide();
                 loadTimeline(date);
             } catch (err) {
@@ -875,42 +1333,35 @@
             document.getElementById('timelineContainer').style.display = 'block';
             const container = document.getElementById('timelineContent');
             container.innerHTML = '<div class="text-center text-muted py-4"><i class="fas fa-spinner fa-spin me-2"></i> Loading timeline events...</div>';
-
             try {
                 const doc = await db.collection('trades').doc(date).get();
                 const data = doc.exists ? doc.data() : null;
                 const events = data && data.timeline ? data.timeline : [];
-
                 if (events.length === 0) {
-                    container.innerHTML = '<div class="text-muted fst-italic py-3">No events logged for this day yet. Click "Add Event" to begin tracking your market timeline.</div>';
+                    container.innerHTML = '<div style="color:var(--text-dim);font-family:var(--font-mono);font-size:0.8rem;padding:1.5rem 0;font-style:italic;">No events logged for this day yet. Click "Log Event" to begin tracking your market timeline.</div>';
                     return;
                 }
-
                 events.sort((a, b) => {
-                    if (a.sortTime && b.sortTime) {
-                        return a.sortTime.localeCompare(b.sortTime);
-                    }
+                    if (a.sortTime && b.sortTime) return a.sortTime.localeCompare(b.sortTime);
                     return (a.timestamp || 0) - (b.timestamp || 0);
                 });
-
                 container.innerHTML = events.map((ev, index) => `
                     <div class="timeline-item">
                         <div class="timeline-time">
                             <span><i class="far fa-clock me-2"></i>${ev.time}</span>
-                            <button class="btn btn-link text-danger p-0" onclick="deleteTimelineEvent('${date}', ${index})" title="Delete Event">
-                                <i class="fas fa-trash-alt"></i>
+                            <button class="btn-del" onclick="deleteTimelineEvent('${date}', ${index})" title="Delete Event">
+                                <i class="fas fa-trash-alt me-1"></i>Delete
                             </button>
                         </div>
                         <div class="timeline-content">
                             <p>${ev.notes}</p>
-                            ${ev.image ? `<img src="${ev.image}" class="timeline-img shadow-sm" onclick="window.open('${ev.image}', '_blank')">` : ''}
+                            ${ev.image ? `<img src="${ev.image}" class="timeline-img" onclick="window.open('${ev.image}', '_blank')">` : ''}
                         </div>
                     </div>
                 `).join('');
-
             } catch (e) {
                 console.error("Timeline load error: ", e);
-                container.innerHTML = '<div class="text-danger py-3"><i class="fas fa-exclamation-triangle me-2"></i>Failed to load the timeline.</div>';
+                container.innerHTML = '<div style="color:var(--bear);font-family:var(--font-mono);font-size:0.8rem;padding:1rem 0;"><i class="fas fa-exclamation-triangle me-2"></i>Failed to load the timeline.</div>';
             }
         }
 
@@ -921,11 +1372,7 @@
                 const doc = await dayRef.get();
                 if (doc.exists) {
                     const data = doc.data();
-                    if (data.timeline) {
-                        data.timeline.splice(index, 1);
-                        await dayRef.update({ timeline: data.timeline });
-                        loadTimeline(date);
-                    }
+                    if (data.timeline) { data.timeline.splice(index, 1); await dayRef.update({ timeline: data.timeline }); loadTimeline(date); }
                 }
             } catch (e) {
                 console.error("Timeline delete error: ", e);
