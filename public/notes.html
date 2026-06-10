@@ -376,6 +376,63 @@
             .vwap-section { padding: 1.5rem; }
             .page-title { font-size: 1.5rem; }
         }
+
+        /* Daily Market Map */
+        .market-map-section{
+            background: linear-gradient(135deg,#1e293b,#334155);
+            color:white;
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .market-map-section h3{
+            text-align:center;
+            font-weight:700;
+            margin-bottom:0.5rem;
+        }
+
+        .market-subtitle{
+            text-align:center;
+            opacity:0.9;
+            margin-bottom:1.5rem;
+        }
+
+        .market-grid{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+            gap:1rem;
+        }
+
+        .market-item{
+            background:rgba(255,255,255,0.08);
+            border:1px solid rgba(255,255,255,0.1);
+            border-radius:12px;
+            padding:1rem;
+            display:flex;
+            align-items:center;
+            gap:12px;
+            transition:0.2s;
+        }
+
+        .market-item:hover{
+            transform:translateY(-3px);
+            background:rgba(255,255,255,0.12);
+        }
+
+        .market-item i{
+            font-size:1.2rem;
+            color:#f39c12;
+        }
+
+        .market-reminder{
+            margin-top:1.5rem;
+            background:rgba(0,0,0,0.25);
+            border-left:4px solid #f39c12;
+            padding:1rem;
+            border-radius:8px;
+        }
     </style>
 </head>
 <body>
@@ -439,6 +496,69 @@
         <div class="risk-banner">
             <i class="fas fa-balance-scale"></i>
             <span>Strict Risk Reward Ratio | Minimum 1:2 | Never risk more than you can lose</span>
+        </div>
+
+        <!-- Daily Market Map -->
+        <div class="market-map-section">
+            <h3><i class="fas fa-map-marked-alt"></i> Daily Market Map</h3>
+            <p class="market-subtitle">
+                Before entering any trade, mark these liquidity zones and key reference levels.
+            </p>
+
+            <div class="market-grid">
+
+                <div class="market-item">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>Previous Day High</span>
+                </div>
+
+                <div class="market-item">
+                    <i class="fas fa-arrow-down"></i>
+                    <span>Previous Day Low</span>
+                </div>
+
+                <div class="market-item">
+                    <i class="fas fa-door-open"></i>
+                    <span>Day Open</span>
+                </div>
+
+                <div class="market-item">
+                    <i class="fas fa-flag-checkered"></i>
+                    <span>Previous Day Close</span>
+                </div>
+
+                <div class="market-item">
+                    <i class="fas fa-calendar-week"></i>
+                    <span>Weekly High & Weekly Low</span>
+                </div>
+
+                <div class="market-item">
+                    <i class="fas fa-calendar-day"></i>
+                    <span>Weekly Open</span>
+                </div>
+
+                <div class="market-item">
+                    <i class="fas fa-bullseye"></i>
+                    <span>Round Numbers / Psychological Levels</span>
+                </div>
+
+                <div class="market-item">
+                    <i class="fas fa-clock"></i>
+                    <span>Session High & Session Low</span>
+                </div>
+
+                <div class="market-item">
+                    <i class="fas fa-mountain"></i>
+                    <span>Major Swing Highs & Swing Lows</span>
+                </div>
+
+            </div>
+
+            <div class="market-reminder">
+                <i class="fas fa-lightbulb"></i>
+                <strong>Remember:</strong> Price reacts at liquidity. Mark the levels first,
+                then wait for confirmation. Never chase candles.
+            </div>
         </div>
 
         <!-- 6 Core Rules Grid -->
