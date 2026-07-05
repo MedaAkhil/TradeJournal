@@ -770,10 +770,15 @@
     </nav>
 
     <div class="container mt-4 mb-5">
-        <h2 class="mb-4">
-            <i class="fas fa-plus-circle me-2 text-primary"></i>
-            Add Trade for <span id="displayDate" class="text-primary"></span>
-        </h2>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="mb-0">
+                <i class="fas fa-plus-circle me-2 text-primary"></i>
+                Add Trade for <span id="displayDate" class="text-primary"></span>
+            </h2>
+            <button type="button" class="btn btn-primary shadow-sm" onclick="openDhanParserModal()">
+                <i class="fas fa-magic me-1"></i> Paste Dhan Data
+            </button>
+        </div>
         
         <form id="tradeForm" class="p-4 shadow-sm rounded">
             <div class="row">
@@ -909,6 +914,26 @@
         <button class="fab fab-contract" onclick="openContractModal()" title="Import PDF">
             <i class="fas fa-file-invoice"></i>
         </button>
+    </div>
+
+    <!-- Dhan Parser Modal -->
+    <div id="dhanParserModal" class="modal bg-dark bg-opacity-75" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-paste me-2 text-primary"></i>Paste Dhan Trade Data</h5>
+                    <button type="button" class="btn-close" onclick="closeDhanParserModal()"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted small mb-2">Paste the copied text from Dhan here:</p>
+                    <textarea id="dhanRawData" class="form-control" rows="10" placeholder="Example:&#10;13:01:11&#10;|&#10;NIFTY 07 JUL 24350 CALLNSE&#10;F&amp;O    Intraday    65  95.15   6,184.75"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeDhanParserModal()">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="parseDhanData()">Parse & Proceed</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="drawingModal" class="modal bg-dark bg-opacity-75">
@@ -1387,6 +1412,90 @@
 
         function openCameraModal() {
             alert("Camera requires HTTPS. Please use Browse or Paste (Ctrl+V) for now.");
+        }
+
+        // --- DHAN PARSER ---
+        function openDhanParserModal() {
+            document.getElementById('dhanRawData').value = '';
+            document.getElementById('dhanParserModal').style.display = 'block';
+        }
+
+        function closeDhanParserModal() {
+            document.getElementById('dhanParserModal').style.display = 'none';
+        }
+
+        function parseDhanData() {
+            const rawData = document.getElementById('dhanRawData').value;
+            if (!rawData.trim()) {
+                alert("Please paste data first.");
+                return;
+            }
+
+            try {
+                const lines = rawData.split('\n').map(l => l.trim()).filter(l => l);
+                let trades = [];
+                let currentTrade = null;
+                const timeRegex = /^(\d{2}:\d{2}:\d{2})/;
+                
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i];
+                    
+                    if (timeRegex.test(line)) {
+                        if (currentTrade) trades.push(currentTrade);
+                        currentTrade = { time: line, symbol: '', details: [] };
+                    } else if (line === '|') {
+                        continue;
+                    } else if (currentTrade && !currentTrade.symbol && !line.includes('F&O')) {
+                        currentTrade.symbol = line;
+                    } else if (currentTrade && (line.includes('F&O') || line.includes('Intraday'))) {
+                        const parts = line.split(/[\t\s]+/).filter(p => p);
+                        let numbers = parts.filter(p => !isNaN(parseFloat(p.replace(/,/g, ''))));
+                        if (numbers.length >= 3) {
+                            currentTrade.qty = numbers[0];
+                            currentTrade.price = numbers[1];
+                        }
+                    }
+                }
+                if (currentTrade) trades.push(currentTrade);
+
+                if (trades.length < 1) {
+                    alert("Could not parse trades. Ensure format is correct.");
+                    return;
+                }
+
+                // Sort chronologically
+                trades.sort((a, b) => a.time.localeCompare(b.time));
+                
+                const entry = trades[0];
+                const exit = trades.length > 1 ? trades[trades.length - 1] : null;
+
+                let symbol = entry.symbol;
+                if (symbol.endsWith('NSE')) symbol = symbol.slice(0, -3).trim();
+                if (symbol.endsWith('BSE')) symbol = symbol.slice(0, -3).trim();
+
+                document.getElementById('symbol').value = symbol;
+                document.getElementById('direction').value = 'LONG';
+                document.getElementById('entryPrice').value = entry.price || '';
+                document.getElementById('quantity').value = entry.qty || '';
+                
+                if (entry.time) {
+                    document.getElementById('entryTime').value = entry.time.substring(0, 5);
+                }
+                
+                if (exit) {
+                    document.getElementById('exitPrice').value = exit.price || '';
+                    if (exit.time) {
+                        document.getElementById('exitTime').value = exit.time.substring(0, 5);
+                    }
+                }
+
+                calculatePnL();
+                closeDhanParserModal();
+                showNotification('Data parsed successfully!', 'success');
+            } catch (err) {
+                console.error("Parse Error:", err);
+                alert("Error parsing data. See console for details.");
+            }
         }
     </script>
 </body>
