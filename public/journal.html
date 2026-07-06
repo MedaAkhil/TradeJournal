@@ -1,51 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Add Trade - Trade Journal Pro</title>
-    
+
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Google Fonts for better typography -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
-    
+
     <style>
         /* ============== 60-30-10 COLOR SCHEME (Matching all pages) ============== */
         :root {
             /* 60% - Primary Background */
             --bg-primary: #f8fafc;
             --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            
+
             /* 30% - Secondary Surface */
             --surface-white: #ffffff;
             --surface-hover: #f1f5f9;
             --border-light: #e2e8f0;
-            
+
             /* 10% - Accent Colors */
             --accent-primary: #3498db;
             --accent-hover: #2980b9;
             --accent-success: #27ae60;
             --accent-danger: #e74c3c;
             --accent-warning: #f39c12;
-            
+
             /* Text Colors */
             --text-primary: #1e293b;
             --text-secondary: #64748b;
             --text-muted: #94a3b8;
-            
+
             /* Shadows */
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
-            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
-            
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
             /* Border Radius */
             --radius-sm: 6px;
             --radius-md: 8px;
@@ -65,41 +66,44 @@
                 --text-secondary: #94a3b8;
                 --text-muted: #64748b;
             }
-            
+
             body {
                 background: var(--bg-gradient);
             }
-            
-            .form-control, .form-select {
+
+            .form-control,
+            .form-select {
                 background: var(--surface-white);
                 border-color: var(--border-light);
                 color: var(--text-primary);
             }
-            
-            .form-control:focus, .form-select:focus {
+
+            .form-control:focus,
+            .form-select:focus {
                 background: var(--surface-white);
                 border-color: var(--accent-primary);
                 color: var(--text-primary);
             }
-            
+
             .bg-light {
                 background: var(--surface-hover) !important;
             }
-            
+
             .border {
                 border-color: var(--border-light) !important;
             }
-            
+
             .modal-content {
                 background: var(--surface-white);
                 border-color: var(--border-light);
             }
-            
-            .modal-header, .modal-footer {
+
+            .modal-header,
+            .modal-footer {
                 background: var(--surface-hover);
                 border-color: var(--border-light);
             }
-            
+
             .drawing-tools {
                 background: var(--surface-white) !important;
                 border-color: var(--border-light) !important;
@@ -125,7 +129,7 @@
             background: #2c3e50 !important;
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             padding: 0.75rem 1rem;
             box-shadow: var(--shadow-md);
         }
@@ -150,12 +154,12 @@
             margin: 0 0.25rem;
             border-radius: var(--radius-md);
             transition: all 0.2s ease;
-            color: rgba(255,255,255,0.9) !important;
+            color: rgba(255, 255, 255, 0.9) !important;
             font-weight: 500;
         }
 
         .nav-link:hover {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
             transform: translateY(-1px);
         }
 
@@ -165,7 +169,7 @@
         }
 
         .navbar-toggler {
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .navbar-toggler-icon {
@@ -246,7 +250,8 @@
         }
 
         /* Form Controls */
-        .form-control, .form-select {
+        .form-control,
+        .form-select {
             border: 2px solid var(--border-light);
             border-radius: var(--radius-md);
             padding: 0.6rem 1rem;
@@ -257,7 +262,8 @@
             color: var(--text-primary);
         }
 
-        .form-control:focus, .form-select:focus {
+        .form-control:focus,
+        .form-select:focus {
             border-color: var(--accent-primary);
             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
             outline: none;
@@ -372,7 +378,7 @@
 
         .fab:hover {
             transform: translateY(-5px) scale(1.1);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
         }
 
         .fab-contract {
@@ -521,7 +527,7 @@
         }
 
         /* ============== RESPONSIVE DESIGN ============== */
-        
+
         /* Mobile devices (up to 768px) */
         @media screen and (max-width: 768px) {
             .container {
@@ -545,12 +551,14 @@
                 margin: 0;
             }
 
-            .col-md-3, .col-md-6 {
+            .col-md-3,
+            .col-md-6 {
                 padding: 0 0.5rem;
                 margin-bottom: 0.75rem;
             }
 
-            .form-control, .form-select {
+            .form-control,
+            .form-select {
                 padding: 0.5rem 0.75rem;
                 font-size: 0.9rem;
             }
@@ -588,7 +596,8 @@
                 font-size: 0.85rem;
             }
 
-            .table thead th, .table tbody td {
+            .table thead th,
+            .table tbody td {
                 padding: 0.6rem;
             }
 
@@ -664,6 +673,7 @@
 
         /* Accessibility - Reduced Motion */
         @media (prefers-reduced-motion: reduce) {
+
             *,
             *::before,
             *::after {
@@ -684,6 +694,7 @@
 
         /* Touch Target Sizes */
         @media (hover: none) and (pointer: coarse) {
+
             button,
             .btn,
             .form-control,
@@ -691,7 +702,7 @@
             .fab {
                 min-height: 44px;
             }
-            
+
             .btn-outline-secondary {
                 min-height: 40px;
             }
@@ -699,6 +710,7 @@
 
         /* Print Styles */
         @media print {
+
             .navbar,
             .fab-container,
             .btn-success,
@@ -706,13 +718,13 @@
             .screenshot-section {
                 display: none !important;
             }
-            
+
             #tradeForm {
                 box-shadow: none;
                 border: 1px solid #ddd;
                 padding: 1rem;
             }
-            
+
             body {
                 background: white;
             }
@@ -732,14 +744,15 @@
         }
     </style>
 </head>
+
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
         <div class="container-fluid">
             <a class="navbar-brand fw-bold" href="index.html">
                 <i class="fas fa-chart-line me-2"></i>Trade Journal
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
-                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
@@ -775,11 +788,16 @@
                 <i class="fas fa-plus-circle me-2 text-primary"></i>
                 Add Trade for <span id="displayDate" class="text-primary"></span>
             </h2>
-            <button type="button" class="btn btn-primary shadow-sm" onclick="openDhanParserModal()">
-                <i class="fas fa-magic me-1"></i> Paste Dhan Data
-            </button>
+            <div>
+                <button type="button" class="btn btn-outline-primary shadow-sm me-2" onclick="openDhanParserModal()">
+                    <i class="fas fa-magic me-1"></i> From Dhan Contact Note
+                </button>
+                <button type="button" class="btn btn-primary shadow-sm" onclick="openDhanOrdersModal()">
+                    <i class="fas fa-list me-1"></i> From Dhan Orders
+                </button>
+            </div>
         </div>
-        
+
         <form id="tradeForm" class="p-4 shadow-sm rounded">
             <div class="row">
                 <div class="col-md-6 mb-3">
@@ -880,7 +898,8 @@
                     <i class="fas fa-camera me-2"></i> Screenshots with Annotations
                 </label>
                 <div class="d-flex gap-2 mb-3 flex-wrap">
-                    <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('fileInput').click()">
+                    <button type="button" class="btn btn-outline-secondary"
+                        onclick="document.getElementById('fileInput').click()">
                         <i class="fas fa-folder-open me-1"></i> Browse
                     </button>
                     <button type="button" class="btn btn-outline-secondary" id="pasteBtn">
@@ -898,7 +917,8 @@
                 <label class="form-label fw-bold">
                     <i class="fas fa-sticky-note me-1"></i> Trade Notes
                 </label>
-                <textarea id="notes" class="form-control" rows="3" placeholder="Setup details, emotions, or mistakes..."></textarea>
+                <textarea id="notes" class="form-control" rows="3"
+                    placeholder="Setup details, emotions, or mistakes..."></textarea>
             </div>
 
             <button type="submit" id="saveTradeBtn" class="btn btn-success w-100 py-2 fw-bold">
@@ -928,11 +948,34 @@
                 </div>
                 <div class="modal-body">
                     <p class="text-muted small mb-2">Paste the copied text from Dhan here:</p>
-                    <textarea id="dhanRawData" class="form-control" rows="10" placeholder="Example:&#10;13:01:11&#10;|&#10;NIFTY 07 JUL 24350 CALLNSE&#10;F&amp;O    Intraday    65  95.15   6,184.75"></textarea>
+                    <textarea id="dhanRawData" class="form-control" rows="10"
+                        placeholder="Example:&#10;13:01:11&#10;|&#10;NIFTY 07 JUL 24350 CALLNSE&#10;F&amp;O    Intraday    65  95.15   6,184.75"></textarea>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" onclick="closeDhanParserModal()">Cancel</button>
                     <button type="button" class="btn btn-primary" onclick="parseDhanData()">Parse & Proceed</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dhan Orders Modal -->
+    <div id="dhanOrdersModal" class="modal bg-dark bg-opacity-75" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-list me-2 text-primary"></i>Paste Dhan Orders Data</h5>
+                    <button type="button" class="btn-close" onclick="closeDhanOrdersModal()"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted small mb-2">Paste the copied orders from Dhan here:</p>
+                    <textarea id="dhanOrdersRawData" class="form-control" rows="10"
+                        placeholder="Example:\n14:19:48\nNIFTY 07 JUL 24400 PUT\nNSE\nTG\nIntraday\n65 / 65\nMarket\n65.70  49.40   Success"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeDhanOrdersModal()">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="parseDhanOrdersData()">Parse &
+                        Proceed</button>
                 </div>
             </div>
         </div>
@@ -955,7 +998,8 @@
                         <button type="button" class="btn-close" onclick="closeDrawingModal()"></button>
                     </div>
                 </div>
-                <div class="modal-body p-0 d-flex flex-column align-items-center justify-content-center" style="min-height: 70vh;">
+                <div class="modal-body p-0 d-flex flex-column align-items-center justify-content-center"
+                    style="min-height: 70vh;">
                     <div class="drawing-tools p-2 w-100 d-flex flex-wrap justify-content-center gap-2">
                         <button class="btn btn-sm btn-outline-primary" id="btn-pen" onclick="setTool('pen')">
                             <i class="fas fa-pen"></i> Pen
@@ -973,8 +1017,10 @@
                             <i class="fas fa-font"></i> Text
                         </button>
                         <div class="vr mx-2"></div>
-                        <input type="color" id="drawColor" value="#ff0000" class="form-control form-control-color form-control-sm">
-                        <input type="range" id="lineWidth" min="1" max="10" value="3" class="form-range w-auto" title="Brush Size">
+                        <input type="color" id="drawColor" value="#ff0000"
+                            class="form-control form-control-color form-control-sm">
+                        <input type="range" id="lineWidth" min="1" max="10" value="3" class="form-range w-auto"
+                            title="Brush Size">
                         <div class="vr mx-2"></div>
                         <button class="btn btn-sm btn-danger" onclick="clearCanvas()">
                             <i class="fas fa-eraser"></i> Clear All
@@ -998,7 +1044,7 @@
 
     <script src="app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <!-- All original JavaScript preserved exactly -->
     <script>
         // --- 1. GLOBAL STATE & INITIALIZATION ---
@@ -1022,114 +1068,114 @@
 
         // Check if we're in edit mode and load trade data
         function loadEditMode() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const editParam = urlParams.get('edit');
-    const editDate = urlParams.get('date');
-    
-    console.log("Edit mode check - edit param:", editParam, "date:", editDate);
-    
-    // Check if editParam is a valid number (not "true")
-    if (editParam !== null && editDate && !isNaN(parseInt(editParam))) {
-        const editIndex = parseInt(editParam);
-        console.log("Edit mode: Loading trade", editIndex, "from date", editDate);
-        
-        // Set the date display
-        document.getElementById('displayDate').innerText = editDate;
-        currentDate = editDate;
-        
-        // Load the specific trade
-        loadTradeForEditing(editDate, editIndex);
-    } else {
-        // Normal mode - set today's date
-        const date = urlParams.get('date') || new Date().toISOString().split('T')[0];
-        document.getElementById('displayDate').innerText = date;
-        currentDate = date;
-    }
-}
+            const urlParams = new URLSearchParams(window.location.search);
+            const editParam = urlParams.get('edit');
+            const editDate = urlParams.get('date');
+
+            console.log("Edit mode check - edit param:", editParam, "date:", editDate);
+
+            // Check if editParam is a valid number (not "true")
+            if (editParam !== null && editDate && !isNaN(parseInt(editParam))) {
+                const editIndex = parseInt(editParam);
+                console.log("Edit mode: Loading trade", editIndex, "from date", editDate);
+
+                // Set the date display
+                document.getElementById('displayDate').innerText = editDate;
+                currentDate = editDate;
+
+                // Load the specific trade
+                loadTradeForEditing(editDate, editIndex);
+            } else {
+                // Normal mode - set today's date
+                const date = urlParams.get('date') || new Date().toISOString().split('T')[0];
+                document.getElementById('displayDate').innerText = date;
+                currentDate = date;
+            }
+        }
 
         async function loadTradeForEditing(date, index) {
-    try {
-        // Use the correct function name: loadDayTrades (not loadDay)
-        const dayData = await TradeJournal.loadDayTrades(date);
-        
-        if (!dayData.trades || !dayData.trades[index]) {
-            console.error("Trade not found");
-            showNotification('Trade not found for editing', 'error');
-            return;
-        }
-        
-        const trade = dayData.trades[index];
-        
-        console.log("Loading trade for edit:", trade); // Debug log
-        
-        // Populate the form with trade data
-        document.getElementById('symbol').value = trade.symbol || '';
-        document.getElementById('direction').value = trade.direction || 'LONG';
-        document.getElementById('entryPrice').value = trade.entryPrice || '';
-        document.getElementById('exitPrice').value = trade.exitPrice || '';
-        document.getElementById('takeProfit').value = trade.takeProfit || '';
-        document.getElementById('stopLoss').value = trade.stopLoss || '';
-        document.getElementById('quantity').value = trade.quantity || '';
-        document.getElementById('entryTime').value = trade.entryTime ? trade.entryTime.split('T')[1]?.slice(0,5) || '' : '';
-        document.getElementById('exitTime').value = trade.exitTime ? trade.exitTime.split('T')[1]?.slice(0,5) || '' : '';
-        document.getElementById('strategy').value = trade.strategy || '';
-        document.getElementById('notes').value = trade.notes || '';
-        
-        // Calculate P&L
-        calculatePnL();
-        
-        // Load existing screenshots if any
-        if (trade.screenshots && trade.screenshots.length > 0) {
-            screenshotImages = trade.screenshots.map((screenshot, i) => {
-                if (typeof screenshot === 'string') {
-                    return { data: screenshot, name: `screenshot_${i}.png`, annotated: false, tags: [] };
-                } else {
-                    return { data: screenshot.url, name: `screenshot_${i}.png`, annotated: screenshot.annotated || false, tags: screenshot.tags || [] };
+            try {
+                // Use the correct function name: loadDayTrades (not loadDay)
+                const dayData = await TradeJournal.loadDayTrades(date);
+
+                if (!dayData.trades || !dayData.trades[index]) {
+                    console.error("Trade not found");
+                    showNotification('Trade not found for editing', 'error');
+                    return;
                 }
-            });
-            renderPreview();
+
+                const trade = dayData.trades[index];
+
+                console.log("Loading trade for edit:", trade); // Debug log
+
+                // Populate the form with trade data
+                document.getElementById('symbol').value = trade.symbol || '';
+                document.getElementById('direction').value = trade.direction || 'LONG';
+                document.getElementById('entryPrice').value = trade.entryPrice || '';
+                document.getElementById('exitPrice').value = trade.exitPrice || '';
+                document.getElementById('takeProfit').value = trade.takeProfit || '';
+                document.getElementById('stopLoss').value = trade.stopLoss || '';
+                document.getElementById('quantity').value = trade.quantity || '';
+                document.getElementById('entryTime').value = trade.entryTime ? trade.entryTime.split('T')[1]?.slice(0, 5) || '' : '';
+                document.getElementById('exitTime').value = trade.exitTime ? trade.exitTime.split('T')[1]?.slice(0, 5) || '' : '';
+                document.getElementById('strategy').value = trade.strategy || '';
+                document.getElementById('notes').value = trade.notes || '';
+
+                // Calculate P&L
+                calculatePnL();
+
+                // Load existing screenshots if any
+                if (trade.screenshots && trade.screenshots.length > 0) {
+                    screenshotImages = trade.screenshots.map((screenshot, i) => {
+                        if (typeof screenshot === 'string') {
+                            return { data: screenshot, name: `screenshot_${i}.png`, annotated: false, tags: [] };
+                        } else {
+                            return { data: screenshot.url, name: `screenshot_${i}.png`, annotated: screenshot.annotated || false, tags: screenshot.tags || [] };
+                        }
+                    });
+                    renderPreview();
+                }
+
+                // Store the edit index for update instead of create
+                window.editModeIndex = index;
+                window.editModeDate = date;
+
+                // Change button text to "Update Trade"
+                const saveBtn = document.getElementById('saveTradeBtn');
+                saveBtn.innerHTML = '<i class="fas fa-edit me-2"></i> UPDATE TRADE';
+
+                // Show notification
+                showNotification('Edit mode loaded. Make your changes and click Update.', 'info');
+
+            } catch (error) {
+                console.error("Error loading trade for edit:", error);
+                showNotification('Failed to load trade for editing', 'error');
+            }
         }
-        
-        // Store the edit index for update instead of create
-        window.editModeIndex = index;
-        window.editModeDate = date;
-        
-        // Change button text to "Update Trade"
-        const saveBtn = document.getElementById('saveTradeBtn');
-        saveBtn.innerHTML = '<i class="fas fa-edit me-2"></i> UPDATE TRADE';
-        
-        // Show notification
-        showNotification('Edit mode loaded. Make your changes and click Update.', 'info');
-        
-    } catch (error) {
-        console.error("Error loading trade for edit:", error);
-        showNotification('Failed to load trade for editing', 'error');
-    }
-}
 
         function showNotification(message, type = 'info') {
-    // Remove existing notification
-    const existing = document.querySelector('.notification-toast');
-    if (existing) existing.remove();
-    
-    // Create notification element
-    const notification = document.createElement('div');
-    notification.className = `notification-toast alert alert-${type === 'error' ? 'danger' : 'success'} position-fixed top-0 start-50 translate-middle-x mt-3 shadow`;
-    notification.style.zIndex = '9999';
-    notification.style.minWidth = '300px';
-    notification.style.textAlign = 'center';
-    notification.innerHTML = `
+            // Remove existing notification
+            const existing = document.querySelector('.notification-toast');
+            if (existing) existing.remove();
+
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification-toast alert alert-${type === 'error' ? 'danger' : 'success'} position-fixed top-0 start-50 translate-middle-x mt-3 shadow`;
+            notification.style.zIndex = '9999';
+            notification.style.minWidth = '300px';
+            notification.style.textAlign = 'center';
+            notification.innerHTML = `
         <i class="fas ${type === 'error' ? 'fa-exclamation-triangle' : 'fa-check-circle'} me-2"></i>
         ${message}
     `;
-    document.body.appendChild(notification);
-    
-    // Auto remove after 3 seconds
-    setTimeout(() => {
-        notification.style.opacity = '0';
-        setTimeout(() => notification.remove(), 300);
-    }, 3000);
-}
+            document.body.appendChild(notification);
+
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
         // --- 2. FORM & UI HELPERS ---
         function setupEventListeners() {
             // Auto-calculate P&L
@@ -1163,7 +1209,7 @@
             const exit = parseFloat(document.getElementById('exitPrice').value) || 0;
             const qty = parseInt(document.getElementById('quantity').value) || 0;
             const dir = document.getElementById('direction').value;
-            
+
             let res = dir === 'LONG' ? (exit - entry) * qty : (entry - exit) * qty;
             document.getElementById('pnl').value = res.toFixed(2);
         }
@@ -1223,11 +1269,11 @@
                 canvas.height = height * ratio;
 
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                
+
                 // Reset stacks for new session
                 historyStack = [];
                 redoStack = [];
-                saveState(); 
+                saveState();
                 setTool('pen');
             };
             img.src = screenshotImages[idx].data;
@@ -1268,9 +1314,9 @@
             const rect = canvas.getBoundingClientRect();
             startX = e.clientX - rect.left;
             startY = e.clientY - rect.top;
-            
+
             snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            
+
             ctx.strokeStyle = document.getElementById('drawColor').value;
             ctx.fillStyle = document.getElementById('drawColor').value;
             ctx.lineWidth = document.getElementById('lineWidth').value;
@@ -1353,64 +1399,64 @@
 
         // --- 4. FIREBASE DATA FLOW ---
         async function handleFormSubmit(e) {
-        e.preventDefault();
-        const btn = document.getElementById('saveTradeBtn');
-        btn.disabled = true;
+            e.preventDefault();
+            const btn = document.getElementById('saveTradeBtn');
+            btn.disabled = true;
 
-        const tradeData = {
-            symbol: document.getElementById('symbol').value,
-            direction: document.getElementById('direction').value,
-            entryPrice: parseFloat(document.getElementById('entryPrice').value) || 0,
-            exitPrice: parseFloat(document.getElementById('exitPrice').value) || 0,
-            takeProfit: parseFloat(document.getElementById('takeProfit').value) || 0,
-            stopLoss: parseFloat(document.getElementById('stopLoss').value) || 0,
-            quantity: parseInt(document.getElementById('quantity').value) || 0,
-            entryTime: document.getElementById('entryTime').value || "",
-            exitTime: document.getElementById('exitTime').value || "",
-            strategy: document.getElementById('strategy').value || "Other",
-            notes: document.getElementById('notes').value || "",
-            pnl: parseFloat(document.getElementById('pnl').value) || 0
-        };
+            const tradeData = {
+                symbol: document.getElementById('symbol').value,
+                direction: document.getElementById('direction').value,
+                entryPrice: parseFloat(document.getElementById('entryPrice').value) || 0,
+                exitPrice: parseFloat(document.getElementById('exitPrice').value) || 0,
+                takeProfit: parseFloat(document.getElementById('takeProfit').value) || 0,
+                stopLoss: parseFloat(document.getElementById('stopLoss').value) || 0,
+                quantity: parseInt(document.getElementById('quantity').value) || 0,
+                entryTime: document.getElementById('entryTime').value || "",
+                exitTime: document.getElementById('exitTime').value || "",
+                strategy: document.getElementById('strategy').value || "Other",
+                notes: document.getElementById('notes').value || "",
+                pnl: parseFloat(document.getElementById('pnl').value) || 0
+            };
 
-        try {
-            // Convert Base64 data to Files for Storage
-            const filesToUpload = await Promise.all(screenshotImages.map(async img => {
-                const res = await fetch(img.data);
-                const blob = await res.blob();
-                const file = new File([blob], img.name, { type: "image/png" });
-                file.metadata = { annotated: img.annotated, tags: img.tags };
-                return file;
-            }));
+            try {
+                // Convert Base64 data to Files for Storage
+                const filesToUpload = await Promise.all(screenshotImages.map(async img => {
+                    const res = await fetch(img.data);
+                    const blob = await res.blob();
+                    const file = new File([blob], img.name, { type: "image/png" });
+                    file.metadata = { annotated: img.annotated, tags: img.tags };
+                    return file;
+                }));
 
-            let success = false;
-            
-            // Check if we're in edit mode
-            if (window.editModeIndex !== undefined && window.editModeDate) {
-                // UPDATE existing trade
-                success = await TradeJournal.updateTrade(window.editModeDate, window.editModeIndex, tradeData, filesToUpload);
-                if (success) {
-                    alert("Trade Updated Successfully!");
-                    window.location.href = `trade-detail.html?date=${window.editModeDate}&index=${window.editModeIndex}`;
+                let success = false;
+
+                // Check if we're in edit mode
+                if (window.editModeIndex !== undefined && window.editModeDate) {
+                    // UPDATE existing trade
+                    success = await TradeJournal.updateTrade(window.editModeDate, window.editModeIndex, tradeData, filesToUpload);
+                    if (success) {
+                        alert("Trade Updated Successfully!");
+                        window.location.href = `trade-detail.html?date=${window.editModeDate}&index=${window.editModeIndex}`;
+                    }
+                } else {
+                    // CREATE new trade
+                    success = await TradeJournal.saveTrade(currentDate, tradeData, filesToUpload);
+                    if (success) {
+                        alert("Trade Saved Successfully!");
+                        window.location.href = 'index.html';
+                    }
                 }
-            } else {
-                // CREATE new trade
-                success = await TradeJournal.saveTrade(currentDate, tradeData, filesToUpload);
-                if (success) {
-                    alert("Trade Saved Successfully!");
-                    window.location.href = 'index.html';
+
+                if (!success) {
+                    alert("Error saving trade. Check console.");
                 }
-            }
-            
-            if (!success) {
+            } catch (err) {
+                console.error(err);
                 alert("Error saving trade. Check console.");
+            } finally {
+                btn.disabled = false;
             }
-        } catch (err) {
-            console.error(err);
-            alert("Error saving trade. Check console.");
-        } finally {
-            btn.disabled = false;
         }
-    }
 
         function openCameraModal() {
             alert("Camera requires HTTPS. Please use Browse or Paste (Ctrl+V) for now.");
@@ -1438,10 +1484,10 @@
                 let trades = [];
                 let currentTrade = null;
                 const timeRegex = /^(\d{2}:\d{2}:\d{2})/;
-                
+
                 for (let i = 0; i < lines.length; i++) {
                     const line = lines[i];
-                    
+
                     if (timeRegex.test(line)) {
                         if (currentTrade) trades.push(currentTrade);
                         currentTrade = { time: line, symbol: '', details: [] };
@@ -1467,7 +1513,7 @@
 
                 // Sort chronologically
                 trades.sort((a, b) => a.time.localeCompare(b.time));
-                
+
                 const entry = trades[0];
                 const exit = trades.length > 1 ? trades[trades.length - 1] : null;
 
@@ -1479,11 +1525,11 @@
                 document.getElementById('direction').value = 'LONG';
                 document.getElementById('entryPrice').value = entry.price || '';
                 document.getElementById('quantity').value = entry.qty || '';
-                
+
                 if (entry.time) {
                     document.getElementById('entryTime').value = entry.time.substring(0, 5);
                 }
-                
+
                 if (exit) {
                     document.getElementById('exitPrice').value = exit.price || '';
                     if (exit.time) {
@@ -1499,6 +1545,92 @@
                 alert("Error parsing data. See console for details.");
             }
         }
+
+        // --- DHAN ORDERS PARSER ---
+        function openDhanOrdersModal() {
+            document.getElementById('dhanOrdersRawData').value = '';
+            document.getElementById('dhanOrdersModal').style.display = 'block';
+        }
+
+        function closeDhanOrdersModal() {
+            document.getElementById('dhanOrdersModal').style.display = 'none';
+        }
+
+        function parseDhanOrdersData() {
+            const rawData = document.getElementById('dhanOrdersRawData').value;
+            if (!rawData.trim()) {
+                alert("Please paste data first.");
+                return;
+            }
+
+            try {
+                const lines = rawData.split('\n').map(l => l.trim()).filter(l => l);
+                let trades = [];
+                let currentTrade = null;
+                const timeRegex = /^(\d{2}:\d{2}:\d{2})/;
+
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i];
+
+                    if (timeRegex.test(line)) {
+                        if (currentTrade) trades.push(currentTrade);
+                        currentTrade = { time: line, symbol: '' };
+                    } else if (currentTrade && !currentTrade.symbol && line !== '|' && line !== 'NSE' && line !== 'BSE') {
+                        currentTrade.symbol = line;
+                    } else if (currentTrade && line.includes('/')) {
+                        const qtyParts = line.split('/');
+                        if (qtyParts.length === 2) {
+                            currentTrade.qty = parseInt(qtyParts[0].trim());
+                        }
+                    } else if (currentTrade && (line.includes('Success') || line.includes('Rejected') || line.includes('Cancelled'))) {
+                        const parts = line.split(/[\t\s]+/).filter(p => p);
+                        let numbers = parts.filter(p => !isNaN(parseFloat(p.replace(/,/g, ''))));
+                        if (numbers.length >= 1) {
+                            currentTrade.price = parseFloat(numbers[0].replace(/,/g, ''));
+                        }
+                    }
+                }
+                if (currentTrade) trades.push(currentTrade);
+
+                if (trades.length < 1) {
+                    alert("Could not parse trades. Ensure format is correct.");
+                    return;
+                }
+
+                trades.sort((a, b) => a.time.localeCompare(b.time));
+
+                const entry = trades[0];
+                const exit = trades.length > 1 ? trades[trades.length - 1] : null;
+
+                let symbol = entry.symbol;
+                if (symbol.endsWith('NSE')) symbol = symbol.slice(0, -3).trim();
+                if (symbol.endsWith('BSE')) symbol = symbol.slice(0, -3).trim();
+
+                document.getElementById('symbol').value = symbol;
+                document.getElementById('direction').value = 'LONG';
+                document.getElementById('entryPrice').value = entry.price || '';
+                document.getElementById('quantity').value = entry.qty || '';
+
+                if (entry.time) {
+                    document.getElementById('entryTime').value = entry.time.substring(0, 5);
+                }
+
+                if (exit) {
+                    document.getElementById('exitPrice').value = exit.price || '';
+                    if (exit.time) {
+                        document.getElementById('exitTime').value = exit.time.substring(0, 5);
+                    }
+                }
+
+                calculatePnL();
+                closeDhanOrdersModal();
+                showNotification('Orders parsed successfully!', 'success');
+            } catch (err) {
+                console.error("Parse Error:", err);
+                alert("Error parsing orders data. See console for details.");
+            }
+        }
     </script>
 </body>
+
 </html>
